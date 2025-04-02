@@ -10,13 +10,12 @@ export class FoodRecognitionService {
   private readonly geminiPrompt = `
     You have to identify different types of food in images. 
     The system should accurately detect and label various foods displayed in the image, providing the name 
-    based on the detected items. For each food item, provide its weight in grams, quantity, and detailed nutritional values per 100 grams.
+    based on the detected items. For each food item, provide its weight in grams, and detailed nutritional values per 100 grams.
     The nutritional values must include the following: calories, total fat, total carbohydrates, sugars, protein, iron.
     The response must be strictly valid JSON and adhere to this format: 
     [
       { 
         "foodName": "<name>", 
-        "quantity": <quantity>, 
         "weight": <weight_in_grams>,
         "nutrition": {
           "calories": <calories>,
@@ -68,6 +67,7 @@ export class FoodRecognitionService {
     const result = await model.generateContent(input);
     let responseText = result.response.text();
     responseText = responseText.replace(/```json|```/g, '').trim();
+    console.log(responseText);
 
     try {
       const parsedResponse = JSON.parse(responseText);

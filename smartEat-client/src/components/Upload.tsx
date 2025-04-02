@@ -15,26 +15,7 @@ const Upload: React.FC = () => {
     }
   };
 
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 px-4">
-      {/* Title */}
-      <h1 className="text-2xl font-bold text-center mb-8 sm:text-3xl">
-        Upload a Picture
-      </h1>
-
-      {/* File Input */}
-      <CameraWithFrameAndLoading />
-
-      {/* Display Uploaded Image */}
-      {image && (
-        <img
-          src={image}
-          alt="Uploaded"
-          className="w-full h-64 object-cover rounded-lg shadow-lg sm:w-96 sm:h-96"
-        />
-      )}
-    </div>
-  );
+  return <CameraWithFrameAndLoading />;
 };
 
 export default Upload;
