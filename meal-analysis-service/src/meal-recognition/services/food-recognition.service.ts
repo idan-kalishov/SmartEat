@@ -12,7 +12,8 @@ export class FoodRecognitionService {
     The system should accurately detect and label various foods displayed in the image, providing the name 
     based on the detected items. For each food item, provide its weight in grams, and detailed nutritional values per 100 grams.
     The nutritional values must include the following: calories, total fat, total carbohydrates, sugars, protein, iron.
-    The response must be strictly valid JSON and adhere to this format: 
+    The final response **must** be a strictly valid JSON list. Each element in the list must be an object representing **one single identified food item** and must adhere precisely to the format below. If you identify multiple distinct food items (like pancakes and two types of berries), the list should contain multiple objects.
+    and adhere to this format: 
     [
       { 
         "foodName": "<name>", 

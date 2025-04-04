@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import CameraWithFrameAndLoading from "./CameraWithFrame";
+import CameraWithFrameAndLoading from "./CameraWithFrameAndLoading";
 
 const Upload: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
