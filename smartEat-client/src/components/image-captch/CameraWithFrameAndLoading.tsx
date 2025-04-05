@@ -1,8 +1,11 @@
 import React, { useState, useRef } from "react";
 import Webcam from "react-webcam";
 import { useNavigate } from "react-router-dom";
-import { analyzeFoodImage } from "../../utils/mealAnalysisApi";
-import { base64ToFile } from "../../utils/base64ToFile";
+import {
+  analyzeFoodImage,
+  FoodRecognitionResponse,
+} from "../../utils/mealAnalysisApi";
+import { base64ToFile, fileToBase64 } from "../../utils/base64ToFile";
 import CameraFeed from "./CameraFeed";
 import OverlayWithFrame from "./OverlayWithFrame";
 import CaptureButton from "./CaptureButton";
@@ -10,6 +13,11 @@ import MediaUploadIcon from "./MediaUploadIcon";
 import { cropImageToSquare } from "../../utils/cropImageToSquare";
 import useScrollLock from "../../hooks/useScrollLock";
 import LoadingScreen from "../../pages/loading/LoadingScreen";
+
+export interface FoodVerifyTransferObject {
+  foodRecognitionResponse: FoodRecognitionResponse[];
+  image: string;
+}
 
 const CameraWithFrameAndLoading = () => {
   const webcamRef = useRef<Webcam>(null);
@@ -44,9 +52,14 @@ const CameraWithFrameAndLoading = () => {
         0.7
       );
 
-      // Analyze the image
-      const results = await analyzeFoodImage(imageFile);
-      navigate("/results", { state: results });
+      const foodRecognitionResponse = await analyzeFoodImage(imageFile);
+
+      const transferObject: FoodVerifyTransferObject = {
+        foodRecognitionResponse,
+        image: croppedImage,
+      };
+
+      navigate("/verify", { state: transferObject });
     } catch (error) {
       console.error("Error during capture:", error);
       alert(error instanceof Error ? error.message : "An error occurred.");
@@ -63,8 +76,17 @@ const CameraWithFrameAndLoading = () => {
     }
     setIsIdentifying(true); // Start loading
     try {
-      const results = await analyzeFoodImage(file);
-      navigate("/results", { state: results });
+      const foodRecognitionResponse = await analyzeFoodImage(file);
+
+      // Convert the file to a base64 string for display
+      const fileAsBase64 = await fileToBase64(file);
+
+      const transferObject: FoodVerifyTransferObject = {
+        foodRecognitionResponse,
+        image: fileAsBase64,
+      };
+
+      navigate("/verify", { state: transferObject });
     } catch (error) {
       console.error("Error during file upload:", error);
       alert(error instanceof Error ? error.message : "An error occurred.");
