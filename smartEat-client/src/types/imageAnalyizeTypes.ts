@@ -12,6 +12,7 @@ export interface NutritionData {
   sugars: Nutrient;
   protein: Nutrient;
   iron: Nutrient;
+  fiber: Nutrient;
 }
 
 // Interface for an ingredient

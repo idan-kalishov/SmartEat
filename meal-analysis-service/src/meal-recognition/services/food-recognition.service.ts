@@ -124,68 +124,47 @@ export class FoodRecognitionService {
   private async fetchNutritionData(foodName: string) {
     const url = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${process.env.USDA_API_KEY}&query=${encodeURIComponent(foodName)}&dataType=Foundation,SRLegacy,Survey%20(FNDDS),Branded&pageSize=1`;
     const response = await lastValueFrom(this.httpService.get(url));
-    console.log(JSON.stringify(response.data.foods[0]));
     const foodItem = response.data.foods[0];
 
     if (!foodItem) {
       throw new Error(`No nutritional data found for "${foodName}"`);
     }
 
+    const nutrientDefinitions = [
+      { name: 'Energy', unit: 'kcal' },
+      { name: 'Total lipid (fat)', unit: 'g' },
+      { name: 'Carbohydrate, by difference', unit: 'g' },
+      { name: 'Sugars, total including NLEA', unit: 'g' },
+      { name: 'Protein', unit: 'g' },
+      { name: 'Iron, Fe', unit: 'mg' },
+      { name: 'Fiber, total dietary', unit: 'g' },
+    ];
+
+    // Extract nutrient values dynamically
+    const nutritionData = nutrientDefinitions.reduce(
+      (acc, nutrient) => {
+        const nutrientInfo = foodItem.foodNutrients.find(
+          (n) => n.nutrientName === nutrient.name,
+        );
+        acc[nutrient.name] = {
+          value: nutrientInfo?.value || 0,
+          unit: nutrientInfo?.unitName
+            ? nutrientInfo.unitName.toLowerCase()
+            : nutrient.unit,
+        };
+        return acc;
+      },
+      {} as Record<string, { value: number; unit: string }>,
+    );
+
     return {
-      calories: {
-        value:
-          foodItem.foodNutrients.find((n) => n.nutrientName === 'Energy')
-            ?.value || 0,
-        unit:
-          foodItem.foodNutrients.find((n) => n.nutrientName === 'Energy')
-            ?.unitName || 'kcal',
-      },
-      totalFat: {
-        value:
-          foodItem.foodNutrients.find(
-            (n) => n.nutrientName === 'Total lipid (fat)',
-          )?.value || 0,
-        unit:
-          foodItem.foodNutrients.find(
-            (n) => n.nutrientName === 'Total lipid (fat)',
-          )?.unitName || 'g',
-      },
-      totalCarbohydrates: {
-        value:
-          foodItem.foodNutrients.find(
-            (n) => n.nutrientName === 'Carbohydrate, by difference',
-          )?.value || 0,
-        unit:
-          foodItem.foodNutrients.find(
-            (n) => n.nutrientName === 'Carbohydrate, by difference',
-          )?.unitName || 'g',
-      },
-      sugars: {
-        value:
-          foodItem.foodNutrients.find(
-            (n) => n.nutrientName === 'Sugars, total including NLEA',
-          )?.value || 0,
-        unit:
-          foodItem.foodNutrients.find(
-            (n) => n.nutrientName === 'Sugars, total including NLEA',
-          )?.unitName || 'g',
-      },
-      protein: {
-        value:
-          foodItem.foodNutrients.find((n) => n.nutrientName === 'Protein')
-            ?.value || 0,
-        unit:
-          foodItem.foodNutrients.find((n) => n.nutrientName === 'Protein')
-            ?.unitName || 'g',
-      },
-      iron: {
-        value:
-          foodItem.foodNutrients.find((n) => n.nutrientName === 'Iron, Fe')
-            ?.value || 0,
-        unit:
-          foodItem.foodNutrients.find((n) => n.nutrientName === 'Iron, Fe')
-            ?.unitName || 'mg',
-      },
+      calories: nutritionData['Energy'],
+      totalFat: nutritionData['Total lipid (fat)'],
+      totalCarbohydrates: nutritionData['Carbohydrate, by difference'],
+      sugars: nutritionData['Sugars, total including NLEA'],
+      protein: nutritionData['Protein'],
+      iron: nutritionData['Iron, Fe'],
+      fiber: nutritionData['Fiber, total dietary'],
     };
   }
 }

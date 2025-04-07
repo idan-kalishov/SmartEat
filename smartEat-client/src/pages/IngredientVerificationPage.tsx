@@ -89,7 +89,6 @@ const IngredientVerificationPage: React.FC = () => {
         );
 
         // Navigate to the results page with the transformed data
-        console.log(transformedIngredients);
         navigate("/results", {
           state: {
             name: mealName,
@@ -135,7 +134,6 @@ const IngredientVerificationPage: React.FC = () => {
         transformIngredientsForResults(updatedIngredients);
 
       // Navigate to the results page with the transformed data
-      console.log(transformedIngredients);
       navigate("/results", {
         state: {
           name: mealName,
