@@ -78,6 +78,38 @@ export class FoodRecognitionService {
     }
   }
 
+  /**
+   * Fetch nutritional data for multiple food items.
+   * @param foodNames Array of food item names.
+   * @returns Array of objects containing food name and nutrition details.
+   */
+  async fetchNutritionDataForIngredients(foodNames: string[]) {
+    const results = await Promise.all(
+      foodNames.map(async (foodName) => {
+        try {
+          const nutrition = await this.fetchNutritionData(foodName);
+          return {
+            name: foodName,
+            nutrition: {
+              per100g: nutrition,
+            },
+          };
+        } catch (error) {
+          console.error(
+            `Error fetching nutritional data for "${foodName}":`,
+            error,
+          );
+          return {
+            name: foodName,
+            nutrition: null, // Return null if data cannot be fetched
+          };
+        }
+      }),
+    );
+
+    return results;
+  }
+
   private async fetchNutritionData(foodName: string): Promise<any> {
     const url = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${process.env.USDA_API_KEY}&query=${encodeURIComponent(foodName)}`;
     const response = await lastValueFrom(this.httpService.get(url));

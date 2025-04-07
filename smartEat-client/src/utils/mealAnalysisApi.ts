@@ -38,7 +38,7 @@ export const analyzeFoodImage = async (
         headers: {
           "Content-Type": "multipart/form-data",
         },
-        timeout: 10000, // Optional: Increase timeout if needed
+        timeout: 30000, // Optional: Increase timeout if needed
       }
     );
     return response.data;

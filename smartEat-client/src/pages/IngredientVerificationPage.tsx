@@ -21,29 +21,34 @@ const IngredientVerificationPage: React.FC = () => {
   );
   const mealImage = transferObject.image;
 
-  // All initial ingredients are editable (isNew = true)
+  // All initial ingredients are editable (isNew = false)
   const initialIngredients = transferObject.foodRecognitionResponse.map(
     (item) => ({
       name: item.foodName,
       weight: `${item.weight}`,
-      isNew: true,
+      isNew: false,
+      nutrition: item.nutrition.per100g, // Include nutrition data for existing ingredients
     })
   );
 
   const [ingredients, setIngredients] =
-    useState<{ name: string; weight: string; isNew: boolean }[]>(
-      initialIngredients
-    );
+    useState<
+      { name: string; weight: string; isNew: boolean; nutrition?: any }[]
+    >(initialIngredients);
 
+  // Add a new ingredient
   const addIngredient = () => {
-    setIngredients([...ingredients, { name: "", weight: "", isNew: true }]);
+    const newIngredient = { name: "", weight: "", isNew: true };
+    setIngredients([...ingredients, newIngredient]);
   };
 
+  // Remove an ingredient
   const removeIngredient = (index: number) => {
     const updatedIngredients = ingredients.filter((_, i) => i !== index);
     setIngredients(updatedIngredients);
   };
 
+  // Update an ingredient's field
   const updateIngredient = (
     index: number,
     field: keyof { name: string; weight: string },
@@ -54,23 +59,80 @@ const IngredientVerificationPage: React.FC = () => {
     setIngredients(updatedIngredients);
   };
 
+  // Save all ingredients
   const saveIngredients = async () => {
     try {
+      // Separate new ingredients from existing ones
+      const newIngredients = ingredients.filter(
+        (ingredient) => ingredient.isNew
+      );
+
+      // Validate that all new ingredients have names
+      const hasInvalidNewIngredients = newIngredients.some(
+        (ingredient) => !ingredient.name.trim()
+      );
+      if (hasInvalidNewIngredients) {
+        alert("Please provide valid names for all new ingredients.");
+        return;
+      }
+
+      // Fetch nutritional data for all new ingredients
+      const newIngredientNames = newIngredients.map(
+        (ingredient) => ingredient.name
+      );
+      const response = await fetch("/api/ingredient-details", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ names: newIngredientNames }),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          "Failed to fetch nutritional data for new ingredients."
+        );
+      }
+
+      const fetchedNutritionData = await response.json(); // Array of { name, nutrition }
+
+      // Merge fetched nutritional data with existing ingredients
+      const updatedIngredients = ingredients.map((ingredient) => {
+        if (ingredient.isNew) {
+          const matchedNutrition = fetchedNutritionData.find(
+            (data: { name: string }) => data.name === ingredient.name
+          );
+          return {
+            ...ingredient,
+            nutrition: matchedNutrition?.nutrition.per100g,
+            isNew: false, // Mark as no longer new
+          };
+        }
+        return ingredient;
+      });
+
+      // Save the complete data to the server
       await fetch("/api/update-ingredients", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: mealName,
           image: mealImage,
-          ingredients: ingredients.map(({ name, weight }) => ({
-            name,
-            weight,
-          })),
+          ingredients: updatedIngredients.map(
+            ({ name, weight, nutrition }) => ({
+              name,
+              weight,
+              nutrition,
+            })
+          ),
         }),
       });
+
       alert("Ingredients saved successfully!");
       navigate("/results", {
-        state: { name: mealName, image: mealImage, ingredients },
+        state: {
+          name: mealName,
+          image: mealImage,
+          ingredients: updatedIngredients,
+        },
       });
     } catch (error) {
       console.error("Error saving ingredients:", error);
@@ -129,6 +191,7 @@ const IngredientVerificationPage: React.FC = () => {
                 <input
                   type="text"
                   value={ingredient.name}
+                  placeholder="Enter ingredient name"
                   onChange={(e) =>
                     updateIngredient(index, "name", e.target.value)
                   }
