@@ -8,44 +8,55 @@ import { MealRecognitionResult } from '../types/MealRecognitionResult.interface'
 @Injectable()
 export class FoodRecognitionService {
   private readonly geminiPrompt = `
-    You have to identify different types of food in images. 
-    The system should accurately detect and label various foods displayed in the image, providing the name 
-    based on the detected items. For each food item, provide its weight in grams, and detailed nutritional values per 100 grams.
-    The nutritional values must include the following: calories, total fat, total carbohydrates, sugars, protein, iron.
-    The final response **must** be a strictly valid JSON list. Each element in the list must be an object representing **one single identified food item** and must adhere precisely to the format below. If you identify multiple distinct food items (like pancakes and two types of berries), the list should contain multiple objects.
-    and adhere to this format: 
-    [
-      { 
-        "foodName": "<name>", 
-        "weight": <weight_in_grams>,
-        "nutrition": {
-          "calories": <calories>,
-          "totalFat": <total_fat>,
-          "sugars": <sugars>,
-          "protein": <protein>,
-          "iron": <iron>,
-        }
-      }
-    ].
-    Do not include any additional text, explanations, or comments outside the JSON structure.
-  `;
+    The system should accurately detect and label various foods displayed in the image, providing the name and approximate weight in grams for each item.
+    Do not group multiple ingredients into a single label. Always separate combined dishes into their individual food components. For example, if the image shows creamy mushroom pasta, the output should include separate entries for cream, mushrooms, and pasta.
+    The final response must be a strictly valid JSON list. Each element in the list must be an object representing one single identified food item and must adhere precisely to the format below.
+    Use this format:
+        [
+          { 
+            "foodName": "<name>", 
+            "weight": <weight_in_grams>
+          }
+        ].
+        Do not include any additional text, explanations, or comments outside the JSON structure.
+      `;
 
   constructor(private readonly httpService: HttpService) {}
 
   async analyzeMeal(
     file: Express.Multer.File,
   ): Promise<MealRecognitionResult[]> {
+    // Step 1: Use Gemini to identify food items
     const geminiResponse = await this.callGeminiApi(file);
 
-    const results: any[] = [];
-    for (const item of geminiResponse) {
-      results.push({
-        ...item,
-        nutrition: {
-          per100g: item.nutrition,
-        },
-      });
-    }
+    // Step 2: Fetch nutritional data for each identified food item
+    const results = await Promise.all(
+      geminiResponse.map(async (item) => {
+        try {
+          const nutrition = await this.fetchNutritionData(item.foodName);
+          return {
+            foodName: item.foodName,
+            weight: item.weight,
+            nutrition: {
+              per100g: nutrition,
+            },
+          };
+        } catch (error) {
+          console.error(
+            `Error fetching nutritional data for "${item.foodName}":`,
+            error,
+          );
+          return {
+            foodName: item.foodName,
+            weight: item.weight,
+            nutrition: {
+              per100g: null, // Indicate missing data
+            },
+          };
+        }
+      }),
+    );
+
     return results;
   }
 
@@ -68,7 +79,6 @@ export class FoodRecognitionService {
     const result = await model.generateContent(input);
     let responseText = result.response.text();
     responseText = responseText.replace(/```json|```/g, '').trim();
-    console.log(responseText);
 
     try {
       const parsedResponse = JSON.parse(responseText);
@@ -78,34 +88,83 @@ export class FoodRecognitionService {
     }
   }
 
-  private async fetchNutritionData(foodName: string): Promise<any> {
-    const url = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${process.env.USDA_API_KEY}&query=${encodeURIComponent(foodName)}`;
+  /**
+   * Fetch nutritional data for multiple food items.
+   * @param foodNames Array of food item names.
+   * @returns Array of objects containing food name and nutrition details.
+   */
+  async fetchNutritionDataForIngredients(foodNames: string[]) {
+    console.log(foodNames);
+    const results = await Promise.all(
+      foodNames.map(async (foodName) => {
+        try {
+          const nutrition = await this.fetchNutritionData(foodName);
+          return {
+            name: foodName,
+            nutrition: {
+              per100g: nutrition,
+            },
+          };
+        } catch (error) {
+          console.error(
+            `Error fetching nutritional data for "${foodName}":`,
+            error,
+          );
+          return {
+            name: foodName,
+            nutrition: null, // Return null if data cannot be fetched
+          };
+        }
+      }),
+    );
+
+    return results;
+  }
+
+  private async fetchNutritionData(foodName: string) {
+    const url = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${process.env.USDA_API_KEY}&query=${encodeURIComponent(foodName)}&dataType=Foundation,SRLegacy,Survey%20(FNDDS),Branded&pageSize=1`;
     const response = await lastValueFrom(this.httpService.get(url));
     const foodItem = response.data.foods[0];
+
+    if (!foodItem) {
+      throw new Error(`No nutritional data found for "${foodName}"`);
+    }
+
+    const nutrientDefinitions = [
+      { name: 'Energy', unit: 'kcal' },
+      { name: 'Total lipid (fat)', unit: 'g' },
+      { name: 'Carbohydrate, by difference', unit: 'g' },
+      { name: 'Sugars, total including NLEA', unit: 'g' },
+      { name: 'Protein', unit: 'g' },
+      { name: 'Iron, Fe', unit: 'mg' },
+      { name: 'Fiber, total dietary', unit: 'g' },
+    ];
+
+    // Extract nutrient values dynamically
+    const nutritionData = nutrientDefinitions.reduce(
+      (acc, nutrient) => {
+        const nutrientInfo = foodItem.foodNutrients.find(
+          (n) => n.nutrientName === nutrient.name,
+        );
+        acc[nutrient.name] = {
+          value: nutrientInfo?.value || 0,
+          unit: nutrientInfo?.unitName
+            ? nutrientInfo.unitName.toLowerCase()
+            : nutrient.unit,
+        };
+        return acc;
+      },
+      {} as Record<string, { value: number; unit: string }>,
+    );
+
     return {
-      calories:
-        foodItem.foodNutrients.find((n) => n.nutrientName === 'Energy')
-          ?.value || 0,
-      totalFat:
-        foodItem.foodNutrients.find(
-          (n) => n.nutrientName === 'Total lipid (fat)',
-        )?.value || 0,
-      sodium:
-        foodItem.foodNutrients.find((n) => n.nutrientName === 'Sodium, Na')
-          ?.value || 0,
-      sugars:
-        foodItem.foodNutrients.find(
-          (n) => n.nutrientName === 'Sugars, total including NLEA',
-        )?.value || 0,
-      protein:
-        foodItem.foodNutrients.find((n) => n.nutrientName === 'Protein')
-          ?.value || 0,
-      calcium:
-        foodItem.foodNutrients.find((n) => n.nutrientName === 'Calcium, Ca')
-          ?.value || 0,
-      iron:
-        foodItem.foodNutrients.find((n) => n.nutrientName === 'Iron, Fe')
-          ?.value || 0,
+      calories: nutritionData['Energy'],
+      totalFat: nutritionData['Total lipid (fat)'],
+      totalCarbohydrates: nutritionData['Carbohydrate, by difference'],
+      sugars: nutritionData['Sugars, total including NLEA'],
+      protein: nutritionData['Protein'],
+      iron: nutritionData['Iron, Fe'],
+      fiber: nutritionData['Fiber, total dietary'],
     };
   }
 }

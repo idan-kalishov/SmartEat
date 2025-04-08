@@ -40,3 +40,17 @@ export const base64ToFile = async (
     img.onerror = (error) => reject(error);
   });
 };
+
+/**
+ * Converts a File object to a base64-encoded string.
+ * @param {File} file - The file to convert.
+ * @returns {Promise<string>} - A promise that resolves with the base64-encoded string.
+ */
+export const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
