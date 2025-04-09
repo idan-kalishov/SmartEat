@@ -13,6 +13,12 @@ export interface NutritionData {
   protein: Nutrient;
   iron: Nutrient;
   fiber: Nutrient;
+  vitaminA: Nutrient;
+  vitaminC: Nutrient;
+  vitaminD: Nutrient;
+  vitaminB12: Nutrient;
+  calcium: Nutrient;
+  magnesium: Nutrient;
 }
 
 // Interface for an ingredient
@@ -31,3 +37,23 @@ export interface TransformedIngredient extends Omit<Ingredient, "nutrition"> {
     scaled: NutritionData;
   };
 }
+
+export const nutritionKeyMap = {
+  calories: "Calories",
+  totalFat: "Fat",
+  totalCarbohydrates: "Carbs",
+  sugars: "Sugars",
+  protein: "Protein",
+  fiber: "Fiber",
+  iron: "Iron",
+} as const;
+
+export const vitaminAndMineralKeys = [
+  "iron",
+  "vitaminA",
+  "vitaminC",
+  "vitaminD",
+  "vitaminB12",
+  "calcium",
+  "magnesium",
+] as const;

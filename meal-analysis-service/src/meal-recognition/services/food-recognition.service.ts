@@ -8,17 +8,21 @@ import { MealRecognitionResult } from '../types/MealRecognitionResult.interface'
 @Injectable()
 export class FoodRecognitionService {
   private readonly geminiPrompt = `
-    The system should accurately detect and label various foods displayed in the image, providing the name and approximate weight in grams for each item.
+    The system should accurately detect and label various foods displayed in the image, providing the name, USDA-compatible food label, and approximate weight in grams for each item.
     Do not group multiple ingredients into a single label. Always separate combined dishes into their individual food components. For example, if the image shows creamy mushroom pasta, the output should include separate entries for cream, mushrooms, and pasta.
+    Whenever possible, use a USDA-standard food description for the usdaFoodLabel field to avoid ambiguity,
+    Do not specify whether the food is raw, cooked, or processed. For example, use "chicken" instead of "cooked chicken" or "raw chicken.". This label should match closely with how the USDA FoodData Central describes the food item (e.g., "Rice, white, long-grain" instead of just "rice").
+    If the item is exotic, uncommon, or not listed in USDA FoodData Central (e.g., edamame, rambutan, mochi), use the common name for both the foodName and usdaFoodLabel fields.
     The final response must be a strictly valid JSON list. Each element in the list must be an object representing one single identified food item and must adhere precisely to the format below.
     Use this format:
-        [
-          { 
-            "foodName": "<name>", 
-            "weight": <weight_in_grams>
-          }
-        ].
-        Do not include any additional text, explanations, or comments outside the JSON structure.
+    [
+      {
+        "foodName": "<common name as seen in image>",
+        "usdaFoodLabel": "<USDA-standardized description>",
+        "weight": <weight_in_grams>
+      }
+    ]
+    Do not include any additional text, explanations, or comments outside the JSON structure.
       `;
 
   constructor(private readonly httpService: HttpService) {}
@@ -29,11 +33,12 @@ export class FoodRecognitionService {
     // Step 1: Use Gemini to identify food items
     const geminiResponse = await this.callGeminiApi(file);
 
-    // Step 2: Fetch nutritional data for each identified food item
     const results = await Promise.all(
       geminiResponse.map(async (item) => {
         try {
-          const nutrition = await this.fetchNutritionData(item.foodName);
+          const nutrition = await this.fetchNutritionData(
+            item.usdaFoodLabel?.replace(/['"`]/g, '').trim() || item.foodName,
+          );
           return {
             foodName: item.foodName,
             weight: item.weight,
@@ -122,14 +127,33 @@ export class FoodRecognitionService {
   }
 
   private async fetchNutritionData(foodName: string) {
-    const url = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${process.env.USDA_API_KEY}&query=${encodeURIComponent(foodName)}&dataType=Foundation,SRLegacy,Survey%20(FNDDS),Branded&pageSize=1`;
-    const response = await lastValueFrom(this.httpService.get(url));
-    const foodItem = response.data.foods[0];
+    console.log(foodName);
+    const apiBaseUrl = 'https://api.nal.usda.gov/fdc/v1/foods/search';
+    const apiKey = process.env.USDA_API_KEY;
+
+    const dataTypePriority = [
+      'Branded',
+      'Foundation',
+      'Survey (FNDDS)',
+      'SRLegacy',
+    ];
+    const fetchDataForType = async (dataType: string) => {
+      const url = `${apiBaseUrl}?api_key=${apiKey}&query=${encodeURIComponent(foodName)}&dataType=${dataType}&pageSize=1`;
+      const response = await lastValueFrom(this.httpService.get(url));
+      return response.data.foods[0]; // Return the first result
+    };
+
+    let foodItem = null;
+    for (const dataType of dataTypePriority) {
+      foodItem = await fetchDataForType(dataType);
+      if (foodItem) break;
+    }
 
     if (!foodItem) {
       throw new Error(`No nutritional data found for "${foodName}"`);
     }
 
+    // Define the nutrient definitions
     const nutrientDefinitions = [
       { name: 'Energy', unit: 'kcal' },
       { name: 'Total lipid (fat)', unit: 'g' },
@@ -138,25 +162,38 @@ export class FoodRecognitionService {
       { name: 'Protein', unit: 'g' },
       { name: 'Iron, Fe', unit: 'mg' },
       { name: 'Fiber, total dietary', unit: 'g' },
+      { name: 'Vitamin A, RAE', unit: 'µg' },
+      { name: 'Vitamin C, total ascorbic acid', unit: 'mg' },
+      { name: 'Vitamin D (D2 + D3)', unit: 'µg' },
+      { name: 'Vitamin B-12', unit: 'µg' },
+      { name: 'Calcium, Ca', unit: 'mg' },
+      { name: 'Magnesium, Mg', unit: 'mg' },
     ];
 
-    // Extract nutrient values dynamically
     const nutritionData = nutrientDefinitions.reduce(
       (acc, nutrient) => {
-        const nutrientInfo = foodItem.foodNutrients.find(
-          (n) => n.nutrientName === nutrient.name,
+        const nutrientInfo = (foodItem as any).foodNutrients.find(
+          (n) =>
+            n.nutrientName &&
+            n.nutrientName.toLowerCase().includes(nutrient.name.toLowerCase()),
         );
-        acc[nutrient.name] = {
-          value: nutrientInfo?.value || 0,
-          unit: nutrientInfo?.unitName
-            ? nutrientInfo.unitName.toLowerCase()
-            : nutrient.unit,
-        };
+        let value = nutrientInfo?.value || 0;
+        let unit = nutrientInfo?.unitName
+          ? nutrientInfo.unitName.toLowerCase()
+          : nutrient.unit;
+
+        if (nutrient.name === 'Energy' && unit === 'kj') {
+          value = value / 4.184; // Convert kJ to kcal
+          unit = 'kcal';
+        }
+
+        acc[nutrient.name] = { value, unit };
         return acc;
       },
       {} as Record<string, { value: number; unit: string }>,
     );
 
+    // Return the structured nutrition data
     return {
       calories: nutritionData['Energy'],
       totalFat: nutritionData['Total lipid (fat)'],
@@ -165,6 +202,12 @@ export class FoodRecognitionService {
       protein: nutritionData['Protein'],
       iron: nutritionData['Iron, Fe'],
       fiber: nutritionData['Fiber, total dietary'],
+      vitaminA: nutritionData['Vitamin A, RAE'],
+      vitaminC: nutritionData['Vitamin C, total ascorbic acid'],
+      vitaminD: nutritionData['Vitamin D (D2 + D3)'],
+      vitaminB12: nutritionData['Vitamin B-12'],
+      calcium: nutritionData['Calcium, Ca'],
+      magnesium: nutritionData['Magnesium, Mg'],
     };
   }
 }
