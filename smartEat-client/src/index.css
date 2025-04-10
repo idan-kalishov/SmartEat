@@ -203,3 +203,7 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.sonner-loading-wrapper > svg {
+  display: none !important;
+}

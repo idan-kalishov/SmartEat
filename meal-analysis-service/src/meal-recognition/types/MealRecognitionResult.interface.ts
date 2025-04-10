@@ -6,3 +6,8 @@ export interface MealRecognitionResult {
     per100g: any;
   };
 }
+
+export interface nutritionDTO {
+  value: number;
+  unit: string;
+}
