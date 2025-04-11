@@ -2,12 +2,14 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Upload from "./components/Upload";
-import ResultsPage from "./components/ResultsPage";
+import ResultsPage from "./pages/ResultsPage";
 import IngredientVerificationPage from "./pages/IngredientVerificationPage";
+import { Toaster } from "sonner";
 
 const App: React.FC = () => {
   return (
     <Router>
+      <Toaster position="bottom-center" />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/upload" element={<Upload />} />

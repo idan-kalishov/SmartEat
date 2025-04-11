@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 import tailwindcss from "@tailwindcss/vite";
 import fs from "fs";
+import path from "path";
 
 export default defineConfig({
   plugins: [
@@ -37,5 +38,10 @@ export default defineConfig({
     },
     host: true,
     port: 5173,
+  },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
   },
 });
