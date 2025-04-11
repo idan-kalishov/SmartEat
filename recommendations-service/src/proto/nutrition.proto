@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package nutrition;
+
+service NutritionService {
+  rpc GetMealRating (MealAnalysisRequest) returns (MealRating);
+  rpc GetAIRecommendations (AIRecommendRequest) returns (AIRecommendResponse);
+}
+
+message Nutrient {
+  optional double value = 1;
+  string unit = 2;
+}
+
+message NutritionData {
+  Nutrient calories = 1;
+  Nutrient protein = 2;
+  Nutrient fats = 3;
+  Nutrient carbs = 4;
+  Nutrient fiber = 5;
+  Nutrient vitamin_a = 6;
+  Nutrient vitamin_d = 7;
+  Nutrient vitamin_b12 = 8;
+}
+
+message UserProfile {
+  uint32 age = 1;
+  string gender = 2;
+  double weight_kg = 3;
+  double height_cm = 4;
+  string activity_level = 5;
+  string weight_goal = 6;
+}
+
+message MealAnalysisRequest {
+  UserProfile user = 1;
+  repeated string ingredients = 2;
+  NutritionData nutrition = 3;
+}
+
+message MealRating {
+  string letter_grade = 1;
+  int32 score = 2;
+}
+
+message AIRecommendRequest {
+  UserProfile user = 1;
+  repeated string ingredients = 2;
+  NutritionData nutrition = 3;
+}
+
+message AIRecommendResponse {
+  repeated string recommendations = 1;
+  string positive_feedback = 2;
+}
