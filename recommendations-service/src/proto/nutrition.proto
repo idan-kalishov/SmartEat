@@ -1,0 +1,138 @@
+syntax = "proto3";
+
+package nutrition;
+
+service NutritionService {
+  rpc GetMealRating (MealAnalysisRequest) returns (MealRating);
+  rpc GetAIRecommendations (AIRecommendRequest) returns (AIRecommendResponse);
+}
+
+message Nutrient {
+  optional double value = 1;
+  string unit = 2;
+}
+
+message NutritionData {
+  Nutrient calories = 1;
+  Nutrient protein = 2;
+  Nutrient fats = 3;
+  Nutrient carbs = 4;
+  Nutrient fiber = 5;
+  Nutrient vitamin_a = 6;
+  Nutrient vitamin_d = 7;
+  Nutrient vitamin_b12 = 8;
+  Nutrient vitamin_c = 9;
+  Nutrient iron = 10;
+  Nutrient calcium = 11;
+  Nutrient magnesium = 12;
+}
+
+message MealAnalysisRequest {
+  UserProfile user = 1;
+  repeated string ingredients = 2;
+  NutritionData nutrition = 3;
+}
+
+message MealRating {
+  string letter_grade = 1;
+  int32 score = 2;
+}
+
+message AIRecommendRequest {
+  UserProfile user = 1;
+  repeated string ingredients = 2;
+  NutritionData nutrition = 3;
+}
+
+message AIRecommendResponse {
+  repeated string recommendations = 1;
+  string positive_feedback = 2;
+}
+
+enum Gender {
+  GENDER_UNSPECIFIED = 0;
+  GENDER_MALE = 1;
+  GENDER_FEMALE = 2;
+}
+
+enum ActivityLevel {
+  ACTIVITY_LEVEL_UNSPECIFIED = 0;
+  ACTIVITY_LEVEL_SEDENTARY = 1;
+  ACTIVITY_LEVEL_LIGHT = 2;
+  ACTIVITY_LEVEL_MODERATE = 3;
+  ACTIVITY_LEVEL_ACTIVE = 4;
+  ACTIVITY_LEVEL_VERY_ACTIVE = 5;
+}
+
+enum WeightGoal {
+  WEIGHT_GOAL_UNSPECIFIED = 0;
+  WEIGHT_GOAL_LOSE = 1;
+  WEIGHT_GOAL_MAINTAIN = 2;
+  WEIGHT_GOAL_GAIN = 3;
+}
+
+enum GoalIntensity {
+  GOAL_INTENSITY_UNSPECIFIED = 0;
+  GOAL_INTENSITY_MILD = 1;
+  GOAL_INTENSITY_MODERATE = 2;
+  GOAL_INTENSITY_AGGRESSIVE = 3;
+}
+
+enum DietaryPreference {
+  DIETARY_PREFERENCE_UNSPECIFIED = 0;
+  DIETARY_PREFERENCE_NONE = 1;
+  DIETARY_PREFERENCE_VEGETARIAN = 2;
+  DIETARY_PREFERENCE_VEGAN = 3;
+  DIETARY_PREFERENCE_PESCETARIAN = 4;
+  DIETARY_PREFERENCE_KETO = 5;
+  DIETARY_PREFERENCE_PALEO = 6;
+}
+
+enum Allergy {
+  ALLERGY_UNSPECIFIED = 0;
+  ALLERGY_NONE = 1;
+  ALLERGY_DAIRY = 2;
+  ALLERGY_EGGS = 3;
+  ALLERGY_GLUTEN = 4;
+  ALLERGY_PEANUTS = 5;
+  ALLERGY_TREE_NUTS = 6;
+  ALLERGY_FISH = 7;
+  ALLERGY_SHELLFISH = 8;
+  ALLERGY_SOY = 9;
+}
+
+message DietaryRestrictions {
+  DietaryPreference preference = 1;
+  repeated Allergy allergies = 2;
+  repeated string disliked_ingredients = 3;
+}
+
+message UserProfile {
+  uint32 age = 1;
+  Gender gender = 2;
+  double weight_kg = 3;
+  double height_cm = 4;
+  ActivityLevel activity_level = 5;
+  WeightGoal weight_goal = 6;
+  GoalIntensity goal_intensity = 7;
+  DietaryRestrictions dietary_restrictions = 8;
+}
+
+message Micronutrients {
+  double vitamin_a = 1;    // mcg
+  double vitamin_c = 2;    // mg
+  double vitamin_d = 3;    // mcg
+  double vitamin_b12 = 4;  // mcg
+  double calcium = 5;      // mg
+  double iron = 6;         // mg
+  double magnesium = 7;    // mg
+}
+
+message NutrientRecommendation {
+  double calories = 1;     // kcal
+  double protein = 2;      // g
+  double fats = 3;         // g
+  double carbs = 4;        // g
+  double fiber = 5;        // g
+  Micronutrients micronutrients = 6;
+}
