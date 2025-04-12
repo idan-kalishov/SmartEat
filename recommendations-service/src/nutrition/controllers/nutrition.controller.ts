@@ -1,99 +1,51 @@
-// src/nutrition/recommendations/recommendations.controller.ts
-import { Controller, Post, Body } from '@nestjs/common';
-import { UserProfileDto } from '../dto/user-profile.dto';
-import { NutrientRecommendationDto } from '../dto/nutrient-recommendation.dto';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { RecommendationsService } from '../services/nutrition.service';
+import { Controller } from '@nestjs/common';
+import { GrpcMethod } from '@nestjs/microservices';
+import {
+  MealAnalysisRequest,
+  MealRating,
+  AIRecommendRequest,
+  AIRecommendResponse,
+  NutrientRecommendation,
+  UserProfile,
+} from '@generated/nutrition_pb';
+import { NutritionService } from '../services/nutrition.service';
+import { GeminiRecommendService } from '../services/gemini-recommend.service';
 
-@ApiTags('Nutrition')
-@Controller('nutrition/recommendations')
-export class RecommendationsController {
+@Controller()
+export class NutritionController {
   constructor(
-    private readonly recommendationsService: RecommendationsService,
+    private readonly nutritionService: NutritionService,
+    private readonly geminiRecommendService: GeminiRecommendService,
   ) {}
 
-  @Post()
-  @ApiOperation({ summary: 'Get daily nutrient recommendations' })
-  @ApiBody({ type: UserProfileDto })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns calculated nutrient recommendations',
-    type: NutrientRecommendationDto,
-  })
-  getRecommendations(
-    @Body() userProfile: UserProfileDto,
-  ): NutrientRecommendationDto {
-    return this.recommendationsService.calculateDailyRecommendations(
-      userProfile,
-    );
+  @GrpcMethod('NutritionService', 'GetDailyRecommendations')
+  getDailyRecommendations(userProfile: UserProfile): NutrientRecommendation {
+    return this.nutritionService.calculateDailyRecommendations(userProfile);
   }
 
-  @Post('meal-analysis')
-  @ApiOperation({ summary: 'Analyze meal against recommendations' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        userProfile: { $ref: '#/components/schemas/UserProfileDto' },
-        mealNutrition: { type: 'object' },
-      },
-    },
-  })
-  analyzeMeal(@Body() { userProfile, mealNutrition }) {
+  @GrpcMethod('NutritionService', 'GetMealRating')
+  getMealRating(request: MealAnalysisRequest): MealRating {
+    // Access user and nutrition directly as properties
+    const user = request.user;
+    const nutrition = request.nutrition;
+
+    if (!user || !nutrition) {
+      throw new Error('Invalid request: User or Nutrition data is missing');
+    }
+
     const recommendations =
-      this.recommendationsService.calculateDailyRecommendations(userProfile);
-    return this.calculateMealImpact(recommendations, mealNutrition);
-  }
-
-  private calculateMealImpact(
-    recommendations: NutrientRecommendationDto,
-    mealNutrition: any,
-  ) {
-    return {
-      macronutrients: this.calculateMacroImpact(recommendations, mealNutrition),
-      micronutrients: this.calculateMicroImpact(
-        recommendations.micronutrients,
-        mealNutrition,
-      ),
-    };
-  }
-
-  private calculateMacroImpact(
-    recommendations: NutrientRecommendationDto,
-    meal: any,
-  ) {
-    const macros = ['protein', 'fats', 'carbs', 'fiber'] as const;
-    return macros.reduce(
-      (acc, macro) => ({
-        ...acc,
-        [macro]: {
-          consumed: meal[macro] || 0,
-          recommended: recommendations[macro],
-          percentage: Math.round(
-            ((meal[macro] || 0) / recommendations[macro]) * 100,
-          ),
-          remaining: recommendations[macro] - (meal[macro] || 0),
-        },
-      }),
-      {},
+      this.nutritionService.calculateDailyRecommendations(user);
+    return this.nutritionService.analyzeMealNutrition(
+      recommendations,
+      nutrition,
+      user,
     );
   }
 
-  private calculateMicroImpact(recommendations: any, meal: any) {
-    const micronutrients = ['vitaminA', 'vitaminC', 'calcium', 'iron'];
-    return micronutrients.reduce(
-      (acc, nutrient) => ({
-        ...acc,
-        [nutrient]: {
-          consumed: meal[nutrient] || 0,
-          recommended: recommendations[nutrient],
-          percentage: Math.round(
-            ((meal[nutrient] || 0) / recommendations[nutrient]) * 100,
-          ),
-          remaining: recommendations[nutrient] - (meal[nutrient] || 0),
-        },
-      }),
-      {},
-    );
+  @GrpcMethod('NutritionService', 'GetAIRecommendations')
+  async getAIRecommendations(
+    request: AIRecommendRequest,
+  ): Promise<AIRecommendResponse> {
+    return this.geminiRecommendService.getRecommendations(request);
   }
 }
