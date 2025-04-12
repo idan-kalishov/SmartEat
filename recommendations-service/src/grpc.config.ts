@@ -3,7 +3,7 @@ import { Transport, ClientProviderOptions } from '@nestjs/microservices';
 import { join } from 'path';
 
 export const grpcClientOptions: ClientProviderOptions = {
-  name: 'NUTRITION_SERVICE', // Required identifier
+  name: 'NUTRITION_RECOMMENDATION_SERVICE', // Required identifier
   transport: Transport.GRPC,
   options: {
     package: 'nutrition', // Must match proto package

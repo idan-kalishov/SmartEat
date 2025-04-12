@@ -36,7 +36,8 @@ async function bootstrap() {
       package: 'nutrition',
       protoPath: join(__dirname, 'proto/nutrition.proto'),
       url: '0.0.0.0:50051',
-      credentials: ServerCredentials.createSsl(rootCerts || null, keyCertPairs),
+      // credentials: ServerCredentials.createSsl(rootCerts || null, keyCertPairs),
+      credentials: ServerCredentials.createInsecure(),
     },
   });
 

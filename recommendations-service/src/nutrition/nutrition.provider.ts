@@ -2,12 +2,13 @@
 import { Provider } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 
-export const NUTRITION_SERVICE = 'NUTRITION_SERVICE';
+export const NUTRITION_RECOMMENDATION_SERVICE =
+  'NUTRITION_RECOMMENDATION_SERVICE';
 
 export const NutritionProvider: Provider = {
   provide: 'NUTRITION_CLIENT',
   useFactory: (client: ClientGrpc) => {
-    return client.getService('NutritionService');
+    return client.getService('NutritionsRatingService');
   },
-  inject: [NUTRITION_SERVICE],
+  inject: [NUTRITION_RECOMMENDATION_SERVICE],
 };
