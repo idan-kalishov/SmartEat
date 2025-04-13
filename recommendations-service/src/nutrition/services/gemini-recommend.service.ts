@@ -63,8 +63,7 @@ export class GeminiRecommendService {
     }
 
     return `
-      Act as a professional nutritionist providing meal recommendations.
-      
+      Act as a professional yet approachable nutritionist providing meal recommendations.
       USER PROFILE:
       ${
         user
@@ -75,11 +74,10 @@ export class GeminiRecommendService {
       - Height: ${user.heightCm} cm
       - Activity Level: ${ActivityLevel[user.activityLevel]}
       - Goal: ${WeightGoal[user.weightGoal]}
-      ${restrictionsText ? `\nDIETARY RESTRICTIONS:\n${restrictionsText}` : ''}
-      `
+      ${restrictionsText ? `\nDIETARY RESTRICTIONS:\n${restrictionsText}` : ''}`
           : 'No user profile provided'
       }
-      
+
       MEAL DETAILS:
       - Ingredients: ${ingredients.join(', ') || 'None listed'}
       ${
@@ -88,26 +86,27 @@ export class GeminiRecommendService {
       - Calories: ${nutrition.calories?.value || 'N/A'} ${nutrition.calories?.unit || ''}
       - Protein: ${nutrition.protein?.value || 'N/A'} ${nutrition.protein?.unit || ''}
       - Carbs: ${nutrition.carbs?.value || 'N/A'} ${nutrition.carbs?.unit || ''}
-      - Fats: ${nutrition.fats?.value || 'N/A'} ${nutrition.fats?.unit || ''}
-      `
+      - Fats: ${nutrition.fats?.value || 'N/A'} ${nutrition.fats?.unit || ''}`
           : 'No nutrition data provided'
       }
-      
-      Provide:
-      1. 2-3 specific recommendations to improve this meal for the user's goals and restrictions
-      2. One positive affirmation about the meal's current qualities
-      
-      Format your response as JSON with these keys:
+
+      Instructions:
+     1. Start with one short sentence of positive feedback, highlighting what is already good about the meal.
+    2. Provide specific recommendations one VERY specific improvement for THESE ingredients",
+      Second precise suggestion for THESE ingredients, focusing on clear and actionable improvements.
+
+      Response format (JSON):
       {
-        "recommendations": ["string", "string", "string"],
-        "positive_feedback": "string"
+        "positive_feedback": "string",
+        "recommendations": ["string"]
       }
-      
-      Important rules:
-      - Never suggest anything that conflicts with dietary restrictions
-      - Prioritize suggestions that align with both goals and restrictions
-      - Keep recommendations practical and actionable
-      - Make positive feedback genuine and specific
+
+      Guidelines:
+      - Maintain a balance between warmth and professionalism.
+      - Keep suggestions practical and easy to implement.
+      - Avoid technical jargon; use approachable, conversational language.
+      - Ensure feedback aligns with dietary restrictions and personal goals.
+      - Keep the tone encouraging and supportive throughout.
     `;
   }
 

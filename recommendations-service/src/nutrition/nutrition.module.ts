@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ClientsModule } from '@nestjs/microservices';
-import { NutritionService } from './services/nutrition.service';
+import { NutritionsRatingService } from './services/nutritionsRating.service';
 import { GeminiRecommendService } from './services/gemini-recommend.service';
-import { NutritionController } from './controllers/nutrition.controller';
+import { RecommendationsController } from './controllers/recommendations.controller';
 import { grpcClientOptions } from 'src/grpc.config';
 
 @Module({
@@ -11,7 +11,7 @@ import { grpcClientOptions } from 'src/grpc.config';
     ConfigModule.forRoot(), // For environment variables
     ClientsModule.register([grpcClientOptions]), // Your existing gRPC config
   ],
-  controllers: [NutritionController],
-  providers: [NutritionService, GeminiRecommendService],
+  controllers: [RecommendationsController],
+  providers: [NutritionsRatingService, GeminiRecommendService],
 })
 export class NutritionModule {}
