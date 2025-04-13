@@ -92,12 +92,13 @@ export class GeminiRecommendService {
 
       Instructions:
      1. Start with one short sentence of positive feedback, highlighting what is already good about the meal.
-    2. Provide 2-3 specific recommendations, each limited to one or two concise sentences, focusing on clear and actionable improvements.
+    2. Provide specific recommendations one VERY specific improvement for THESE ingredients",
+      Second precise suggestion for THESE ingredients, focusing on clear and actionable improvements.
 
       Response format (JSON):
       {
         "positive_feedback": "string",
-        "recommendations": ["string", "string", "string"]
+        "recommendations": ["string"]
       }
 
       Guidelines:
