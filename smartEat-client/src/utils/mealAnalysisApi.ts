@@ -6,7 +6,7 @@ import {
 } from "../types/imageAnalyizeTypes";
 
 // Base URL for the API
-const BASE_URL = "https://192.168.1.145:3000";
+const BASE_URL = "https://192.168.1.145:3002";
 
 // Define the shape of the food recognition response
 export interface FoodRecognitionResponse {
@@ -36,8 +36,8 @@ export const analyzeFoodImage = async (
   formData.append("image", imageFile);
 
   try {
-    const response = await axios.post<FoodRecognitionResponse[]>(
-      `${BASE_URL}/food-recognition/analyze`,
+    const response = await axios.post(
+      `${BASE_URL}/food-recognition/analyze-meal`,
       formData,
       {
         headers: {
@@ -46,7 +46,8 @@ export const analyzeFoodImage = async (
         timeout: 30000, // Optional: Increase timeout if needed
       }
     );
-    return response.data;
+    console.log(response);
+    return response.data?.items;
   } catch (error) {
     console.error(error);
     const axiosError = error as AxiosError;
