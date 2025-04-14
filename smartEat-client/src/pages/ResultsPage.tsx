@@ -1,3 +1,4 @@
+import { DailyNutritionOverview } from "@/components/result-page/DailyNutritionOverview";
 import { NutrientCircle } from "@/components/result-page/NutrientCircle";
 import { NutritionGrade } from "@/components/result-page/NutritionGrade";
 import { NutritionSummary } from "@/components/result-page/NutritionSummary";
@@ -24,13 +25,44 @@ const vitaminAndMineralKeys = [
   "magnesium",
 ] as const;
 
+interface MealAnalysis {
+  grade: string;
+  score: number;
+  recommendations: string[];
+  positiveFeedback: string;
+  dailyRecommendations?: {
+    calories: number;
+    protein: number;
+    fats: number;
+    carbs: number;
+    fiber: number;
+    micronutrients?: {
+      vitamin_a: number;
+      vitamin_c: number;
+      vitamin_d: number;
+      vitamin_b12: number;
+      calcium: number;
+      iron: number;
+      magnesium: number;
+    };
+  };
+}
+
 export default function ResultsPage() {
   useScrollLock();
 
   const location = useLocation();
-  const { name, image, ingredients } = location.state || {};
+  const { name, image, ingredients, analysis } = location.state || {};
   const [servingSize, setServingSize] = useState(1);
   const navigate = useNavigate();
+
+  // Default values if no analysis is provided
+  const mealAnalysis: MealAnalysis = analysis || {
+    grade: "B",
+    score: 75,
+    recommendations: [],
+    positiveFeedback: "Your meal appears to be well-balanced.",
+  };
 
   const totalNutrition = calculateTotalNutrition(ingredients || []);
   const adjustedNutrition = adjustNutritionForServing(
@@ -101,7 +133,23 @@ export default function ResultsPage() {
             </div>
 
             <VitaminAndMinerals nutrients={vitaminAndMinerals} />
-            <NutritionGrade />
+
+            {mealAnalysis.dailyRecommendations && (
+              <DailyNutritionOverview
+                adjustedNutrition={adjustedNutrition}
+                dailyRecommendations={mealAnalysis.dailyRecommendations}
+              />
+            )}
+
+            {/* Use our updated NutritionGrade component with the analysis data */}
+            <NutritionGrade
+              grade={mealAnalysis.grade}
+              score={mealAnalysis.score}
+              recommendations={mealAnalysis.recommendations}
+              positiveFeedback={mealAnalysis.positiveFeedback}
+            />
+
+            {/* Display daily recommendations if available */}
 
             <Button onClick={handleLogAndNavigate} className="w-full mt-4 mb-4">
               Log Meal

@@ -42,7 +42,7 @@ async function bootstrap() {
   });
 
   await app.startAllMicroservices();
-  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
+  await app.listen(process.env.PORT ?? 3001, '0.0.0.0');
 
   console.log(
     `HTTPS API running on: https://0.0.0.0:${process.env.PORT ?? 3001}`,

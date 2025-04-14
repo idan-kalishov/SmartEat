@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-
 import { ArrowLeft, Plus, Trash2 } from "lucide-react";
 import { FoodVerifyTransferObject } from "../components/image-captch/CameraWithFrameAndLoading";
 import { mergeNutritionData } from "../utils/ingredientUtils";
@@ -9,7 +8,9 @@ import {
   transformIngredientsForResults,
 } from "../utils/mealAnalysisApi";
 import LoadingScreen from "./loading/LoadingScreen";
-import { Ingredient } from "../types/imageAnalyizeTypes";
+import { Ingredient, TransformedIngredient } from "../types/imageAnalyizeTypes";
+import { getDefaultUserProfile } from "../types/userTypes";
+import { analyzeMeal } from "@/services/mealReatingService";
 
 const IngredientVerificationPage: React.FC = () => {
   const navigate = useNavigate();
@@ -80,60 +81,92 @@ const IngredientVerificationPage: React.FC = () => {
       (ingredient) => !ingredient.nutrition
     );
 
-    // Check if there are any ingredients without nutritional data
-    if (ingredientsWithoutNutrition.length === 0) {
-      // No missing nutritional data, so directly transform and navigate
-      try {
+    setLoading(true);
+    setLoadingMessage("Processing ingredients...");
+
+    try {
+      // Check if there are any ingredients without nutritional data
+      if (ingredientsWithoutNutrition.length > 0) {
+        // Validate that all ingredients have names
+        const hasInvalidIngredients = ingredientsWithoutNutrition.some(
+          (ingredient) => !ingredient.name.trim()
+        );
+        if (hasInvalidIngredients) {
+          setLoading(false);
+          alert("Please provide valid names for all ingredients.");
+          return;
+        }
+
+        // Fetch nutritional data for ingredients without it
+        const ingredientNames = ingredientsWithoutNutrition.map(
+          (ingredient) => ingredient.name
+        );
+        const fetchedNutritionData = await fetchNutritionalDataForIngredients(
+          ingredientNames
+        );
+        // Merge fetched nutritional data with existing ingredients
+        const updatedIngredients = mergeNutritionData(
+          ingredients,
+          fetchedNutritionData
+        );
+        // Transform ingredients data for the result page
+        const transformedIngredients =
+          transformIngredientsForResults(updatedIngredients);
+
+        // Proceed with analysis
+        await processAndNavigate(transformedIngredients);
+      } else {
+        // No missing nutritional data, so directly transform and analyze
         const transformedIngredients = transformIngredientsForResults(
           ingredients.map(({ isNew, ...rest }) => rest as Ingredient)
         );
 
-        // Navigate to the results page with the transformed data
-        navigate("/results", {
-          state: {
-            name: mealName,
-            image: mealImage,
-            ingredients: transformedIngredients,
-          },
-        });
-      } catch (error) {
-        console.error("Error preparing results:", error);
-        alert("Failed to prepare results.");
+        // Proceed with analysis
+        await processAndNavigate(transformedIngredients);
       }
-      return; // Exit early since no ingredients need processing
+    } catch (error) {
+      console.error("Error saving ingredients:", error);
+      alert("Failed to save ingredients.");
+      setLoading(false);
     }
+  };
 
-    // If there are ingredients without nutritional data, proceed with fetching
-    setLoading(true); // Show loading screen
-
+  // Function to process the meal analysis and navigate to results
+  const processAndNavigate = async (
+    transformedIngredients: TransformedIngredient[]
+  ) => {
     try {
-      // Validate that all ingredients have names
-      const hasInvalidIngredients = ingredientsWithoutNutrition.some(
-        (ingredient) => !ingredient.name.trim()
-      );
-      if (hasInvalidIngredients) {
-        setLoading(false); // Hide loading screen
-        alert("Please provide valid names for all ingredients.");
-        return;
-      }
+      setLoadingMessage("Analyzing nutritional value...");
 
-      // Fetch nutritional data for ingredients without it
-      const ingredientNames = ingredientsWithoutNutrition.map(
-        (ingredient) => ingredient.name
-      );
-      const fetchedNutritionData = await fetchNutritionalDataForIngredients(
-        ingredientNames
-      );
-      // Merge fetched nutritional data with existing ingredients
-      const updatedIngredients = mergeNutritionData(
-        ingredients,
-        fetchedNutritionData
-      );
-      // Transform ingredients data for the result page
-      const transformedIngredients =
-        transformIngredientsForResults(updatedIngredients);
+      // Get user profile using our helper function
+      const userProfile = getDefaultUserProfile();
 
-      // Navigate to the results page with the transformed data
+      // Analyze the meal using the API
+      const analysisResult = await analyzeMeal(
+        transformedIngredients,
+        userProfile
+      );
+
+      // Navigate to the results page with the transformed data and analysis results
+      navigate("/results", {
+        state: {
+          name: mealName,
+          image: mealImage,
+          ingredients: transformedIngredients,
+          analysis: {
+            grade: analysisResult.rating.letter_grade,
+            score: analysisResult.rating.score,
+            recommendations: analysisResult.recommendations,
+            positiveFeedback: analysisResult.positive_feedback,
+            dailyRecommendations: analysisResult.daily_recommendations,
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Error analyzing meal:", error);
+      alert("Failed to analyze meal. Continuing without analysis.");
+
+      // If analysis fails, still navigate to results without analysis data
       navigate("/results", {
         state: {
           name: mealName,
@@ -141,11 +174,8 @@ const IngredientVerificationPage: React.FC = () => {
           ingredients: transformedIngredients,
         },
       });
-    } catch (error) {
-      console.error("Error saving ingredients:", error);
-      alert("Failed to save ingredients.");
     } finally {
-      setLoading(false); // Hide loading screen
+      setLoading(false);
     }
   };
 

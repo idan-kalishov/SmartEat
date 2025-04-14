@@ -57,7 +57,7 @@ export class GeminiRecommendService {
 
       // Disliked ingredients
       const disliked = restrictions.dislikedIngredients;
-      if (disliked.length > 0) {
+      if (disliked?.length > 0) {
         restrictionsText += `Avoid: ${disliked.join(', ')}\n`;
       }
     }
