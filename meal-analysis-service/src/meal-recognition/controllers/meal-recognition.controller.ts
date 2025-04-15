@@ -1,39 +1,41 @@
 // src/food-recognition/food-recognition.controller.ts
-import {
-  Body,
-  Controller,
-  Post,
-  UploadedFile,
-  UseInterceptors,
-  UsePipes,
-  ValidationPipe,
-} from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { Controller } from '@nestjs/common';
+import { GrpcMethod } from '@nestjs/microservices';
 import { FoodRecognitionService } from '../services/food-recognition.service';
-import { IngredientDetailsDto } from '../dto/ingredient-details.dto';
+import {
+  AnalyzeMealResponse,
+  IngredientDetailsResponse,
+} from 'src/generated/food-recognition';
 
-@Controller('food-recognition')
+@Controller()
 export class FoodRecognitionController {
   constructor(
     private readonly foodRecognitionService: FoodRecognitionService,
   ) {}
 
-  @Post('analyze')
-  @UseInterceptors(FileInterceptor('image'))
-  async analyzeMeal(@UploadedFile() file: Express.Multer.File) {
-    return this.foodRecognitionService.analyzeMeal(file);
+  @GrpcMethod('FoodRecognitionService', 'AnalyzeMeal')
+  async analyzeMeal(data: { image: Buffer }): Promise<AnalyzeMealResponse> {
+    // Convert Buffer to Multer.File-like object
+    const file = {
+      buffer: data.image,
+      originalname: 'uploaded_image.jpg',
+      mimetype: 'image/jpeg',
+      size: data.image.length,
+    } as Express.Multer.File;
+
+    return {
+      items: await this.foodRecognitionService.analyzeMeal(file),
+    };
   }
 
-  /**
-   * Fetch nutritional data for multiple ingredients.
-   * @param body Request body containing an array of ingredient names.
-   * @returns Array of objects with ingredient names and their nutritional data.
-   */
-  @Post('ingredient-details')
-  @UsePipes(new ValidationPipe())
-  async fetchIngredientDetails(@Body() body: IngredientDetailsDto) {
-    return this.foodRecognitionService.fetchNutritionDataForIngredients(
-      body.names,
-    );
+  @GrpcMethod('FoodRecognitionService', 'FetchIngredientDetails')
+  async fetchIngredientDetails(data: {
+    names: string[];
+  }): Promise<IngredientDetailsResponse> {
+    return {
+      items: await this.foodRecognitionService.fetchNutritionDataForIngredients(
+        data.names,
+      ),
+    };
   }
 }
