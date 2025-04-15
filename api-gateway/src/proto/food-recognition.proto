@@ -20,15 +20,22 @@ message IngredientDetailsRequest {
 }
 
 message IngredientDetailsResponse {
-  repeated MealRecognitionResult items = 1;
+  repeated IngredientsRecognitionResult items = 1;
 }
 
 message MealRecognitionResult {
-  string food_name = 1;
+  string foodName = 1;
   double weight = 2;
   optional string usda_food_label = 3;
   optional NutritionInfo nutrition = 4;
 }
+
+
+message IngredientsRecognitionResult {
+  string name = 1;
+  optional NutritionInfo nutrition = 2;
+}
+
 
 message NutritionInfo {
   map<string, Nutrient> per100g = 1;  // Direct map without nested nutrients

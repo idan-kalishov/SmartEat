@@ -25,13 +25,18 @@ export interface IngredientDetailsRequest {
 }
 
 export interface IngredientDetailsResponse {
-  items: MealRecognitionResult[];
+  items: IngredientsRecognitionResult[];
 }
 
 export interface MealRecognitionResult {
   foodName: string;
   weight: number;
   usdaFoodLabel?: string | undefined;
+  nutrition?: NutritionInfo | undefined;
+}
+
+export interface IngredientsRecognitionResult {
+  name: string;
   nutrition?: NutritionInfo | undefined;
 }
 
@@ -170,7 +175,7 @@ function createBaseIngredientDetailsResponse(): IngredientDetailsResponse {
 export const IngredientDetailsResponse: MessageFns<IngredientDetailsResponse> = {
   encode(message: IngredientDetailsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     for (const v of message.items) {
-      MealRecognitionResult.encode(v!, writer.uint32(10).fork()).join();
+      IngredientsRecognitionResult.encode(v!, writer.uint32(10).fork()).join();
     }
     return writer;
   },
@@ -187,7 +192,7 @@ export const IngredientDetailsResponse: MessageFns<IngredientDetailsResponse> = 
             break;
           }
 
-          message.items.push(MealRecognitionResult.decode(reader, reader.uint32()));
+          message.items.push(IngredientsRecognitionResult.decode(reader, reader.uint32()));
           continue;
         }
       }
@@ -254,6 +259,54 @@ export const MealRecognitionResult: MessageFns<MealRecognitionResult> = {
         }
         case 4: {
           if (tag !== 34) {
+            break;
+          }
+
+          message.nutrition = NutritionInfo.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseIngredientsRecognitionResult(): IngredientsRecognitionResult {
+  return { name: "" };
+}
+
+export const IngredientsRecognitionResult: MessageFns<IngredientsRecognitionResult> = {
+  encode(message: IngredientsRecognitionResult, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.name !== "") {
+      writer.uint32(10).string(message.name);
+    }
+    if (message.nutrition !== undefined) {
+      NutritionInfo.encode(message.nutrition, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): IngredientsRecognitionResult {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseIngredientsRecognitionResult();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.name = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
             break;
           }
 

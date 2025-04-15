@@ -4,7 +4,11 @@ import { lastValueFrom } from 'rxjs';
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { nutritionDTO } from '../types/MealRecognitionResult.interface';
-import { MealRecognitionResult } from 'src/generated/food-recognition';
+import {
+  IngredientDetailsResponse,
+  IngredientsRecognitionResult,
+  MealRecognitionResult,
+} from 'src/generated/food-recognition';
 
 @Injectable()
 export class FoodRecognitionService {
@@ -102,8 +106,9 @@ export class FoodRecognitionService {
    * @param foodNames Array of food item names.
    * @returns Array of objects containing food name and nutrition details.
    */
-  async fetchNutritionDataForIngredients(foodNames: string[]) {
-    console.log(foodNames);
+  async fetchNutritionDataForIngredients(
+    foodNames: string[],
+  ): Promise<IngredientsRecognitionResult[]> {
     const results = await Promise.all(
       foodNames.map(async (foodName) => {
         try {

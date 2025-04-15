@@ -2,7 +2,10 @@
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import { FoodRecognitionService } from '../services/food-recognition.service';
-import { AnalyzeMealResponse } from 'src/generated/food-recognition';
+import {
+  AnalyzeMealResponse,
+  IngredientDetailsResponse,
+} from 'src/generated/food-recognition';
 
 @Controller()
 export class FoodRecognitionController {
@@ -28,7 +31,7 @@ export class FoodRecognitionController {
   @GrpcMethod('FoodRecognitionService', 'FetchIngredientDetails')
   async fetchIngredientDetails(data: {
     names: string[];
-  }): Promise<{ items: any[] }> {
+  }): Promise<IngredientDetailsResponse> {
     return {
       items: await this.foodRecognitionService.fetchNutritionDataForIngredients(
         data.names,

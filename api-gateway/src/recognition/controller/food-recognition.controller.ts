@@ -14,6 +14,7 @@ import {
   IngredientDetailsResponseDto,
 } from '../dto/responses.dto';
 import { FoodRecognitionClient } from 'src/grpc/clients/food-recognition.client';
+import { IngredientDetailsResponse } from '@generated/food-recognition';
 
 @Controller('food-recognition')
 export class FoodRecognitionController {
@@ -29,7 +30,18 @@ export class FoodRecognitionController {
     }
 
     try {
-      return await this.client.analyzeMeal(image.buffer);
+      const response = await this.client.analyzeMeal(image.buffer);
+      return {
+        items: response.items.map((item) => ({
+          foodName: item['food_name'], // Rename food_name to foodName
+          weight: item.weight,
+          nutrition: item.nutrition
+            ? {
+                per100g: item.nutrition['per_100g'], // Rename per_100g to per100g
+              }
+            : undefined,
+        })),
+      };
     } catch (error) {
       console.error('Analysis error:', error);
       throw new BadRequestException('Failed to analyze meal');
@@ -39,9 +51,19 @@ export class FoodRecognitionController {
   @Post('ingredient-details')
   async getIngredientDetails(
     @Body() body: { names: string[] },
-  ): Promise<IngredientDetailsResponseDto> {
+  ): Promise<IngredientDetailsResponse> {
     try {
-      return await this.client.fetchIngredientDetails(body.names);
+      const response = await this.client.fetchIngredientDetails(body.names);
+      return {
+        items: response.items.map((item) => ({
+          name: item.name,
+          nutrition: item.nutrition
+            ? {
+                per100g: item.nutrition['per_100g'],
+              }
+            : undefined,
+        })),
+      };
     } catch (error) {
       console.error('Ingredient details error:', error);
       throw new BadRequestException('Failed to fetch ingredient details');
