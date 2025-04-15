@@ -1,21 +1,19 @@
-import React, { useState, useRef } from "react";
-import Webcam from "react-webcam";
+import { MealRecognitionResult } from "@/types/protoServicesTypes";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  analyzeFoodImage,
-  FoodRecognitionResponse,
-} from "../../utils/mealAnalysisApi";
-import { base64ToFile, fileToBase64 } from "../../utils/base64ToFile";
-import CameraFeed from "./CameraFeed";
-import OverlayWithFrame from "./OverlayWithFrame";
-import CaptureButton from "./CaptureButton";
-import MediaUploadIcon from "./MediaUploadIcon";
-import { cropImageToSquare } from "../../utils/cropImageToSquare";
+import Webcam from "react-webcam";
 import useScrollLock from "../../hooks/useScrollLock";
 import LoadingScreen from "../../pages/loading/LoadingScreen";
+import { base64ToFile, fileToBase64 } from "../../utils/base64ToFile";
+import { cropImageToSquare } from "../../utils/cropImageToSquare";
+import { analyzeFoodImage } from "../../utils/mealAnalysisApi";
+import CameraFeed from "./CameraFeed";
+import CaptureButton from "./CaptureButton";
+import MediaUploadIcon from "./MediaUploadIcon";
+import OverlayWithFrame from "./OverlayWithFrame";
 
 export interface FoodVerifyTransferObject {
-  foodRecognitionResponse: FoodRecognitionResponse[];
+  foodRecognitionResponse: MealRecognitionResult[];
   image: string;
 }
 
