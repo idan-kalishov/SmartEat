@@ -16,7 +16,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "protoc": "protoc --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=.\\src\\generated --ts_proto_opt=nestJs=true --proto_path=.\\src\\proto .\\src\\proto\\nutrition.proto",
-    "generate:proto": "protoc --plugin=protoc-gen-ts_proto=C:\\smartEat\\api-gateway\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=src/generated --ts_proto_opt=nestJs=true,outputServices=grpc-js,returnObservable=false --proto_path=src/proto src/proto/nutrition.proto",
+    "generate:proto": "protoc --plugin=protoc-gen-ts_proto=C:/Users/roibr/Documents/projects/final-colman-project/SmartEat/api-gateway/node_modules/.bin/protoc-gen-ts_proto.cmd --ts_proto_out=src/generated --ts_proto_opt=nestJs=true,outputServices=grpc-js,returnObservable=false --proto_path=src/proto src/proto/nutrition.proto",
     "prebuild": "npm run generate:proto",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
@@ -25,14 +25,14 @@
   "dependencies": {
     "@grpc/grpc-js": "^1.13.3",
     "@grpc/proto-loader": "^0.7.13",
+    "@nestjs/axios": "^4.0.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
     "@nestjs/microservices": "^11.0.16",
     "@nestjs/platform-express": "^11.0.1",
     "copyfiles": "^2.4.1",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1",
-    "ts-proto": "^2.7.0"
+    "rxjs": "^7.8.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -57,6 +57,7 @@
     "ts-jest": "^29.2.5",
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
+    "ts-proto": "^2.7.0",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
