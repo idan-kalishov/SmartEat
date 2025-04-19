@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package foodrecognition;
+
+service FoodRecognitionService {
+  rpc AnalyzeMeal(AnalyzeMealRequest) returns (AnalyzeMealResponse);
+  rpc FetchIngredientDetails(IngredientDetailsRequest) returns (IngredientDetailsResponse);
+}
+
+message AnalyzeMealRequest {
+  bytes image = 1;
+}
+
+message AnalyzeMealResponse {
+  repeated MealRecognitionResult items = 1;
+}
+
+message IngredientDetailsRequest {
+  repeated string names = 1;
+}
+
+message IngredientDetailsResponse {
+  repeated IngredientsRecognitionResult items = 1;
+}
+
+message MealRecognitionResult {
+  string foodName = 1;
+  double weight = 2;
+  optional string usda_food_label = 3;
+  optional NutritionInfo nutrition = 4;
+}
+
+
+message IngredientsRecognitionResult {
+  string name = 1;
+  optional NutritionInfo nutrition = 2;
+}
+
+
+message NutritionInfo {
+  map<string, Nutrient> per100g = 1;  // Direct map without nested nutrients
+}
+
+message Nutrient {
+  optional double value = 1;
+  string unit = 2;
+}
