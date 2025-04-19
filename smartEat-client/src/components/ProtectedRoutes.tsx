@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+ import React, { useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import apiClient from "@/services/authService.ts";
 
@@ -9,6 +9,7 @@ const ProtectedRoute = () => {
     const checkAuth = async () => {
       try {
         const verifyResponse = await apiClient.get("/auth/verify");
+
         if (verifyResponse.status === 200) {
           setIsAuthenticated(true);
         } else {

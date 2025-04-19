@@ -51,7 +51,7 @@ export const googleLoginHandler = async (
     });
 
     res.redirect(
-      `https://node32.cs.colman.ac.il/verify-auth?userId=${user._id}&userName=${encodeURIComponent(user.userName || "")}&email=${encodeURIComponent(user.email || "")}&profilePicture=${encodeURIComponent(user.profilePicture || "")}`
+      `http://localhost:5173/verify-auth?userId=${user._id}&userName=${encodeURIComponent(user.userName || "")}&email=${encodeURIComponent(user.email || "")}&profilePicture=${encodeURIComponent(user.profilePicture || "")}`
     );
   } catch (error) {
     console.error("Google Auth Error:", error);

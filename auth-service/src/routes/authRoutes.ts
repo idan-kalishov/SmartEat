@@ -296,6 +296,7 @@ authRouter.get(
  */
 authRouter.get("/verify", authMiddleware, (req, res) => {
   res.status(200).json({ message: "User is authenticated" });
+  return;
 });
 
 /**

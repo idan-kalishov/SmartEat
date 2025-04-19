@@ -1,4 +1,4 @@
-import {createServer} from "../server";
+import {createServer} from "./server";
 import * as fs from "node:fs";
 import * as https from "node:https";
 import * as http from "node:http";
