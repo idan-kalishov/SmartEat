@@ -6,6 +6,7 @@ import ResultsPage from "./pages/ResultsPage";
 import IngredientVerificationPage from "./pages/IngredientVerificationPage";
 import { Toaster } from "sonner";
 import UserPreferences from "./pages/preferencesPAge";
+import ProfilePage from "./pages/Profile";
 
 const App: React.FC = () => {
   return (
@@ -17,6 +18,7 @@ const App: React.FC = () => {
         <Route path="/results" element={<ResultsPage />} />
         <Route path="/verify" element={<IngredientVerificationPage />} />
         <Route path="/preferences" element={<UserPreferences />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Routes>
     </Router>
   );
