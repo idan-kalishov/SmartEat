@@ -40,23 +40,6 @@ export class AuthGatewayService {
     return response.data;
   }
 
-  async forwardGoogle() {
-    await this.httpService.get(`${this.authServiceBaseUrl}/google`);
-  }
-  async forwardGoogleCallback(req: any) {
-    // For OAuth callbacks, we need to preserve query parameters
-    const response = await firstValueFrom(
-      this.httpService.get(`${this.authServiceBaseUrl}/google/callback`, {
-        params: req.query,
-        headers: {
-          // Forward necessary headers for OAuth flow
-          Cookie: req.headers.cookie,
-        },
-      }),
-    );
-    return response.data;
-  }
-
   async refreshToken(refreshToken: string) {
     const response = await firstValueFrom(
       this.httpService.post(`${this.authServiceBaseUrl}/refresh`, {

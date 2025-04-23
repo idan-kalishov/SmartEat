@@ -5,6 +5,7 @@ import { Response as ExpressResponse } from 'express';
 
 @Controller('auth')
 export class AuthGatewayController {
+  private authServiceBaseUrl = 'http://localhost:3000/auth';
   constructor(private readonly authGatewayService: AuthGatewayService) {}
 
   @Post('login')
@@ -44,9 +45,10 @@ export class AuthGatewayController {
   }
 
   @Get('google')
-  async google(@Res() res: Response) {
+  async google(@Res() res: ExpressResponse) {
     try {
-      await this.authGatewayService.forwardGoogle();
+      const target = `${this.authServiceBaseUrl}/google`;
+      return res.redirect(target);
     } catch (err) {
       throw new HttpException(err.response?.data || 'Google auth error', err.response?.status || 500);
     }
