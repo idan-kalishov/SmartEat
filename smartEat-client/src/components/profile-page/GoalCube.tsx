@@ -11,7 +11,7 @@ const GoalCube = ({ title, value, icon }: GoalCubeProps) => {
     <div className="p-6 border-b border-gray-200 bg-white rounded-xl">
       <div className="flex items-center mb-2">
         {icon}
-        <span className="text-xl text-gray-800">{title}</span>
+        <span className="text-md text-gray-800">{title}</span>
       </div>
       <p className="text-2xl font-bold">{value}</p>
     </div>

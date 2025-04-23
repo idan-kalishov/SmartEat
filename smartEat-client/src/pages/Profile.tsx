@@ -48,7 +48,7 @@ const ProfilePage: React.FC = () => {
             icon={<LuWeight className="w-6 h-6 mr-2 text-gray-700" />}
           />
           <GoalCube
-            title="Daily Calorie Goal"
+            title="Calorie Goal"
             value="2000 kcal"
             icon={<LuClock className="w-6 h-6 mr-2 text-gray-700" />}
           />
