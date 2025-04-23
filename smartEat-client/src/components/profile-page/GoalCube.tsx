@@ -13,7 +13,7 @@ const GoalCube = ({ title, value, icon }: GoalCubeProps) => {
         {icon}
         <span className="text-xl text-gray-800">{title}</span>
       </div>
-      <p className="text-3xl font-bold">{value}</p>
+      <p className="text-2xl font-bold">{value}</p>
     </div>
   );
 };

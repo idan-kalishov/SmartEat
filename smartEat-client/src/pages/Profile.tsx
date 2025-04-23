@@ -10,8 +10,8 @@ import {
 
 const ProfilePage: React.FC = () => {
   return (
-    <div className="max-w-md mx-auto bg-linear-to-b from-green-300 to-white-500 rounded-lg overflow-hidden shadow-sm">
-      <div className="flex flex-col items-center space-y-2">
+    <div className="bg-linear-to-b from-green-300 to-white-500 rounded-lg">
+      <div className="flex flex-col items-center">
         <div className="relative mb-4">
           <div className="w-32 h-32 rounded-full bg-gray-200">
             <img
@@ -29,7 +29,7 @@ const ProfilePage: React.FC = () => {
             </div>
           </div>
         </div>
-        <div className="w-full max-w-sm text-center space-y-2 bg-gray-50 rounded-xl p-2 shadow-md">
+        <div className="w-[90%] max-w-md text-center space-y-2 bg-white rounded-xl p-2 shadow-md">
           <h1 className="text-2xl font-bold">idan janach</h1>
           <p className="text-gray-500 cursor-pointer text-sm">
             idanjanach4455@gmail.com
