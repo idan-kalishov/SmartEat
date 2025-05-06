@@ -1,2 +1,2 @@
 /// <reference types="vite/client" />
-VITE_BACKEND_URL = "http://localhost:3002"
+VITE_BACKEND_URL = "https://192.168.1.145:3002";

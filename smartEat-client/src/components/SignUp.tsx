@@ -1,3 +1,5 @@
+import { ROUTES } from "@/Routing/routes";
+import AppTheme from "@/shared-theme/AppTheme";
 import { Alert, Snackbar } from "@mui/material";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -13,8 +15,6 @@ import Typography from "@mui/material/Typography";
 import axios from "axios";
 import * as React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ROUTES } from "../../../../../recipes-webapp/frontend/recipes-website/src/Routing/routes";
-import AppTheme from "../../../../../recipes-webapp/frontend/recipes-website/src/shared-theme/AppTheme";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -127,11 +127,14 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
         "name"
       ) as HTMLInputElement;
 
-      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/register`, {
-        email: email.value,
-        password: password.value,
-        userName: name.value,
-      });
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/auth/register`,
+        {
+          email: email.value,
+          password: password.value,
+          userName: name.value,
+        }
+      );
 
       setSnackbarMessage("Registration successful!");
       setSnackbarSeverity("success");

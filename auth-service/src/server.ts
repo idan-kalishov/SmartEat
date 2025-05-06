@@ -18,8 +18,6 @@ export function createServer(): Application {
 
   const app: Application = express();
 
-  
-
   // Initialize Passport for Google OAuth strategy etc.
   initializePassport();
   app.use(passport.initialize());
@@ -27,17 +25,19 @@ export function createServer(): Application {
   app.use(express.json({ limit: "10mb" }));
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-const corsOptions = {
-  origin: "http://localhost:5173",
-  credentials: true,
-};
+  const corsOptions = {
+    origin: (origin: any, callback: any) => {
+      if (!origin) return callback(null, true);
 
-app.use(cors(corsOptions));
+      callback(null, true);
+    },
+    credentials: true,
+  };
+
+  app.use(cors(corsOptions));
 
   // Serve static files (e.g., uploaded images)
   app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
-
-
 
   // Swagger configuration
   const options = {
@@ -48,7 +48,12 @@ app.use(cors(corsOptions));
         version: "1.0.0",
         description: "REST server including authentication using JWT",
       },
-      servers: [{ url: "http://localhost:3000" }, { url: "http://10.10.246.32:80" }, { url: "https://10.10.246.32" }, { url: "https://node32.cs.colman.ac.il" }],
+      servers: [
+        { url: "http://localhost:3000" },
+        { url: "http://10.10.246.32:80" },
+        { url: "https://10.10.246.32" },
+        { url: "https://node32.cs.colman.ac.il" },
+      ],
     },
     apis: ["./src/routes/*.ts"],
   };
