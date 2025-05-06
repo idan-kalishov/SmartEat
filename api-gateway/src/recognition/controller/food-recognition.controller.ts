@@ -33,13 +33,9 @@ export class FoodRecognitionController {
       const response = await this.client.analyzeMeal(image.buffer);
       return {
         items: response.items.map((item) => ({
-          foodName: item['food_name'], // Rename food_name to foodName
+          foodName: item.foodName, // Rename food_name to foodName
           weight: item.weight,
-          nutrition: item.nutrition
-            ? {
-                per100g: item.nutrition['per_100g'], // Rename per_100g to per100g
-              }
-            : undefined,
+          nutrition: item.nutrition,
         })),
       };
     } catch (error) {
@@ -54,14 +50,11 @@ export class FoodRecognitionController {
   ): Promise<IngredientDetailsResponse> {
     try {
       const response = await this.client.fetchIngredientDetails(body.names);
+
       return {
         items: response.items.map((item) => ({
           name: item.name,
-          nutrition: item.nutrition
-            ? {
-                per100g: item.nutrition['per_100g'],
-              }
-            : undefined,
+          nutrition: item.nutrition,
         })),
       };
     } catch (error) {

@@ -6,7 +6,7 @@ import {
   NutritionData,
 } from "../types/imageAnalyizeTypes";
 
-const BASE_URL = "https://192.168.1.145:3002";
+const BASE_URL = "https://localhost:3002";
 
 export interface MealAnalysisResponse {
   rating: {

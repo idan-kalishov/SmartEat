@@ -18,8 +18,6 @@
     "generate:nutrition-proto": "protoc --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=src/generated --ts_proto_opt=nestJs=true,outputServices=grpc-js,returnObservable=false --proto_path=src/proto src/proto/nutrition.proto",
     "generate:food-recognition-proto": "protoc --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=src/generated --ts_proto_opt=nestJs=true,outputServices=grpc-js,returnObservable=false --proto_path=src/proto src/proto/food-recognition.proto",
     "generate:proto": "npm run generate:nutrition-proto && npm run generate:food-recognition-proto",
-    "protoc": "protoc --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=.\\src\\generated --ts_proto_opt=nestJs=true --proto_path=.\\src\\proto .\\src\\proto\\nutrition.proto",
-    "generate:proto": "protoc --plugin=protoc-gen-ts_proto=C:/Users/roibr/Documents/projects/final-colman-project/SmartEat/api-gateway/node_modules/.bin/protoc-gen-ts_proto.cmd --ts_proto_out=src/generated --ts_proto_opt=nestJs=true,outputServices=grpc-js,returnObservable=false --proto_path=src/proto src/proto/nutrition.proto",
     "prebuild": "npm run generate:proto",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",

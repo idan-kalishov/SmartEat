@@ -11,7 +11,7 @@ import {
 } from "@/types/protoServicesTypes";
 
 // Base URL for the API
-const BASE_URL = "https://192.168.1.145:3002";
+const BASE_URL = "https://localhost:3002";
 
 // Define the shape of the food recognition response
 export interface FoodRecognitionResponse {

@@ -10,9 +10,12 @@ import {
   NutritionData,
   Gender,
 } from '@generated/nutrition_pb';
+import { LlamaVerificationService } from './LlamaVerificationService.service';
 
 @Injectable()
 export class GeminiRecommendService {
+  constructor(private readonly verificationService: LlamaVerificationService) {}
+
   private readonly genAI = new GoogleGenerativeAI(
     process.env.GEMINI_API_KEY ?? '',
   );
@@ -22,18 +25,52 @@ export class GeminiRecommendService {
 
   async getRecommendations(
     request: AIRecommendRequest,
-  ): Promise<AIRecommendResponse> {
+  ): Promise<AIRecommendResponse & { verificationStatus: string }> {
     const prompt = this.buildPrompt(request);
     const result = await this.model.generateContent(prompt);
     const responseText = result.response.text();
+    let response = this.parseResponse(responseText);
 
-    return this.parseResponse(responseText);
+    // Verify each recommendation individually
+    const verifiedRecommendations: string[] = [];
+    let anyInvalid = false;
+
+    for (const recommendation of response.recommendations) {
+      const verification =
+        await this.verificationService.verifyNutritionAdvice(recommendation);
+
+      if (verification.isValid) {
+        verifiedRecommendations.push(recommendation);
+      } else {
+        anyInvalid = true;
+        console.warn(
+          `Invalid recommendation detected: ${verification.reason}`,
+          { original: recommendation },
+        );
+        if (verification.correctedAdvice) {
+          verifiedRecommendations.push(verification.correctedAdvice);
+        }
+      }
+    }
+
+    // If all recommendations were invalid, use completely fallback advice
+    if (anyInvalid && verifiedRecommendations.length === 0) {
+      verifiedRecommendations.push(
+        await this.verificationService.getFallbackAdvice(),
+      );
+    }
+
+    return {
+      ...response,
+      recommendations: verifiedRecommendations,
+      verificationStatus: anyInvalid ? 'modified' : 'original',
+    };
   }
 
   private buildPrompt(request: AIRecommendRequest): string {
-    const user = request.user; // Direct property access
-    const ingredients = request.ingredients; // Direct property access
-    const nutrition = request.nutrition; // Direct property access
+    const user = request.user;
+    const ingredients = request.ingredients;
+    const nutrition = request.nutrition;
 
     // Build dietary restrictions text
     let restrictionsText = '';
