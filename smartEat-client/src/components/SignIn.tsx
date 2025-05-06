@@ -1,4 +1,4 @@
-import {Alert, Snackbar} from "@mui/material";
+import { Alert, Snackbar } from "@mui/material";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import MuiCard from "@mui/material/Card";
@@ -7,15 +7,15 @@ import Divider from "@mui/material/Divider";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
 import Stack from "@mui/material/Stack";
-import {styled} from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import axios from "axios";
 import * as React from "react";
-import {Link, useNavigate} from "react-router-dom";
-import {ROUTES} from "../../../../../recipes-webapp/frontend/recipes-website/src/Routing/routes";
-import AppTheme from "../../../../../recipes-webapp/frontend/recipes-website/src/shared-theme/AppTheme";
-import {GoogleIcon} from "../../../../../recipes-webapp/frontend/recipes-website/src/components/CustomeIcons";
+import { Link, useNavigate } from "react-router-dom";
+import { GoogleIcon } from "./CustomeIcons";
+import { ROUTES } from "@/Routing/routes";
+import AppTheme from "@/shared-theme/AppTheme";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -211,7 +211,9 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
               fullWidth
               variant="outlined"
               onClick={() =>
-                (window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/google`)
+                (window.location.href = `${
+                  import.meta.env.VITE_BACKEND_URL
+                }/auth/google`)
               }
               startIcon={<GoogleIcon />}
             >

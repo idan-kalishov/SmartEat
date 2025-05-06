@@ -7,8 +7,8 @@ import * as fs from 'fs';
 async function bootstrap() {
   // HTTP Server
   const httpsOptions = {
-    key: fs.readFileSync('192.168.1.145-key.pem'),
-    cert: fs.readFileSync('192.168.1.145.pem'),
+    key: fs.readFileSync('key.pem'),
+    cert: fs.readFileSync('cert.pem'),
   };
   const app = await NestFactory.create(AppModule, { httpsOptions });
   app.enableCors();
@@ -28,5 +28,4 @@ async function bootstrap() {
   await app.startAllMicroservices();
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
-
 bootstrap();

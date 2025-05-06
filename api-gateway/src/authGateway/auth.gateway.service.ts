@@ -9,14 +9,18 @@ export class AuthGatewayService {
 
   constructor(private readonly httpService: HttpService) {
     // Get the auth service URL from environment variables
-    this.authServiceBaseUrl = 'http://localhost:3000/auth';
+    this.authServiceBaseUrl = 'http://localhost:3010/auth';
   }
 
-  async forwardLogin(loginData: { email: string; password: string }, res: ExpressResponse) {
+  async forwardLogin(
+    loginData: { email: string; password: string },
+    res: ExpressResponse,
+  ) {
     const response = await firstValueFrom(
       this.httpService.post(`${this.authServiceBaseUrl}/login`, loginData, {
         withCredentials: true,
-      }));
+      }),
+    );
 
     const setCookieHeader = response.headers['set-cookie'];
     if (setCookieHeader) {
@@ -74,7 +78,7 @@ export class AuthGatewayService {
 
     const response = await firstValueFrom(
       this.httpService.get(`${this.authServiceBaseUrl}/me`, {
-        headers: sanitizedHeaders
+        headers: sanitizedHeaders,
       }),
     );
     return response.data;

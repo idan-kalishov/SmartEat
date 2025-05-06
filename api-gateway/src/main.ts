@@ -4,12 +4,14 @@ import * as fs from 'fs';
 
 async function bootstrap() {
   const httpsOptions = {
-    key: fs.readFileSync('192.168.1.145-key.pem'),
-    cert: fs.readFileSync('192.168.1.145.pem'),
+    key: fs.readFileSync('key.pem'),
+    cert: fs.readFileSync('cert.pem'),
   };
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { httpsOptions });
   app.enableCors({
-    origin: 'http://localhost:5173', // Your frontend origin
+    origin: (origin, callback) => {
+      callback(null, origin); // Reflect the request origin
+    },
     credentials: true,
   });
   await app.listen(process.env.PORT ?? 3002);
