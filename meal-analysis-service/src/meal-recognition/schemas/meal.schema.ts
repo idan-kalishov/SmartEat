@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { IngredientDetails } from '../types/ingredient-details.interface';
+import { IngredientDetails } from '../models/ingredient-details.interface';
 
 @Schema({ timestamps: true })
 export class Meal extends Document {
