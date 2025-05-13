@@ -1,5 +1,5 @@
-export interface Meal {
-  foodName: string;
+export interface IngredientDetails {
+  name: string;
   weight: number;
   usdaFoodLabel?: string;
   per100gNutrition?: Per100gNutrition;
