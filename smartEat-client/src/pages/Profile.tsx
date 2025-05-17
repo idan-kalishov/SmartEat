@@ -1,4 +1,4 @@
-import GoalCube from "@/components/profile-page/goalCube";
+import GoalCube from "@/components/profile-page/GoalCube";
 import React from "react";
 import {
   LuWeight,
