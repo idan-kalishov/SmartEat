@@ -35,21 +35,19 @@ export class AuthGatewayService {
     userName: string;
     password: string;
   }) {
-    const response = await firstValueFrom(
-      this.httpService.post(
-        `${this.authServiceBaseUrl}/register`,
-        registerData,
-      ),
+    const a = this.httpService.post(
+      `${this.authServiceBaseUrl}/register`,
+      registerData,
     );
+    const response = await firstValueFrom(a);
     return response.data;
   }
 
   async refreshToken(refreshToken: string) {
-    const response = await firstValueFrom(
-      this.httpService.post(`${this.authServiceBaseUrl}/refresh`, {
-        refreshToken,
-      }),
-    );
+    const a = this.httpService.post(`${this.authServiceBaseUrl}/refresh`, {
+      refreshToken,
+    });
+    const response = await firstValueFrom(a);
     return response.data;
   }
 

@@ -1,3 +1,4 @@
+import { ROUTES } from "@/Routing/routes";
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -16,9 +17,14 @@ const Home: React.FC = () => {
         </button>
       </Link>
 
-      <Link to="/preferences">
+      <Link to="/profile">
         <div className="w-24 h-24  bg-blue-500 text-white text-5xl flex items-center justify-center shadow-lg hover:bg-blue-600 transition-colors sm:w-28 sm:h-28 sm:text-6xl">
           goal
+        </div>
+      </Link>
+      <Link to={ROUTES.USER_PROFILE}>
+        <div className="w-24 h-24  bg-blue-500 text-white text-5xl flex items-center justify-center shadow-lg hover:bg-blue-600 transition-colors sm:w-28 sm:h-28 sm:text-6xl">
+          profile
         </div>
       </Link>
     </div>
