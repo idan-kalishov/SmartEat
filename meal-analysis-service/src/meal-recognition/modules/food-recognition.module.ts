@@ -1,13 +1,17 @@
 import { Module } from '@nestjs/common';
-
 import { HttpModule } from '@nestjs/axios';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { FoodRecognitionService } from '../services/food-recognition.service';
 import { FoodRecognitionController } from '../controllers/meal-recognition.controller';
+import { Meal, MealSchema } from '../schemas/meal.schema';
+import { MongooseModule } from '@nestjs/mongoose';
+import { MealService } from '../services/meal.service';
+import { MealController } from '../controllers/meal.controller';
 
 @Module({
   imports: [
+    MongooseModule.forFeature([{ name: Meal.name, schema: MealSchema }]),    
     HttpModule,
     ClientsModule.register([
       {
@@ -21,8 +25,8 @@ import { FoodRecognitionController } from '../controllers/meal-recognition.contr
       },
     ]),
   ],
-  controllers: [FoodRecognitionController],
-  providers: [FoodRecognitionService],
-  exports: [FoodRecognitionService],
+  controllers: [FoodRecognitionController, MealController],
+  providers: [FoodRecognitionService, MealService],
+  exports: [FoodRecognitionService, MealService],
 })
 export class FoodRecognitionModule {}
