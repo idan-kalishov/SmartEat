@@ -9,7 +9,7 @@ export class AuthGatewayService {
 
   constructor(private readonly httpService: HttpService) {
     // Get the auth service URL from environment variables
-    this.authServiceBaseUrl = 'http://localhost:3010/auth';
+    this.authServiceBaseUrl = 'http://localhost:3000/auth';
   }
 
   async forwardLogin(

@@ -16,8 +16,8 @@ const HTTPS_PORT = 443; // HTTPS port
 
 if (process.env.NODE_ENV !== "production") {
   // Development mode: Use HTTP
-  app.listen(3010, () => {
-    console.log(`Development server running on http://localhost:3010`);
+  app.listen(3000, () => {
+    console.log(`Development server running on http://localhost:3000`);
   });
 } else {
   // Production mode: Use HTTPS
@@ -28,7 +28,7 @@ if (process.env.NODE_ENV !== "production") {
 
   // Start HTTPS server
   https.createServer(options, app).listen(3010, () => {
-    console.log(`Production server running on https://localhost:3010`);
+    console.log(`Production server running on https://localhost:3000`);
   });
 
   // Redirect HTTP to HTTPS
