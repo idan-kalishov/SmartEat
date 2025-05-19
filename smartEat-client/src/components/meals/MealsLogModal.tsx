@@ -1,6 +1,7 @@
 import React from "react";
 import { Meal } from "@/types/meals/mealTypes";
 import IngredientNutritionRow from "./IngredientNutritionRow";
+import MealNutritionSummary from "./MealNutritionSummary";
 
 interface MealsLogModalProps {
   meals: Meal[];
@@ -30,6 +31,7 @@ const MealsLogModal: React.FC<MealsLogModalProps> = ({ meals, onClose }) => {
                   className="w-16 h-16 object-cover rounded"
                 />
                 <div className="flex-1">
+                  <MealNutritionSummary meal={meal} />
                   <div className="font-semibold text-green-700 mb-1">
                     {meal.ingredients.map(i => i.name).join(", ")}
                   </div>

@@ -3,6 +3,7 @@ import HorizontalDatePicker from "../components/HorizontalDatePicker";
 import MealsLogModal from "../components/meals/MealsLogModal";
 import { useMealsByDate } from "@/hooks/meals/useMealsByDate";
 import IngredientNutritionRow from "../components/meals/IngredientNutritionRow";
+import MealNutritionSummary from "../components/meals/MealNutritionSummary";
 
 const Home: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -43,6 +44,7 @@ const Home: React.FC = () => {
               className="w-12 h-12 rounded object-cover mr-4"
             />
             <div>
+              <MealNutritionSummary meal={lastMeal} />
               {lastMeal.ingredients.map((ingredient, idx) => (
                 <IngredientNutritionRow key={idx} ingredient={ingredient} />
               ))}
