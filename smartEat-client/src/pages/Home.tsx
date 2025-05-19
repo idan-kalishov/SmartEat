@@ -27,7 +27,7 @@ const Home: React.FC = () => {
       </div>
       <div className="w-full max-w-md bg-white rounded-lg shadow p-4 sm:p-6 flex flex-col items-center">
         <span className="text-gray-500 text-sm sm:text-base mb-2">
-          Logged Meals
+          Logged Meals ({meals.length})
         </span>
         {isLoading ? (
           <div className="flex justify-center items-center py-4">
@@ -35,26 +35,33 @@ const Home: React.FC = () => {
           </div>
         ) : lastMeal ? (
           <button
-            className="w-full flex items-center bg-green-100 rounded p-2 hover:bg-green-200 transition"
+            className="w-full flex flex-col items-start bg-green-100 rounded p-2 hover:bg-green-200 transition"
             onClick={() => setShowModal(true)}
           >
-            <img
-              src={lastMeal.imageUrl}
-              alt={lastMeal.ingredients.map((i) => i.name).join(", ")}
-              className="w-12 h-12 rounded object-cover mr-4"
-            />
-            <div>
-              <MealNutritionSummary meal={lastMeal} />
-              {lastMeal.ingredients.map((ingredient, idx) => (
-                <IngredientNutritionRow key={idx} ingredient={ingredient} />
-              ))}
-              <div className="text-xs text-gray-500">
-                {new Date(lastMeal.createdAt).toLocaleTimeString("en-US", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+            <div className="flex items-center w-full">
+              <img
+                src={lastMeal.imageUrl}
+                alt={lastMeal.ingredients.map((i) => i.name).join(", ")}
+                className="w-12 h-12 rounded object-cover mr-4"
+              />
+              <div>
+                <MealNutritionSummary meal={lastMeal} />
+                {lastMeal.ingredients.map((ingredient, idx) => (
+                  <IngredientNutritionRow key={idx} ingredient={ingredient} />
+                ))}
+                <div className="text-xs text-gray-500">
+                  {new Date(lastMeal.createdAt).toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </div>
               </div>
             </div>
+            {meals.length > 1 && (
+              <div className="text-xs text-gray-500 mt-2 text-center w-full">
+                And {meals.length - 1} more meal{meals.length - 1 > 1 ? 's' : ''}...
+              </div>
+            )}
           </button>
         ) : (
           <span className="text-gray-400">No meals logged for this date.</span>
