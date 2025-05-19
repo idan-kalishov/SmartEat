@@ -27,7 +27,7 @@ function getMealNutritionTotals(meal: Meal) {
 const MealNutritionSummary: React.FC<MealNutritionSummaryProps> = ({ meal }) => {
   const totals = getMealNutritionTotals(meal);
   return (
-    <div className="flex space-x-4 mb-2 text-sm justify-center">
+    <div className="flex space-x-4 mb-2 text-sm justify-center mr-10">
       <span className="flex items-center text-orange-600 font-semibold">
         🔥 {totals.calories}kcal
       </span>
