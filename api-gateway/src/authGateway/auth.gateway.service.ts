@@ -51,11 +51,19 @@ export class AuthGatewayService {
     return response.data;
   }
 
-  async logout() {
+  async logout(res: ExpressResponse) {
     const response = await firstValueFrom(
-      this.httpService.post(`${this.authServiceBaseUrl}/logout`),
+      this.httpService.post(`${this.authServiceBaseUrl}/logout`, null, {
+        withCredentials: true,
+      }),
     );
-    return response.data;
+
+    const setCookieHeader = response.headers['set-cookie'];
+    if (setCookieHeader) {
+      res.setHeader('Set-Cookie', setCookieHeader);
+    }
+
+    return res.send(response.data);
   }
 
   async verifyToken(@Req() req: Request) {

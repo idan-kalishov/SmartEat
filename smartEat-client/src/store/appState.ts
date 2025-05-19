@@ -19,11 +19,15 @@ const appStateSlice = createSlice({
     setUser: (state, action) => {
       state.user = action.payload;
     },
+    logout(state) {
+      state.isAuthenticated = false;
+      state.user = null;
+    },
   },
 });
 
 export const {
-  setUser,
+  setUser,logout
 } = appStateSlice.actions;
 
 const persistConfig = {
