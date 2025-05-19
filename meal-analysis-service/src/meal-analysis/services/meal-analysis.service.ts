@@ -9,7 +9,7 @@ import {
 } from 'src/generated/food-recognition';
 
 @Injectable()
-export class FoodRecognitionService {
+export class MealAnalysisService {
   private readonly geminiPrompt = `
     The system should accurately detect and label various foods displayed in the image, providing the name, USDA-compatible food label, and approximate weight in grams for each item.
     Do not group multiple ingredients into a single label. Always separate combined dishes into their individual food components. For example, if the image shows creamy mushroom pasta, the output should include separate entries for cream, mushrooms, and pasta.

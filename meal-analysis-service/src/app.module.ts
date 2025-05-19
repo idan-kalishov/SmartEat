@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { FoodRecognitionModule } from './meal-recognition/modules/food-recognition.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import { MealAnalysisModule } from './meal-analysis/meal-analysis.module';
+import { MealManagementModule } from './meal-managment/meal-managment.module';
 
 @Module({
-  imports: [FoodRecognitionModule, 
+  imports: [
+    MealAnalysisModule,
+    MealManagementModule, 
     MongooseModule.forRoot(process.env.MONGO_URI || 'mongodb://localhost:27017/smarteat'),
     ConfigModule.forRoot({ isGlobal: true })],
   controllers: [],
