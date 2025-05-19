@@ -13,6 +13,7 @@ import { Response as ExpressResponse } from 'express';
 @Controller('auth')
 export class AuthGatewayController {
   private authServiceBaseUrl = 'http://localhost:3000/auth';
+
   constructor(private readonly authGatewayService: AuthGatewayService) {}
 
   @Post('login')
@@ -57,9 +58,13 @@ export class AuthGatewayController {
   }
 
   @Post('logout')
-  async logout() {
+  async logout(
+    @Body() body: any,
+    @Req() req: Request,
+    @Res() res: ExpressResponse,
+  ) {
     try {
-      return await this.authGatewayService.logout();
+      return await this.authGatewayService.logout(res);
     } catch (err) {
       throw new HttpException(
         err.response?.data || 'Logout error',

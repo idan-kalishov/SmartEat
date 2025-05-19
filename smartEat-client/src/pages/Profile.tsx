@@ -1,14 +1,28 @@
 import GoalCube from "@/components/profile-page/GoalCube";
+import { ROUTES } from "@/Routing/routes";
+import { setUser } from "@/store/appState";
 import React from "react";
 import {
   LuWeight,
   LuClock,
   LuFootprints,
   LuGlassWater,
-  LuPencil,
+  LuPencil, LuLogOut,
 } from "react-icons/lu";
+import { useNavigate } from "react-router-dom";
+import apiClient from "@/services/authService.ts";
+import {useDispatch} from "react-redux";
 
 const ProfilePage: React.FC = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await apiClient.post("/auth/logout");
+    dispatch(setUser(null));
+    navigate(ROUTES.LOGIN);
+  };
+
   return (
     <div className="bg-linear-to-b from-green-300 to-white-500 rounded-lg">
       <div className="flex flex-col items-center">
@@ -63,6 +77,16 @@ const ProfilePage: React.FC = () => {
             icon={<LuGlassWater className="w-6 h-6 mr-2 text-gray-700" />}
           />
         </div>
+      </div>
+
+      <div className="flex justify-center pb-10">
+        <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 bg-red-500 text-white px-6 py-3 rounded-full shadow-md hover:bg-red-600 transition"
+        >
+          <LuLogOut className="w-5 h-5" />
+          Log Out
+        </button>
       </div>
     </div>
   );
