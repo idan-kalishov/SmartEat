@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { join } from 'path';
+import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 
 async function bootstrap() {
@@ -12,6 +13,8 @@ async function bootstrap() {
   };
   const app = await NestFactory.create(AppModule, { httpsOptions });
   app.enableCors();
+
+  dotenv.config();
 
   // gRPC Server
   const grpcOptions: MicroserviceOptions = {
