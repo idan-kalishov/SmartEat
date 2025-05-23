@@ -9,6 +9,7 @@ import LoginPage from "@/pages/LoginPage.tsx";
 import LoginRedirector from "@/components/loginRedirector.tsx";
 import UserPreferences from "@/pages/preferencesPage.tsx";
 import ProfilePage from "@/pages/Profile";
+import FastingTimer from "@/pages/fasting-page/FastingTimer.tsx";
 
 const Routing = () => {
   return (
@@ -21,7 +22,8 @@ const Routing = () => {
         <Route path={ROUTES.HOME} element={<ProfilePage />} />
         <Route path={ROUTES.UPLOAD} element={<Upload />} />
         <Route path={ROUTES.RESULT} element={<ResultsPage />} />
-        <Route path="/preferences" element={<UserPreferences />} />
+          <Route path={ROUTES.FASTING} element={<FastingTimer/>} />
+          <Route path="/preferences" element={<UserPreferences />} />
         <Route path={ROUTES.VERIFY} element={<IngredientVerificationPage />} />
       </Route>
       <Route path="*" element={<Navigate to={ROUTES.VERIFY_AUTH} />} />
