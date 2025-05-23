@@ -4,6 +4,7 @@ import {Link, useLocation} from "react-router-dom";
 import {FiHome, FiSettings, FiUpload,} from "react-icons/fi"; // Outline icons
 import {BsGearFill, BsHouseFill, BsUpload,} from "react-icons/bs"; // Filled icons
 import {ROUTES} from "@/Routing/routes";
+import {MdNoFood, MdOutlineNoFood} from "react-icons/md";
 
 const BottomNavbar: React.FC = () => {
     const location = useLocation();
@@ -30,6 +31,12 @@ const BottomNavbar: React.FC = () => {
             isActive: pathname === "/preferences",
             activeIcon: <BsGearFill size={24} />,
             inactiveIcon: <FiSettings size={24} />,
+        },
+        {
+            to: "/fasting",
+            isActive: pathname === "/fasting",
+            activeIcon: <MdNoFood size={24} />,
+            inactiveIcon: <MdOutlineNoFood size={24} />,
         },
     ];
 
