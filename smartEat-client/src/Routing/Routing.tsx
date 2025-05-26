@@ -8,7 +8,7 @@ import SignUpPage from "@/pages/SignUpPage.tsx";
 import LoginPage from "@/pages/LoginPage.tsx";
 import LoginRedirector from "@/components/loginRedirector.tsx";
 import UserPreferences from "@/pages/preferencesPage.tsx";
-import ProfilePage from "@/pages/Profile";
+import Home from "@/pages/Home";
 
 const Routing = () => {
   return (
@@ -18,7 +18,7 @@ const Routing = () => {
       <Route path="/verify-auth" element={<LoginRedirector />} />
 
       <Route element={<ProtectedRoute />}>
-        <Route path={ROUTES.HOME} element={<ProfilePage />} />
+        <Route path={ROUTES.HOME} element={<Home />} />
         <Route path={ROUTES.UPLOAD} element={<Upload />} />
         <Route path={ROUTES.RESULT} element={<ResultsPage />} />
         <Route path="/preferences" element={<UserPreferences />} />

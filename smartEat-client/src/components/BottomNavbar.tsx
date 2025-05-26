@@ -1,8 +1,8 @@
 // src/components/BottomNavbar.tsx
 import React from "react";
 import {Link, useLocation} from "react-router-dom";
-import {FiHome, FiSettings, FiUpload,} from "react-icons/fi"; // Outline icons
-import {BsGearFill, BsHouseFill, BsUpload,} from "react-icons/bs"; // Filled icons
+import {FiHome, FiSettings, FiUpload,} from "react-icons/fi";
+import {BsGearFill, BsHouseFill, BsUpload,} from "react-icons/bs";
 import {ROUTES} from "@/Routing/routes";
 
 const BottomNavbar: React.FC = () => {
