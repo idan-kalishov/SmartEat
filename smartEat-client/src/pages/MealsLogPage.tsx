@@ -4,7 +4,7 @@ import HorizontalDatePicker from "../components/HorizontalDatePicker";
 import MealCard from "../components/meals/MealCard";
 import MealsLogModal from "../components/meals/MealsLogModal";
 
-const Home: React.FC = () => {
+const MealsLogPage: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const { meals, isLoading } = useMealsByDate(selectedDate);
   const [showModal, setShowModal] = useState(false);
@@ -55,4 +55,4 @@ const Home: React.FC = () => {
   );
 };
 
-export default Home;
+export default MealsLogPage; 
