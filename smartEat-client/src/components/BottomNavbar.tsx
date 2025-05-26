@@ -1,8 +1,8 @@
 // src/components/BottomNavbar.tsx
 import React from "react";
 import {Link, useLocation} from "react-router-dom";
-import {FiHome, FiSettings, FiUpload,} from "react-icons/fi";
-import {BsGearFill, BsHouseFill, BsUpload,} from "react-icons/bs";
+import {FiHome, FiSettings, FiUpload, FiUser,} from "react-icons/fi";
+import {BsGearFill, BsHouseFill, BsPersonFill, BsUpload,} from "react-icons/bs";
 import {ROUTES} from "@/Routing/routes";
 
 const BottomNavbar: React.FC = () => {
@@ -26,8 +26,14 @@ const BottomNavbar: React.FC = () => {
             inactiveIcon: <FiUpload size={24} />,
         },
         {
-            to: "/preferences",
-            isActive: pathname === "/preferences",
+            to: ROUTES.PROFILE,
+            isActive: pathname === ROUTES.PROFILE,
+            activeIcon: <BsPersonFill size={24} />,
+            inactiveIcon: <FiUser size={24} />,
+        },
+        {
+            to: ROUTES.PREFERENCES,
+            isActive: pathname === ROUTES.PREFERENCES,
             activeIcon: <BsGearFill size={24} />,
             inactiveIcon: <FiSettings size={24} />,
         },
