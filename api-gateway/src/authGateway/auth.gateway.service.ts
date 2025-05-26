@@ -9,7 +9,7 @@ export class AuthGatewayService {
 
   constructor(private readonly httpService: HttpService) {
     // Get the auth service URL from environment variables
-    this.authServiceBaseUrl = 'http://localhost:3010/auth';
+    this.authServiceBaseUrl = 'http://localhost:3000/auth';
   }
 
   async forwardLogin(
@@ -35,29 +35,35 @@ export class AuthGatewayService {
     userName: string;
     password: string;
   }) {
-    const response = await firstValueFrom(
-      this.httpService.post(
-        `${this.authServiceBaseUrl}/register`,
-        registerData,
-      ),
+    const a = this.httpService.post(
+      `${this.authServiceBaseUrl}/register`,
+      registerData,
     );
+    const response = await firstValueFrom(a);
     return response.data;
   }
 
   async refreshToken(refreshToken: string) {
-    const response = await firstValueFrom(
-      this.httpService.post(`${this.authServiceBaseUrl}/refresh`, {
-        refreshToken,
-      }),
-    );
+    const a = this.httpService.post(`${this.authServiceBaseUrl}/refresh`, {
+      refreshToken,
+    });
+    const response = await firstValueFrom(a);
     return response.data;
   }
 
-  async logout() {
+  async logout(res: ExpressResponse) {
     const response = await firstValueFrom(
-      this.httpService.post(`${this.authServiceBaseUrl}/logout`),
+      this.httpService.post(`${this.authServiceBaseUrl}/logout`, null, {
+        withCredentials: true,
+      }),
     );
-    return response.data;
+
+    const setCookieHeader = response.headers['set-cookie'];
+    if (setCookieHeader) {
+      res.setHeader('Set-Cookie', setCookieHeader);
+    }
+
+    return res.send(response.data);
   }
 
   async verifyToken(@Req() req: Request) {
