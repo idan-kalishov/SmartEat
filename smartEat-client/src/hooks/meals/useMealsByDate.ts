@@ -38,6 +38,7 @@ const fetchMealsByDate = async (date: Date): Promise<Meal[]> => {
       imageUrl: "https://images.unsplash.com/photo-1504674900247-0877df9cc836",
       createdAt: normalizedDate.toISOString(),
       updatedAt: normalizedDate.toISOString(),
+      name: "Chicken and Broccoli Meal",
     },
     {
       _id: "2",
@@ -67,6 +68,7 @@ const fetchMealsByDate = async (date: Date): Promise<Meal[]> => {
       imageUrl: "https://images.unsplash.com/photo-1519864600265-abb23847ef2c",
       createdAt: normalizedDate.toISOString(),
       updatedAt: normalizedDate.toISOString(),
+      name: "Cottage Cheese and Tomato Snack",
     },
     {
       _id: "3",
@@ -96,6 +98,7 @@ const fetchMealsByDate = async (date: Date): Promise<Meal[]> => {
       imageUrl: "https://images.unsplash.com/photo-1464306076886-debca5e8a6b0",
       createdAt: normalizedDate.toISOString(),
       updatedAt: normalizedDate.toISOString(),
+      name: "Spinach Omelette",
     },
   ];
 };
