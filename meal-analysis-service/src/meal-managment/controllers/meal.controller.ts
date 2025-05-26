@@ -9,7 +9,7 @@ import {
   UserMealHistoryResponse,
 } from 'src/generated/food-recognition';
 import { MealService } from '../services/meal.service';
-import { Meal } from '../schemas/meal.schema';
+import { MealDocument } from '../schemas/meal.schema';
 
 @Controller()
 export class MealController {
@@ -32,9 +32,10 @@ export class MealController {
   async getUserMealHistory(data: UserIdRequest): Promise<UserMealHistoryResponse> {
     const meals = await this.mealService.getUserMealHistory(data.userId);
     return {
-      meals: meals.map((meal) => ({
+      meals: meals.map((meal: MealDocument) => ({
         id: meal._id.toString(),
         userId: meal.userId,
+        name: data.name,
         ingredients: meal.ingredients,
         imageBase64: meal.imageData?.toString('base64') ?? '',
         createdAt: meal.createdAt.toISOString(),
@@ -44,12 +45,13 @@ export class MealController {
 
   @GrpcMethod('MealService', 'GetMealById')
   async getMealById(data: MealIdRequest): Promise<GrpcMeal | null> {
-    const meal = await this.mealService.getMealById(data.mealId);
+    const meal: MealDocument = await this.mealService.getMealById(data.mealId);
     if (!meal) return null;
 
     return {
       id: meal._id.toString(),
       userId: meal.userId,
+      name: data.name,
       ingredients: meal.ingredients,
       imageBase64: meal.imageData?.toString('base64') ?? '',
       createdAt: meal.createdAt.toISOString(),
@@ -58,12 +60,13 @@ export class MealController {
 
   @GrpcMethod('MealService', 'DeleteMeal')
   async deleteMeal(data: MealIdRequest): Promise<GrpcMeal | null> {
-    const meal = await this.mealService.deleteMeal(data.mealId);
+    const meal: MealDocument = await this.mealService.deleteMeal(data.mealId);
     if (!meal) return null;
 
     return {
       id: meal._id.toString(),
       userId: meal.userId,
+      name: data.name,
       ingredients: meal.ingredients,
       imageBase64: meal.imageData?.toString('base64') ?? '',
       createdAt: meal.createdAt.toISOString(),
@@ -75,9 +78,10 @@ export class MealController {
     const date = new Date(data.date);
     const meals = await this.mealService.getMealsByDate(data.userId, date);
     return {
-      meals: meals.map((meal) => ({
+      meals: meals.map((meal: MealDocument) => ({
         id: meal._id.toString(),
         userId: meal.userId,
+        name: data.name,
         ingredients: meal.ingredients,
         imageBase64: meal.imageData?.toString('base64') ?? '',
         createdAt: meal.createdAt.toISOString(),
