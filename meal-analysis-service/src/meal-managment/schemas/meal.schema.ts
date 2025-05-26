@@ -11,7 +11,7 @@ export class Meal extends Document {
   ingredients: IngredientDetails[];
 
   @Prop()
-  imageUrl?: string;
+  imageData?: Buffer;
 }
 
 export const MealSchema = SchemaFactory.createForClass(Meal);
