@@ -2,11 +2,22 @@ syntax = "proto3";
 
 package foodrecognition;
 
+// Existing service
 service FoodRecognitionService {
   rpc AnalyzeMeal(AnalyzeMealRequest) returns (AnalyzeMealResponse);
   rpc FetchIngredientDetails(IngredientDetailsRequest) returns (IngredientDetailsResponse);
 }
 
+// New service
+service MealService {
+  rpc SaveMeal(SaveMealRequest) returns (Meal);
+  rpc GetUserMealHistory(UserIdRequest) returns (UserMealHistoryResponse);
+  rpc GetMealById(MealIdRequest) returns (Meal);
+  rpc DeleteMeal(MealIdRequest) returns (Meal);
+  rpc GetMealsByDate(MealsByDateRequest) returns (UserMealHistoryResponse);
+}
+
+// === ANALYZE MEAL ===
 message AnalyzeMealRequest {
   bytes image = 1;
 }
@@ -15,6 +26,14 @@ message AnalyzeMealResponse {
   repeated MealRecognitionResult items = 1;
 }
 
+message MealRecognitionResult {
+  string foodName = 1;
+  double weight = 2;
+  string usda_food_label = 3;
+  NutritionInfo nutrition = 4;
+}
+
+// === INGREDIENT DETAILS ===
 message IngredientDetailsRequest {
   repeated string names = 1;
 }
@@ -23,25 +42,54 @@ message IngredientDetailsResponse {
   repeated IngredientsRecognitionResult items = 1;
 }
 
-message MealRecognitionResult {
-  string foodName = 1;
-  double weight = 2;
-  optional string usda_food_label = 3;
-  optional NutritionInfo nutrition = 4;
-}
-
-
 message IngredientsRecognitionResult {
   string name = 1;
-  optional NutritionInfo nutrition = 2;
+  NutritionInfo nutrition = 2;
 }
 
-
+// === SHARED NUTRITION INFO ===
 message NutritionInfo {
-  map<string, Nutrient> per100g = 1;  // Direct map without nested nutrients
+  map<string, Nutrient> per100g = 1;
 }
 
 message Nutrient {
-  optional double value = 1;
+  double value = 1;
   string unit = 2;
+}
+
+// === MEAL MANAGEMENT ===
+message IngredientDetails {
+  string name = 1;
+  NutritionInfo nutrition = 2;
+}
+
+message SaveMealRequest {
+  string userId = 1;
+  repeated IngredientDetails ingredients = 2;
+  string imageBase64 = 3;
+}
+
+message Meal {
+  string id = 1;
+  string userId = 2;
+  repeated IngredientDetails ingredients = 3;
+  string imageBase64 = 4;
+  string createdAt = 5;
+}
+
+message UserIdRequest {
+  string userId = 1;
+}
+
+message MealIdRequest {
+  string mealId = 1;
+}
+
+message MealsByDateRequest {
+  string userId = 1;
+  string date = 2; // ISO string (e.g. "2024-05-01")
+}
+
+message UserMealHistoryResponse {
+  repeated Meal meals = 1;
 }
