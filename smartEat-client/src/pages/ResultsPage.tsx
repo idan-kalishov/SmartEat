@@ -71,7 +71,7 @@ export default function ResultsPage() {
   );
 
   const handleLogAndNavigate = () => {
-    logMealToBackend(name, servingSize, adjustedNutrition);
+    logMealToBackend(name, servingSize, ingredients || [], image);
     navigate("/");
   };
 
