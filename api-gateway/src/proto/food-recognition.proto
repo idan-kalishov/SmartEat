@@ -2,13 +2,13 @@ syntax = "proto3";
 
 package foodrecognition;
 
-// Existing service
+// === RECOGNITION SERVICE ===
 service FoodRecognitionService {
   rpc AnalyzeMeal(AnalyzeMealRequest) returns (AnalyzeMealResponse);
   rpc FetchIngredientDetails(IngredientDetailsRequest) returns (IngredientDetailsResponse);
 }
 
-// New service
+// === MEAL MANAGEMENT SERVICE ===
 service MealService {
   rpc SaveMeal(SaveMealRequest) returns (Meal);
   rpc GetUserMealHistory(UserIdRequest) returns (UserMealHistoryResponse);
@@ -17,7 +17,7 @@ service MealService {
   rpc GetMealsByDate(MealsByDateRequest) returns (UserMealHistoryResponse);
 }
 
-// === ANALYZE MEAL ===
+// === RECOGNITION TYPES ===
 message AnalyzeMealRequest {
   bytes image = 1;
 }
@@ -33,7 +33,6 @@ message MealRecognitionResult {
   NutritionInfo nutrition = 4;
 }
 
-// === INGREDIENT DETAILS ===
 message IngredientDetailsRequest {
   repeated string names = 1;
 }
@@ -47,7 +46,6 @@ message IngredientsRecognitionResult {
   NutritionInfo nutrition = 2;
 }
 
-// === SHARED NUTRITION INFO ===
 message NutritionInfo {
   map<string, Nutrient> per100g = 1;
 }
@@ -57,7 +55,7 @@ message Nutrient {
   string unit = 2;
 }
 
-// === MEAL MANAGEMENT ===
+// === MEAL MANAGEMENT TYPES ===
 message IngredientDetails {
   string name = 1;
   NutritionInfo nutrition = 2;
@@ -65,16 +63,18 @@ message IngredientDetails {
 
 message SaveMealRequest {
   string userId = 1;
-  repeated IngredientDetails ingredients = 2;
-  string imageBase64 = 3;
+  string name = 2;
+  repeated IngredientDetails ingredients = 3;
+  string imageBase64 = 4;
 }
 
 message Meal {
   string id = 1;
   string userId = 2;
-  repeated IngredientDetails ingredients = 3;
-  string imageBase64 = 4;
-  string createdAt = 5;
+  string name = 3;
+  repeated IngredientDetails ingredients = 4;
+  string imageBase64 = 5;
+  string createdAt = 6;
 }
 
 message UserIdRequest {
@@ -87,7 +87,7 @@ message MealIdRequest {
 
 message MealsByDateRequest {
   string userId = 1;
-  string date = 2; // ISO string (e.g. "2024-05-01")
+  string date = 2;
 }
 
 message UserMealHistoryResponse {
