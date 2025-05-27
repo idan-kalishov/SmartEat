@@ -7,4 +7,6 @@ export const ROUTES = {
     USER_PROFILE: "/user-profile",
     VERIFY: "/verify",
     RESULT: "/results",
+    PROFILE: "/profile",
+    PREFERENCES: "/preferences",
 };

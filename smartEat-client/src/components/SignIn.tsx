@@ -101,7 +101,7 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
     } catch (err) {
       if (axios.isAxiosError(err)) {
         setSnackbarMessage(
-          err.response?.data || "An error occurred during login."
+          err.response?.data.message || "An error occurred during login."
         );
         setSnackbarSeverity("error");
         setSnackbarOpen(true);
