@@ -2,9 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { IngredientDetails } from '../models/ingredient-details.interface';
 
-export type MealDocument = Meal & Document & { createdAt?: Date };
-
-@Schema({ timestamps: true })
+@Schema()
 export class Meal extends Document {
   @Prop({ required: true })
   userId: string;
@@ -12,11 +10,15 @@ export class Meal extends Document {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ required: true, type: [Object] })
+  @Prop({ type: [Object], required: true })
   ingredients: IngredientDetails[];
 
-  @Prop()
+  @Prop({ type: Buffer })
   imageData?: Buffer;
+
+  @Prop({ type: Date, default: Date.now })
+  createdAt: Date;
 }
 
 export const MealSchema = SchemaFactory.createForClass(Meal);
+export type MealDocument = Meal & Document;

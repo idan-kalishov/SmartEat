@@ -29,8 +29,8 @@ message AnalyzeMealResponse {
 message MealRecognitionResult {
   string foodName = 1;
   double weight = 2;
-  string usda_food_label = 3;
-  NutritionInfo nutrition = 4;
+  optional string usda_food_label = 3;
+  optional NutritionInfo nutrition = 4;
 }
 
 message IngredientDetailsRequest {
@@ -43,7 +43,7 @@ message IngredientDetailsResponse {
 
 message IngredientsRecognitionResult {
   string name = 1;
-  NutritionInfo nutrition = 2;
+  optional NutritionInfo nutrition = 2;
 }
 
 message NutritionInfo {
@@ -51,7 +51,7 @@ message NutritionInfo {
 }
 
 message Nutrient {
-  double value = 1;
+  optional double value = 1;
   string unit = 2;
 }
 

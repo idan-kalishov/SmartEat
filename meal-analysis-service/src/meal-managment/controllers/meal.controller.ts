@@ -1,15 +1,15 @@
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import {
-  SaveMealRequest,
-  UserIdRequest,
+  Meal as GrpcMeal,
   MealIdRequest,
   MealsByDateRequest,
-  Meal as GrpcMeal,
-  UserMealHistoryResponse,
+  SaveMealRequest,
+  UserIdRequest,
+  UserMealHistoryResponse
 } from 'src/generated/food-recognition';
-import { MealService } from '../services/meal.service';
 import { MealDocument } from '../schemas/meal.schema';
+import { MealService } from '../services/meal.service';
 
 @Controller()
 export class MealController {
@@ -21,11 +21,27 @@ export class MealController {
       ? Buffer.from(data.imageBase64, 'base64')
       : undefined;
 
-    return this.mealService.saveMeal({
+    const meal = await this.mealService.saveMeal({
       userId: data.userId,
-      ingredients: data.ingredients,
+      name: data.name,
+      ingredients: data.ingredients.map(ing => ({
+        name: ing.name,
+        nutrition: ing.nutrition,
+      })),
       imageData: imageBuffer,
     });
+
+    return {
+      id: meal._id.toString(),
+      userId: meal.userId,
+      name: meal.name,
+      ingredients: meal.ingredients.map(ing => ({
+        name: ing.name,
+        nutrition: ing.nutrition,
+      })),
+      imageBase64: meal.imageData?.toString('base64') ?? '',
+      createdAt: meal.createdAt.toISOString(),
+    };
   }
 
   @GrpcMethod('MealService', 'GetUserMealHistory')
@@ -35,8 +51,11 @@ export class MealController {
       meals: meals.map((meal: MealDocument) => ({
         id: meal._id.toString(),
         userId: meal.userId,
-        name: data.name,
-        ingredients: meal.ingredients,
+        name: meal.name,
+        ingredients: meal.ingredients.map(ing => ({
+          name: ing.name,
+          nutrition: ing.nutrition,
+        })),
         imageBase64: meal.imageData?.toString('base64') ?? '',
         createdAt: meal.createdAt.toISOString(),
       })),
@@ -51,8 +70,11 @@ export class MealController {
     return {
       id: meal._id.toString(),
       userId: meal.userId,
-      name: data.name,
-      ingredients: meal.ingredients,
+      name: meal.name,
+      ingredients: meal.ingredients.map(ing => ({
+        name: ing.name,
+        nutrition: ing.nutrition,
+      })),
       imageBase64: meal.imageData?.toString('base64') ?? '',
       createdAt: meal.createdAt.toISOString(),
     };
@@ -66,8 +88,11 @@ export class MealController {
     return {
       id: meal._id.toString(),
       userId: meal.userId,
-      name: data.name,
-      ingredients: meal.ingredients,
+      name: meal.name,
+      ingredients: meal.ingredients.map(ing => ({
+        name: ing.name,
+        nutrition: ing.nutrition,
+      })),
       imageBase64: meal.imageData?.toString('base64') ?? '',
       createdAt: meal.createdAt.toISOString(),
     };
@@ -81,8 +106,11 @@ export class MealController {
       meals: meals.map((meal: MealDocument) => ({
         id: meal._id.toString(),
         userId: meal.userId,
-        name: data.name,
-        ingredients: meal.ingredients,
+        name: meal.name,
+        ingredients: meal.ingredients.map(ing => ({
+          name: ing.name,
+          nutrition: ing.nutrition,
+        })),
         imageBase64: meal.imageData?.toString('base64') ?? '',
         createdAt: meal.createdAt.toISOString(),
       })),

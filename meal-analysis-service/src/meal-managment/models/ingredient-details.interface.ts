@@ -1,7 +1,8 @@
-import { Per100gNutrition } from "../types/nutrition.types";
+import { NutritionInfo } from '../../generated/food-recognition';
 
 export interface IngredientDetails {
     name: string;
-    weight: number;
-    per100gNutrition?: Per100gNutrition;
+    weight?: number;
+    nutrition?: NutritionInfo;
+    per100gNutrition?: any;
 }

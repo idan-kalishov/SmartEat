@@ -12,12 +12,20 @@ import { Observable } from "rxjs";
 
 export const protobufPackage = "foodrecognition";
 
+/** === RECOGNITION TYPES === */
 export interface AnalyzeMealRequest {
   image: Uint8Array;
 }
 
 export interface AnalyzeMealResponse {
   items: MealRecognitionResult[];
+}
+
+export interface MealRecognitionResult {
+  foodName: string;
+  weight: number;
+  usdaFoodLabel?: string | undefined;
+  nutrition?: NutritionInfo | undefined;
 }
 
 export interface IngredientDetailsRequest {
@@ -28,20 +36,12 @@ export interface IngredientDetailsResponse {
   items: IngredientsRecognitionResult[];
 }
 
-export interface MealRecognitionResult {
-  foodName: string;
-  weight: number;
-  usdaFoodLabel?: string | undefined;
-  nutrition?: NutritionInfo | undefined;
-}
-
 export interface IngredientsRecognitionResult {
   name: string;
   nutrition?: NutritionInfo | undefined;
 }
 
 export interface NutritionInfo {
-  /** Direct map without nested nutrients */
   per100g: { [key: string]: Nutrient };
 }
 
@@ -53,6 +53,45 @@ export interface NutritionInfo_Per100gEntry {
 export interface Nutrient {
   value?: number | undefined;
   unit: string;
+}
+
+/** === MEAL MANAGEMENT TYPES === */
+export interface IngredientDetails {
+  name: string;
+  nutrition: NutritionInfo | undefined;
+}
+
+export interface SaveMealRequest {
+  userId: string;
+  name: string;
+  ingredients: IngredientDetails[];
+  imageBase64: string;
+}
+
+export interface Meal {
+  id: string;
+  userId: string;
+  name: string;
+  ingredients: IngredientDetails[];
+  imageBase64: string;
+  createdAt: string;
+}
+
+export interface UserIdRequest {
+  userId: string;
+}
+
+export interface MealIdRequest {
+  mealId: string;
+}
+
+export interface MealsByDateRequest {
+  userId: string;
+  date: string;
+}
+
+export interface UserMealHistoryResponse {
+  meals: Meal[];
 }
 
 export const FOODRECOGNITION_PACKAGE_NAME = "foodrecognition";
@@ -131,6 +170,76 @@ export const AnalyzeMealResponse: MessageFns<AnalyzeMealResponse> = {
   },
 };
 
+function createBaseMealRecognitionResult(): MealRecognitionResult {
+  return { foodName: "", weight: 0 };
+}
+
+export const MealRecognitionResult: MessageFns<MealRecognitionResult> = {
+  encode(message: MealRecognitionResult, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.foodName !== "") {
+      writer.uint32(10).string(message.foodName);
+    }
+    if (message.weight !== 0) {
+      writer.uint32(17).double(message.weight);
+    }
+    if (message.usdaFoodLabel !== undefined) {
+      writer.uint32(26).string(message.usdaFoodLabel);
+    }
+    if (message.nutrition !== undefined) {
+      NutritionInfo.encode(message.nutrition, writer.uint32(34).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): MealRecognitionResult {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMealRecognitionResult();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.foodName = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 17) {
+            break;
+          }
+
+          message.weight = reader.double();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.usdaFoodLabel = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.nutrition = NutritionInfo.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
 function createBaseIngredientDetailsRequest(): IngredientDetailsRequest {
   return { names: [] };
 }
@@ -193,76 +302,6 @@ export const IngredientDetailsResponse: MessageFns<IngredientDetailsResponse> = 
           }
 
           message.items.push(IngredientsRecognitionResult.decode(reader, reader.uint32()));
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
-
-function createBaseMealRecognitionResult(): MealRecognitionResult {
-  return { foodName: "", weight: 0 };
-}
-
-export const MealRecognitionResult: MessageFns<MealRecognitionResult> = {
-  encode(message: MealRecognitionResult, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.foodName !== "") {
-      writer.uint32(10).string(message.foodName);
-    }
-    if (message.weight !== 0) {
-      writer.uint32(17).double(message.weight);
-    }
-    if (message.usdaFoodLabel !== undefined) {
-      writer.uint32(26).string(message.usdaFoodLabel);
-    }
-    if (message.nutrition !== undefined) {
-      NutritionInfo.encode(message.nutrition, writer.uint32(34).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): MealRecognitionResult {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseMealRecognitionResult();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.foodName = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 17) {
-            break;
-          }
-
-          message.weight = reader.double();
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.usdaFoodLabel = reader.string();
-          continue;
-        }
-        case 4: {
-          if (tag !== 34) {
-            break;
-          }
-
-          message.nutrition = NutritionInfo.decode(reader, reader.uint32());
           continue;
         }
       }
@@ -459,11 +498,384 @@ export const Nutrient: MessageFns<Nutrient> = {
   },
 };
 
+function createBaseIngredientDetails(): IngredientDetails {
+  return { name: "", nutrition: undefined };
+}
+
+export const IngredientDetails: MessageFns<IngredientDetails> = {
+  encode(message: IngredientDetails, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.name !== "") {
+      writer.uint32(10).string(message.name);
+    }
+    if (message.nutrition !== undefined) {
+      NutritionInfo.encode(message.nutrition, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): IngredientDetails {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseIngredientDetails();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.name = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.nutrition = NutritionInfo.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseSaveMealRequest(): SaveMealRequest {
+  return { userId: "", name: "", ingredients: [], imageBase64: "" };
+}
+
+export const SaveMealRequest: MessageFns<SaveMealRequest> = {
+  encode(message: SaveMealRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.userId !== "") {
+      writer.uint32(10).string(message.userId);
+    }
+    if (message.name !== "") {
+      writer.uint32(18).string(message.name);
+    }
+    for (const v of message.ingredients) {
+      IngredientDetails.encode(v!, writer.uint32(26).fork()).join();
+    }
+    if (message.imageBase64 !== "") {
+      writer.uint32(34).string(message.imageBase64);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SaveMealRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseSaveMealRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.userId = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.name = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.ingredients.push(IngredientDetails.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.imageBase64 = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseMeal(): Meal {
+  return { id: "", userId: "", name: "", ingredients: [], imageBase64: "", createdAt: "" };
+}
+
+export const Meal: MessageFns<Meal> = {
+  encode(message: Meal, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.userId !== "") {
+      writer.uint32(18).string(message.userId);
+    }
+    if (message.name !== "") {
+      writer.uint32(26).string(message.name);
+    }
+    for (const v of message.ingredients) {
+      IngredientDetails.encode(v!, writer.uint32(34).fork()).join();
+    }
+    if (message.imageBase64 !== "") {
+      writer.uint32(42).string(message.imageBase64);
+    }
+    if (message.createdAt !== "") {
+      writer.uint32(50).string(message.createdAt);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Meal {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMeal();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.userId = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.name = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.ingredients.push(IngredientDetails.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.imageBase64 = reader.string();
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.createdAt = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseUserIdRequest(): UserIdRequest {
+  return { userId: "" };
+}
+
+export const UserIdRequest: MessageFns<UserIdRequest> = {
+  encode(message: UserIdRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.userId !== "") {
+      writer.uint32(10).string(message.userId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): UserIdRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseUserIdRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.userId = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseMealIdRequest(): MealIdRequest {
+  return { mealId: "" };
+}
+
+export const MealIdRequest: MessageFns<MealIdRequest> = {
+  encode(message: MealIdRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.mealId !== "") {
+      writer.uint32(10).string(message.mealId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): MealIdRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMealIdRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.mealId = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseMealsByDateRequest(): MealsByDateRequest {
+  return { userId: "", date: "" };
+}
+
+export const MealsByDateRequest: MessageFns<MealsByDateRequest> = {
+  encode(message: MealsByDateRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.userId !== "") {
+      writer.uint32(10).string(message.userId);
+    }
+    if (message.date !== "") {
+      writer.uint32(18).string(message.date);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): MealsByDateRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMealsByDateRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.userId = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.date = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseUserMealHistoryResponse(): UserMealHistoryResponse {
+  return { meals: [] };
+}
+
+export const UserMealHistoryResponse: MessageFns<UserMealHistoryResponse> = {
+  encode(message: UserMealHistoryResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.meals) {
+      Meal.encode(v!, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): UserMealHistoryResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseUserMealHistoryResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.meals.push(Meal.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+/** === RECOGNITION SERVICE === */
+
 export interface FoodRecognitionServiceClient {
   analyzeMeal(request: AnalyzeMealRequest): Observable<AnalyzeMealResponse>;
 
   fetchIngredientDetails(request: IngredientDetailsRequest): Observable<IngredientDetailsResponse>;
 }
+
+/** === RECOGNITION SERVICE === */
 
 export interface FoodRecognitionServiceController {
   analyzeMeal(
@@ -492,6 +904,7 @@ export function FoodRecognitionServiceControllerMethods() {
 
 export const FOOD_RECOGNITION_SERVICE_NAME = "FoodRecognitionService";
 
+/** === RECOGNITION SERVICE === */
 export type FoodRecognitionServiceService = typeof FoodRecognitionServiceService;
 export const FoodRecognitionServiceService = {
   analyzeMeal: {
@@ -518,6 +931,113 @@ export const FoodRecognitionServiceService = {
 export interface FoodRecognitionServiceServer extends UntypedServiceImplementation {
   analyzeMeal: handleUnaryCall<AnalyzeMealRequest, AnalyzeMealResponse>;
   fetchIngredientDetails: handleUnaryCall<IngredientDetailsRequest, IngredientDetailsResponse>;
+}
+
+/** === MEAL MANAGEMENT SERVICE === */
+
+export interface MealServiceClient {
+  saveMeal(request: SaveMealRequest): Observable<Meal>;
+
+  getUserMealHistory(request: UserIdRequest): Observable<UserMealHistoryResponse>;
+
+  getMealById(request: MealIdRequest): Observable<Meal>;
+
+  deleteMeal(request: MealIdRequest): Observable<Meal>;
+
+  getMealsByDate(request: MealsByDateRequest): Observable<UserMealHistoryResponse>;
+}
+
+/** === MEAL MANAGEMENT SERVICE === */
+
+export interface MealServiceController {
+  saveMeal(request: SaveMealRequest): Promise<Meal> | Observable<Meal> | Meal;
+
+  getUserMealHistory(
+    request: UserIdRequest,
+  ): Promise<UserMealHistoryResponse> | Observable<UserMealHistoryResponse> | UserMealHistoryResponse;
+
+  getMealById(request: MealIdRequest): Promise<Meal> | Observable<Meal> | Meal;
+
+  deleteMeal(request: MealIdRequest): Promise<Meal> | Observable<Meal> | Meal;
+
+  getMealsByDate(
+    request: MealsByDateRequest,
+  ): Promise<UserMealHistoryResponse> | Observable<UserMealHistoryResponse> | UserMealHistoryResponse;
+}
+
+export function MealServiceControllerMethods() {
+  return function (constructor: Function) {
+    const grpcMethods: string[] = ["saveMeal", "getUserMealHistory", "getMealById", "deleteMeal", "getMealsByDate"];
+    for (const method of grpcMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcMethod("MealService", method)(constructor.prototype[method], method, descriptor);
+    }
+    const grpcStreamMethods: string[] = [];
+    for (const method of grpcStreamMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcStreamMethod("MealService", method)(constructor.prototype[method], method, descriptor);
+    }
+  };
+}
+
+export const MEAL_SERVICE_NAME = "MealService";
+
+/** === MEAL MANAGEMENT SERVICE === */
+export type MealServiceService = typeof MealServiceService;
+export const MealServiceService = {
+  saveMeal: {
+    path: "/foodrecognition.MealService/SaveMeal",
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: (value: SaveMealRequest) => Buffer.from(SaveMealRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer) => SaveMealRequest.decode(value),
+    responseSerialize: (value: Meal) => Buffer.from(Meal.encode(value).finish()),
+    responseDeserialize: (value: Buffer) => Meal.decode(value),
+  },
+  getUserMealHistory: {
+    path: "/foodrecognition.MealService/GetUserMealHistory",
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: (value: UserIdRequest) => Buffer.from(UserIdRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer) => UserIdRequest.decode(value),
+    responseSerialize: (value: UserMealHistoryResponse) => Buffer.from(UserMealHistoryResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer) => UserMealHistoryResponse.decode(value),
+  },
+  getMealById: {
+    path: "/foodrecognition.MealService/GetMealById",
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: (value: MealIdRequest) => Buffer.from(MealIdRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer) => MealIdRequest.decode(value),
+    responseSerialize: (value: Meal) => Buffer.from(Meal.encode(value).finish()),
+    responseDeserialize: (value: Buffer) => Meal.decode(value),
+  },
+  deleteMeal: {
+    path: "/foodrecognition.MealService/DeleteMeal",
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: (value: MealIdRequest) => Buffer.from(MealIdRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer) => MealIdRequest.decode(value),
+    responseSerialize: (value: Meal) => Buffer.from(Meal.encode(value).finish()),
+    responseDeserialize: (value: Buffer) => Meal.decode(value),
+  },
+  getMealsByDate: {
+    path: "/foodrecognition.MealService/GetMealsByDate",
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: (value: MealsByDateRequest) => Buffer.from(MealsByDateRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer) => MealsByDateRequest.decode(value),
+    responseSerialize: (value: UserMealHistoryResponse) => Buffer.from(UserMealHistoryResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer) => UserMealHistoryResponse.decode(value),
+  },
+} as const;
+
+export interface MealServiceServer extends UntypedServiceImplementation {
+  saveMeal: handleUnaryCall<SaveMealRequest, Meal>;
+  getUserMealHistory: handleUnaryCall<UserIdRequest, UserMealHistoryResponse>;
+  getMealById: handleUnaryCall<MealIdRequest, Meal>;
+  deleteMeal: handleUnaryCall<MealIdRequest, Meal>;
+  getMealsByDate: handleUnaryCall<MealsByDateRequest, UserMealHistoryResponse>;
 }
 
 export interface MessageFns<T> {
