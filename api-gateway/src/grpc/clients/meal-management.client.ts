@@ -1,61 +1,41 @@
-import {
-    Meal,
-    MealIdRequest,
-    MealsByDateRequest,
-    MealServiceClient,
-    SaveMealRequest,
-    UserIdRequest,
-    UserMealHistoryResponse
-} from '@generated/food-recognition';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Client, ClientGrpc } from '@nestjs/microservices';
-import { foodRecognitionGrpcOptions } from '../food-recognition.config';
-
-interface AnalyzeMealRequest {
-    image: Buffer;
-}
+import { Observable } from 'rxjs';
+import { mealManagementGrpcOptions } from '../meal-management.config';
+import {
+  MealManagementServiceClient,
+  SaveMealRequest,
+  SaveMealResponse,
+  DeleteMealRequest,
+  DeleteMealResponse,
+  GetMealsByDateRequest,
+  GetMealsByDateResponse,
+  Meal,
+} from '@generated/meal-management';
 
 @Injectable()
 export class MealManagementClient implements OnModuleInit {
-    @Client(foodRecognitionGrpcOptions)
+    @Client(mealManagementGrpcOptions)
     private readonly client: ClientGrpc;
 
-    private mealService: MealServiceClient;
+    private mealService: MealManagementServiceClient;
 
     onModuleInit() {
-        this.mealService = this.client.getService(
-            'MealService',
+        this.mealService = this.client.getService<MealManagementServiceClient>(
+            'MealManagementService',
         );
     }
 
-    async saveMeal(request: SaveMealRequest): Promise<Meal> {
+    async saveMeal(request: SaveMealRequest): Promise<SaveMealResponse> {
         try {
             return await this.mealService.saveMeal(request).toPromise();
         } catch (error) {
-            console.error('Error analyzing meal:', error);
-            throw new Error('Failed to analyze meal');
+            console.error('Error saving meal:', error);
+            throw new Error('Failed to save meal');
         }
     }
 
-    async getUserMealHistory(request: UserIdRequest): Promise<UserMealHistoryResponse> {
-        try {
-            return await this.mealService.getUserMealHistory(request).toPromise();
-        } catch (error) {
-            console.error('Error getting user meal history:', error);
-            throw new Error('Failed to get user meal history');
-        }
-    }
-
-    async getMealById(request: MealIdRequest): Promise<Meal> {
-        try {
-            return await this.mealService.getMealById(request).toPromise();
-        } catch (error) {
-            console.error('Error getting meal by id:', error);
-            throw new Error('Failed to get meal by id');
-        }
-    }
-
-    async deleteMeal(request: MealIdRequest): Promise<Meal> {
+    async deleteMeal(request: DeleteMealRequest): Promise<DeleteMealResponse> {
         try {
             return await this.mealService.deleteMeal(request).toPromise();
         } catch (error) {
@@ -64,7 +44,7 @@ export class MealManagementClient implements OnModuleInit {
         }
     }
 
-    async getMealsByDate(request: MealsByDateRequest): Promise<UserMealHistoryResponse> {
+    async getMealsByDate(request: GetMealsByDateRequest): Promise<GetMealsByDateResponse> {
         try {
             return await this.mealService.getMealsByDate(request).toPromise();
         } catch (error) {

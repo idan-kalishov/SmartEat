@@ -16,8 +16,8 @@ async function bootstrap() {
 
   dotenv.config();
 
-  // gRPC Server
-  const grpcOptions: MicroserviceOptions = {
+  // Food Recognition gRPC Server
+  const foodRecognitionGrpcOptions: MicroserviceOptions = {
     transport: Transport.GRPC,
     options: {
       package: 'foodrecognition',
@@ -26,7 +26,18 @@ async function bootstrap() {
     },
   };
 
-  app.connectMicroservice<MicroserviceOptions>(grpcOptions);
+  // Meal Management gRPC Server
+  const mealManagementGrpcOptions: MicroserviceOptions = {
+    transport: Transport.GRPC,
+    options: {
+      package: 'mealmgmt',
+      protoPath: join(__dirname, '../src/proto/meal-management.proto'),
+      url: `0.0.0.0:${process.env.MEAL_MANAGEMENT_GRPC_PORT || 50053}`,
+    },
+  };
+
+  app.connectMicroservice<MicroserviceOptions>(foodRecognitionGrpcOptions);
+  app.connectMicroservice<MicroserviceOptions>(mealManagementGrpcOptions);
 
   await app.startAllMicroservices();
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');

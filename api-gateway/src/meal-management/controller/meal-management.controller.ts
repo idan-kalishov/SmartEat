@@ -4,38 +4,37 @@ import {
   Delete,
   Get,
   Param,
-  Post
+  Post,
 } from '@nestjs/common';
-
-import { Meal, SaveMealRequest, UserMealHistoryResponse } from '@generated/food-recognition';
 import { MealManagementClient } from 'src/grpc/clients/meal-management.client';
+import {
+  Meal,
+  SaveMealRequest,
+  GetMealsByDateResponse,
+} from '@generated/meal-management';
 
 @Controller('meals')
 export class MealManagementController {
-  constructor(private readonly client: MealManagementClient) { }
+  constructor(private readonly client: MealManagementClient) {}
 
   @Post()
-  async saveMeal(@Body() body: SaveMealRequest): Promise<Meal> {
-    return this.client.saveMeal({ ...body, userId: 'to be filled' });
+  async saveMeal(@Body() body: SaveMealRequest): Promise<{ mealId: string; success: boolean }> {
+    return this.client.saveMeal(body);
   }
 
-  @Get('/by-id/:id')
-  async getMealById(@Param('id') id: string): Promise<Meal> {
-    return this.client.getMealById({ mealId: id });
+  @Delete(':mealId')
+  async deleteMeal(
+    @Param('mealId') mealId: string,
+    @Body('userId') userId: string,
+  ): Promise<{ success: boolean }> {
+    return this.client.deleteMeal({ userId, mealId });
   }
 
-  @Get('/meal-history')
-  async getUserMealHistory(): Promise<UserMealHistoryResponse> {
-    return this.client.getUserMealHistory({ userId: 'to be filled' });
-  }
-
-  @Delete('/:id')
-  async deleteMeal(@Param('id') id: string): Promise<Meal> {
-    return this.client.deleteMeal({ mealId: id });
-  }
-
-  @Get('/by-date/:date')
-  async getMealsByDate(@Param('date') date: string): Promise<UserMealHistoryResponse> {
-    return this.client.getMealsByDate({ userId: 'to be filled', date });
+  @Get('by-date/:date')
+  async getMealsByDate(
+    @Param('date') date: string,
+    @Body('userId') userId: string,
+  ): Promise<GetMealsByDateResponse> {
+    return this.client.getMealsByDate({ userId, date });
   }
 }

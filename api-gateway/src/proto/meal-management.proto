@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package mealmgmt;
+
+service MealManagementService {
+  rpc SaveMeal(SaveMealRequest) returns (SaveMealResponse);
+  rpc DeleteMeal(DeleteMealRequest) returns (DeleteMealResponse);
+  rpc GetMealsByDate(GetMealsByDateRequest) returns (GetMealsByDateResponse);
+}
+
+message SaveMealRequest {
+  string userId = 1;
+  Meal meal = 2;
+}
+
+message SaveMealResponse {
+  string mealId = 1;
+  bool success = 2;
+}
+
+message DeleteMealRequest {
+  string userId = 1;
+  string mealId = 2;
+}
+
+message DeleteMealResponse {
+  bool success = 1;
+}
+
+message GetMealsByDateRequest {
+  string userId = 1;
+  string date = 2; // ISO date string
+}
+
+message GetMealsByDateResponse {
+  repeated Meal meals = 1;
+}
+
+message Meal {
+  string id = 1;
+  string userId = 2;
+  string createdAt = 3; // ISO date string
+  repeated Ingredient ingredients = 4;
+}
+
+message Ingredient {
+  string name = 1;
+  double weight = 2;
+  optional string usdaFoodLabel = 3;
+  optional NutritionInfo nutrition = 4;
+}
+
+message NutritionInfo {
+  map<string, Nutrient> per100g = 1;
+}
+
+message Nutrient {
+  optional double value = 1;
+  string unit = 2;
+} 

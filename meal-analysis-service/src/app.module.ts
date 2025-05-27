@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MealAnalysisModule } from './meal-analysis/meal-analysis.module';
-import { MealManagementModule } from './meal-managment/meal-managment.module';
+import { MealManagementModule } from './meal-management/meal-management.module';
 
 @Module({
   imports: [
