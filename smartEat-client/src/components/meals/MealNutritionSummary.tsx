@@ -9,12 +9,13 @@ interface MealNutritionSummaryProps {
 function getMealNutritionTotals(meal: Meal) {
   let calories = 0, protein = 0, fat = 0, carbs = 0;
   meal.ingredients.forEach(ingredient => {
-    if (ingredient.per100gNutrition) {
+    if (ingredient.nutrition?.per100g) {
       const w = ingredient.weight;
-      calories += (ingredient.per100gNutrition.calories.value * w) / 100;
-      protein += (ingredient.per100gNutrition.protein.value * w) / 100;
-      fat += (ingredient.per100gNutrition.fat.value * w) / 100;
-      carbs += (ingredient.per100gNutrition.carbs.value * w) / 100;
+      const nutrition = ingredient.nutrition.per100g;
+      calories += ((nutrition.calories?.value || 0) * w) / 100;
+      protein += ((nutrition.protein?.value || 0) * w) / 100;
+      fat += ((nutrition.fat?.value || 0) * w) / 100;
+      carbs += ((nutrition.carbs?.value || 0) * w) / 100;
     }
   });
   return {
