@@ -1,55 +1,117 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Client, ClientGrpc } from '@nestjs/microservices';
-import { Observable } from 'rxjs';
+import { BadRequestException } from '@nestjs/common';
 import { mealManagementGrpcOptions } from '../meal-management.config';
 import {
-  MealManagementServiceClient,
+  Meal,
   SaveMealRequest,
   SaveMealResponse,
   DeleteMealRequest,
   DeleteMealResponse,
   GetMealsByDateRequest,
   GetMealsByDateResponse,
-  Meal,
+  MealManagementServiceClient,
 } from '@generated/meal-management';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class MealManagementClient implements OnModuleInit {
-    @Client(mealManagementGrpcOptions)
-    private readonly client: ClientGrpc;
+  @Client(mealManagementGrpcOptions)
+  private readonly client: ClientGrpc;
 
-    private mealService: MealManagementServiceClient;
+  private mealService: MealManagementServiceClient;
 
-    onModuleInit() {
-        this.mealService = this.client.getService<MealManagementServiceClient>(
-            'MealManagementService',
-        );
+  onModuleInit() {
+    this.mealService = this.client.getService<MealManagementServiceClient>(
+      'MealManagementService',
+    );
+  }
+
+  private validateMeal(meal: Meal): void {
+    if (!meal.ingredients || !Array.isArray(meal.ingredients) || meal.ingredients.length === 0) {
+      throw new BadRequestException('Meal must have at least one ingredient');
     }
 
-    async saveMeal(request: SaveMealRequest): Promise<SaveMealResponse> {
-        try {
-            return await this.mealService.saveMeal(request).toPromise();
-        } catch (error) {
-            console.error('Error saving meal:', error);
-            throw new Error('Failed to save meal');
-        }
-    }
+    meal.ingredients.forEach(ingredient => {
+      if (!ingredient.name) {
+        throw new BadRequestException('Each ingredient must have a name');
+      }
+      if (typeof ingredient.weight !== 'number' || ingredient.weight <= 0) {
+        throw new BadRequestException(`Invalid weight for ingredient ${ingredient.name}`);
+      }
+    });
+  }
 
-    async deleteMeal(request: DeleteMealRequest): Promise<DeleteMealResponse> {
-        try {
-            return await this.mealService.deleteMeal(request).toPromise();
-        } catch (error) {
-            console.error('Error deleting meal:', error);
-            throw new Error('Failed to delete meal');
-        }
-    }
+  async saveMeal(userId: string, meal: Meal): Promise<SaveMealResponse> {
+    try {
+      if (!userId) {
+        throw new BadRequestException('User ID is required');
+      }
 
-    async getMealsByDate(request: GetMealsByDateRequest): Promise<GetMealsByDateResponse> {
-        try {
-            return await this.mealService.getMealsByDate(request).toPromise();
-        } catch (error) {
-            console.error('Error getting meals by date:', error);
-            throw new Error('Failed to get meals by date');
-        }
+      this.validateMeal(meal);
+
+      if (userId !== meal.userId) {
+        throw new BadRequestException('User ID mismatch');
+      }
+
+      const request: SaveMealRequest = {
+        userId,
+        meal,
+      };
+      
+      return await firstValueFrom(this.mealService.saveMeal(request));
+    } catch (error) {
+      console.error('Error in client saveMeal:', error);
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new BadRequestException('Failed to save meal: ' + error.message);
     }
+  }
+
+  async deleteMeal(userId: string, mealId: string): Promise<DeleteMealResponse> {
+    try {
+      if (!userId) {
+        throw new BadRequestException('User ID is required');
+      }
+      if (!mealId) {
+        throw new BadRequestException('Meal ID is required');
+      }
+
+      const request: DeleteMealRequest = { 
+        userId,
+        mealId 
+      };
+      return await firstValueFrom(this.mealService.deleteMeal(request));
+    } catch (error) {
+      console.error('Error deleting meal:', error);
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new BadRequestException('Failed to delete meal: ' + error.message);
+    }
+  }
+
+  async getMealsByDate(userId: string, date: string): Promise<GetMealsByDateResponse> {
+    try {
+      if (!userId) {
+        throw new BadRequestException('User ID is required');
+      }
+      if (!date) {
+        throw new BadRequestException('Date is required');
+      }
+
+      const request: GetMealsByDateRequest = { 
+        userId,
+        date 
+      };
+      return await firstValueFrom(this.mealService.getMealsByDate(request));
+    } catch (error) {
+      console.error('Error getting meals by date:', error);
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new BadRequestException('Failed to get meals by date: ' + error.message);
+    }
+  }
 }

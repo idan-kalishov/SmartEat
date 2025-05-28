@@ -46,8 +46,7 @@ message Meal {
 message Ingredient {
   string name = 1;
   double weight = 2;
-  optional string usdaFoodLabel = 3;
-  optional NutritionInfo nutrition = 4;
+  optional NutritionInfo nutrition = 3;
 }
 
 message NutritionInfo {

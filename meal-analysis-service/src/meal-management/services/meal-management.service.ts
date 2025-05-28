@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Meal } from '../schemas/meal.schema';
+import { Meal as GrpcMeal } from '../../generated/meal-management';
 
 @Injectable()
 export class MealManagementService {
@@ -9,10 +10,11 @@ export class MealManagementService {
     @InjectModel(Meal.name) private readonly mealModel: Model<Meal>,
   ) {}
 
-  async saveMeal(userId: string, mealData: Omit<Meal, 'userId' | 'id'>): Promise<string> {
+  async saveMeal(mealData: GrpcMeal): Promise<string> {
     const meal = new this.mealModel({
-      ...mealData,
-      userId,
+      userId: mealData.userId,
+      ingredients: mealData.ingredients,
+      createdAt: new Date(mealData.createdAt),
     });
     const savedMeal = await meal.save();
     return savedMeal.id;
