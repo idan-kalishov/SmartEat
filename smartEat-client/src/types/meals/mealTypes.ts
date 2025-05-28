@@ -7,18 +7,16 @@ export interface NutritionInfo {
   per100g: Record<string, Nutrient>;
 }
 
-export interface IngredientDetails {
+export interface Ingredient {
   name: string;
   weight: number;
-  usdaFoodLabel?: string;
   nutrition?: NutritionInfo;
 }
 
 export interface Meal {
   id: string;
   userId: string;
-  ingredients: IngredientDetails[];
-  imageUrl?: string;
+  createdAt: string; // ISO date string
   name: string;
-  createdAt: string;
+  ingredients: Ingredient[];
 } 

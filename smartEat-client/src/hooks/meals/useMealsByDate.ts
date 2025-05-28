@@ -1,133 +1,29 @@
 import { useEffect, useState } from "react";
 import { Meal } from "@/types/meals/mealTypes";
-
-// Stub fetch function (replace with real API when ready)
-const fetchMealsByDate = async (date: Date): Promise<Meal[]> => {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 2000));
-  
-  // Normalize the date (set hours, minutes, seconds, and ms to 0)
-  const normalizedDate = new Date(date);
-  normalizedDate.setHours(0, 0, 0, 0);
-  return [
-    {
-      id: "1",
-      userId: "user1",
-      ingredients: [
-        { 
-          name: "Chicken Breast", 
-          weight: 200,
-          usdaFoodLabel: "Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",
-          nutrition: {
-            per100g: {
-              calories: { value: 110, unit: 'kcal' },
-              protein: { value: 23, unit: 'g' },
-              fat: { value: 1.2, unit: 'g' },
-              carbs: { value: 0, unit: 'g' }
-            }
-          }
-        },
-        { 
-          name: "Broccoli", 
-          weight: 100,
-          usdaFoodLabel: "Broccoli, raw",
-          nutrition: {
-            per100g: {
-              calories: { value: 34, unit: 'kcal' },
-              protein: { value: 2.8, unit: 'g' },
-              fat: { value: 0.4, unit: 'g' },
-              carbs: { value: 6.6, unit: 'g' }
-            }
-          }
-        },
-      ],
-      imageUrl: "https://images.unsplash.com/photo-1504674900247-0877df9cc836",
-      createdAt: normalizedDate.toISOString(),
-      name: "Chicken and Broccoli Meal",
-    },
-    {
-      id: "2",
-      userId: "user1",
-      ingredients: [
-        { 
-          name: "Cottage Cheese", 
-          weight: 150,
-          usdaFoodLabel: "Cheese, cottage, creamed, large or small curd",
-          nutrition: {
-            per100g: {
-              calories: { value: 98, unit: 'kcal' },
-              protein: { value: 11, unit: 'g' },
-              fat: { value: 4.3, unit: 'g' },
-              carbs: { value: 3.4, unit: 'g' }
-            }
-          }
-        },
-        { 
-          name: "Tomato", 
-          weight: 50,
-          usdaFoodLabel: "Tomatoes, red, ripe, raw, year round average",
-          nutrition: {
-            per100g: {
-              calories: { value: 18, unit: 'kcal' },
-              protein: { value: 0.9, unit: 'g' },
-              fat: { value: 0.2, unit: 'g' },
-              carbs: { value: 3.9, unit: 'g' }
-            }
-          }
-        },
-      ],
-      imageUrl: "https://images.unsplash.com/photo-1519864600265-abb23847ef2c",
-      createdAt: normalizedDate.toISOString(),
-      name: "Cottage Cheese and Tomato Snack",
-    },
-    {
-      id: "3",
-      userId: "user1",
-      ingredients: [
-        { 
-          name: "Omelette", 
-          weight: 120,
-          usdaFoodLabel: "Egg, whole, raw, fresh",
-          nutrition: {
-            per100g: {
-              calories: { value: 154, unit: 'kcal' },
-              protein: { value: 11, unit: 'g' },
-              fat: { value: 11, unit: 'g' },
-              carbs: { value: 1.3, unit: 'g' }
-            }
-          }
-        },
-        { 
-          name: "Spinach", 
-          weight: 30,
-          usdaFoodLabel: "Spinach, raw",
-          nutrition: {
-            per100g: {
-              calories: { value: 23, unit: 'kcal' },
-              protein: { value: 2.9, unit: 'g' },
-              fat: { value: 0.4, unit: 'g' },
-              carbs: { value: 3.6, unit: 'g' }
-            }
-          }
-        },
-      ],
-      imageUrl: "https://images.unsplash.com/photo-1464306076886-debca5e8a6b0",
-      createdAt: normalizedDate.toISOString(),
-      name: "Spinach Omelette",
-    },
-  ];
-};
+import { getMealsByDate } from "@/services/mealService";
 
 export function useMealsByDate(date: Date) {
   const [meals, setMeals] = useState<Meal[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setIsLoading(true);
-    fetchMealsByDate(date)
-      .then(setMeals)
-      .finally(() => setIsLoading(false));
+    const fetchMeals = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const fetchedMeals = await getMealsByDate(date);
+        setMeals(fetchedMeals);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch meals');
+        setMeals([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMeals();
   }, [date]);
 
-  return { meals, isLoading };
+  return { meals, isLoading, error };
 } 
