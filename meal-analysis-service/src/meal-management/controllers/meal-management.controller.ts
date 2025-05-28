@@ -25,6 +25,7 @@ export class MealManagementController {
       userId: mongoMeal.userId,
       createdAt: mongoMeal.createdAt.toISOString(),
       ingredients: mongoMeal.ingredients,
+      name: mongoMeal.name
     };
   }
 

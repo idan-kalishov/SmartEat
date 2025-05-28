@@ -13,6 +13,7 @@ export class MealManagementService {
   async saveMeal(mealData: GrpcMeal): Promise<string> {
     const meal = new this.mealModel({
       userId: mealData.userId,
+      name: mealData.name,
       ingredients: mealData.ingredients,
       createdAt: new Date(mealData.createdAt),
     });

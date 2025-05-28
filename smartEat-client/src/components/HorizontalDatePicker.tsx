@@ -19,6 +19,14 @@ function getDatesArray(centerDate: Date, daysBefore = 10, daysAfter = 10) {
   return dates;
 }
 
+function isSameDay(date1: Date, date2: Date): boolean {
+  return (
+    date1.getFullYear() === date2.getFullYear() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getDate() === date2.getDate()
+  );
+}
+
 const HorizontalDatePicker: React.FC<HorizontalDatePickerProps> = ({
   selectedDate,
   onDateChange,
@@ -29,9 +37,7 @@ const HorizontalDatePicker: React.FC<HorizontalDatePickerProps> = ({
   const dateRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   useEffect(() => {
-    const idx = dates.findIndex(
-      (d) => d.toDateString() === selectedDate.toDateString()
-    );
+    const idx = dates.findIndex((d) => isSameDay(d, selectedDate));
     if (idx !== -1 && dateRefs.current[idx]) {
       dateRefs.current[idx]?.scrollIntoView({
         behavior: "smooth",
@@ -44,7 +50,7 @@ const HorizontalDatePicker: React.FC<HorizontalDatePickerProps> = ({
   return (
     <div className="w-full flex overflow-x-auto no-scrollbar space-x-2 py-2 bg-white rounded-lg shadow">
       {dates.map((date, i) => {
-        const isSelected = date.toDateString() === selectedDate.toDateString();
+        const isSelected = isSameDay(date, selectedDate);
         return (
           <button
             key={date.toISOString()}

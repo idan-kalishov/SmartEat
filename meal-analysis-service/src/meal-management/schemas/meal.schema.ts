@@ -25,6 +25,9 @@ export class Meal extends Document {
   @Prop({ required: true })
   userId: string;
 
+  @Prop({ required: true })
+  name: string;
+
   @Prop({ type: [Ingredient], required: true })
   ingredients: Ingredient[];
 

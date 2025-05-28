@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Meal } from "@/types/meals/mealTypes";
 import { getMealsByDate } from "@/services/mealService";
 
@@ -7,23 +7,25 @@ export function useMealsByDate(date: Date) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchMeals = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const fetchedMeals = await getMealsByDate(date);
-        setMeals(fetchedMeals);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch meals');
-        setMeals([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchMeals = useCallback(async (targetDate: Date) => {
+    setIsLoading(true);
+    setError(null);
+    setMeals([]); // Reset meals immediately when date changes
+    
+    try {
+      const fetchedMeals = await getMealsByDate(targetDate);
+      setMeals(fetchedMeals);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch meals');
+      setMeals([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []); // No dependencies since we pass the date as a parameter
 
-    fetchMeals();
-  }, [date]);
+  useEffect(() => {
+    fetchMeals(date);
+  }, [date, fetchMeals]);
 
   return { meals, isLoading, error };
 } 
