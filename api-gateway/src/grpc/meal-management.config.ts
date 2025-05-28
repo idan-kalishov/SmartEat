@@ -6,6 +6,6 @@ export const mealManagementGrpcOptions: ClientOptions = {
   options: {
     package: 'mealmgmt',
     protoPath: join(__dirname, '../proto/meal-management.proto'),
-    url: process.env.MEAL_MANAGEMENT_SERVICE_URL || 'localhost:5002',
+    url: process.env.MEAL_MANAGEMENT_SERVICE_URL || 'localhost:50053',
   },
 }; 

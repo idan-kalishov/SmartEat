@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, BadRequestException } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import { MealManagementService } from '../services/meal-management.service';
 import {
@@ -9,9 +9,9 @@ import {
   GetMealsByDateRequest,
   GetMealsByDateResponse,
   Meal as GrpcMeal,
-  Ingredient as GrpcIngredient,
 } from '../../generated/meal-management';
-import { Meal as MongoMeal, Ingredient as MongoIngredient } from '../schemas/meal.schema';
+import { Meal as MongoMeal } from '../schemas/meal.schema';
+import { Metadata } from '@grpc/grpc-js';
 
 @Controller()
 export class MealManagementController {
@@ -24,73 +24,83 @@ export class MealManagementController {
       id: mongoMeal._id.toString(),
       userId: mongoMeal.userId,
       createdAt: mongoMeal.createdAt.toISOString(),
-      ingredients: mongoMeal.ingredients.map(ing => ({
-        name: ing.name,
-        weight: ing.weight,
-        usdaFoodLabel: ing.usdaFoodLabel,
-        nutrition: ing.nutrition,
-      })),
+      ingredients: mongoMeal.ingredients,
     };
   }
 
-  private transformToMongoMeal(grpcMeal: GrpcMeal): {
-    ingredients: Array<{
-      name: string;
-      weight: number;
-      usdaFoodLabel?: string;
-      nutrition?: {
-        per100g: {
-          [key: string]: {
-            value?: number;
-            unit: string;
-          };
-        };
-      };
-    }>;
-    createdAt: Date;
-  } {
-    return {
-      ingredients: grpcMeal.ingredients.map(ing => ({
-        name: ing.name,
-        weight: ing.weight,
-        usdaFoodLabel: ing.usdaFoodLabel,
-        nutrition: ing.nutrition,
-      })),
-      createdAt: new Date(grpcMeal.createdAt),
-    };
+  private validateMeal(meal: GrpcMeal): void {
+    if (!meal.ingredients || !Array.isArray(meal.ingredients) || meal.ingredients.length === 0) {
+      throw new BadRequestException('Meal must have at least one ingredient');
+    }
+
+    for (const ing of meal.ingredients) {
+      if (!ing.name) {
+        throw new BadRequestException('Each ingredient must have a name');
+      }
+      if (typeof ing.weight !== 'number' || ing.weight <= 0) {
+        throw new BadRequestException(`Invalid weight for ingredient ${ing.name}`);
+      }
+    }
   }
 
   @GrpcMethod('MealManagementService', 'SaveMeal')
   async saveMeal(data: SaveMealRequest): Promise<SaveMealResponse> {
-    const mealData = this.transformToMongoMeal(data.meal);
-    const mealId = await this.mealManagementService.saveMeal(
-      data.userId,
-      mealData as any, // Type assertion needed due to Mongoose Document type complexity
-    );
+    try {
+      if (!data.meal) {
+        throw new BadRequestException('Meal data is required');
+      }
+
+      if (!data.userId) {
+        throw new BadRequestException('User ID is required');
+      }
+
+      // Validate meal data
+      this.validateMeal(data.meal);
+
+      // Verify userId matches
+      if (data.userId !== data.meal.userId) {
+        throw new BadRequestException('User ID mismatch');
+      }
+
+      const mealId = await this.mealManagementService.saveMeal(data.meal);
+
     return {
       mealId,
       success: true,
     };
+    } catch (error) {
+      console.error('Error saving meal:', error);
+      throw error;
+    }
   }
 
   @GrpcMethod('MealManagementService', 'DeleteMeal')
   async deleteMeal(data: DeleteMealRequest): Promise<DeleteMealResponse> {
+    try {
     const success = await this.mealManagementService.deleteMeal(
-      data.userId,
+        data.userId,
       data.mealId,
     );
     return { success };
+    } catch (error) {
+      console.error('Error deleting meal:', error);
+      throw error;
+    }
   }
 
   @GrpcMethod('MealManagementService', 'GetMealsByDate')
-  async getMealsByDate(
-    data: GetMealsByDateRequest,
-  ): Promise<GetMealsByDateResponse> {
-    const mongoMeals = await this.mealManagementService.getMealsByDate(
-      data.userId,
+  async getMealsByDate(data: GetMealsByDateRequest): Promise<GetMealsByDateResponse> {
+    try {
+      const meals = await this.mealManagementService.getMealsByDate(
+        data.userId,
       data.date,
     );
-    const meals = mongoMeals.map(meal => this.transformToGrpcMeal(meal));
-    return { meals };
+      return {
+        meals: meals.map(meal => this.transformToGrpcMeal(meal)),
+      };
+    } catch (error) {
+      console.error('Error getting meals by date:', error);
+      throw error;
+    }
   }
 } 

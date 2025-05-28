@@ -9,9 +9,6 @@ export class Ingredient {
   @Prop({ required: true })
   weight: number;
 
-  @Prop()
-  usdaFoodLabel?: string;
-
   @Prop({ type: Object })
   nutrition?: {
     per100g: {
