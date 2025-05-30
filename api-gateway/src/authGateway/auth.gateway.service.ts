@@ -5,7 +5,7 @@ import { Response as ExpressResponse } from 'express';
 
 @Injectable()
 export class AuthGatewayService {
-  private authServiceBaseUrl: string;
+  private readonly authServiceBaseUrl: string;
 
   constructor(private readonly httpService: HttpService) {
     this.authServiceBaseUrl = 'http://localhost:3000/auth';
@@ -14,10 +14,7 @@ export class AuthGatewayService {
   async forwardLogin(
     loginData: { email: string; password: string },
     res: ExpressResponse,
-  ) {
-    console.log('Attempting login with data:', loginData);
-    console.log('Forwarding to:', `${this.authServiceBaseUrl}/login`);
-    
+  ) {    
     try {
       const response = await firstValueFrom(
         this.httpService.post(`${this.authServiceBaseUrl}/login`, loginData, {
@@ -25,15 +22,8 @@ export class AuthGatewayService {
         }),
       );
 
-      console.log('Received response:', {
-        status: response.status,
-        headers: response.headers,
-        data: response.data
-      });
-
       const setCookieHeader = response.headers['set-cookie'];
       if (setCookieHeader) {
-        console.log('Setting cookies:', setCookieHeader);
         res.setHeader('Set-Cookie', setCookieHeader);
       }
 
@@ -126,12 +116,8 @@ export class AuthGatewayService {
 
   async getUserDetails(req: Request) {
     try {
-      console.log('getUserDetails called with request headers:', req.headers);
       const headers = this.getEssentialHeaders(req);
-      console.log('Forwarding headers:', headers);
-
       const url = `${this.authServiceBaseUrl}/me`;
-      console.log('Making request to:', url);
 
       const response = await firstValueFrom(
         this.httpService.get(url, {
@@ -141,7 +127,6 @@ export class AuthGatewayService {
         }),
       );
 
-      console.log('Got response:', response.data);
       return response.data;
     } catch (error) {
       console.error('Error in getUserDetails:', {
