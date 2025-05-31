@@ -4,8 +4,8 @@ interface MealsLogModalProps {
   onClose: () => void;
 }
 
-const ExcerciseLogModal: React.FC<MealsLogModalProps> = ({ onClose }) => {
-  const [excerciseType, setExcerciseType] = useState("");
+const ExerciseLogModal: React.FC<MealsLogModalProps> = ({ onClose }) => {
+  const [exerciseType, setExerciseType] = useState("");
   const [intensityLevel, setIntensityLevel] = useState("");
 
   return (
@@ -17,14 +17,14 @@ const ExcerciseLogModal: React.FC<MealsLogModalProps> = ({ onClose }) => {
         >
           &times;
         </button>
-        <h2 className="text-xl font-bold mb-4 text-center">add excercise</h2>
+        <h2 className="text-xl font-bold mb-4 text-center">add exercise</h2>
         <div className="space-y-6 max-h-[60vh] overflow-y-auto">
           <select
             id="countries"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            onChange={(event) => setExcerciseType(event.target.value)}
+            onChange={(event) => setExerciseType(event.target.value)}
           >
-            <option selected>Choose an excercise type</option>
+            <option selected>Choose an exercise type</option>
             <option value="cardio">cardio</option>
             <option value="strength">strength</option>
           </select>
@@ -44,4 +44,4 @@ const ExcerciseLogModal: React.FC<MealsLogModalProps> = ({ onClose }) => {
   );
 };
 
-export default ExcerciseLogModal;
+export default ExerciseLogModal;

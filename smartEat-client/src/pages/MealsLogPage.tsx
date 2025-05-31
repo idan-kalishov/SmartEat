@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import HorizontalDatePicker from "../components/HorizontalDatePicker";
 import MealCard from "../components/meals/MealCard";
 import MealsLogModal from "../components/meals/MealsLogModal";
-import ExerciseCard from "@/components/excercise/ExcerciseCard";
+import ExerciseCard from "@/components/exercise/ExerciseCard";
 
 const MealsLogPage: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
