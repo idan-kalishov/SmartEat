@@ -1,17 +1,18 @@
 // src/components/BottomNavbar.tsx
+import { ROUTES } from "@/Routing/routes";
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
 import {
-  BsHouse,
-  BsGear,
   BsArrowUpCircle,
-  BsPerson,
-  BsHouseFill,
-  BsGearFill,
   BsArrowUpCircleFill,
+  BsGear,
+  BsGearFill,
+  BsHouse,
+  BsHouseFill,
+  BsPerson,
   BsPersonFill,
 } from "react-icons/bs";
-import { ROUTES } from "@/Routing/routes";
+import { MdNoFood, MdOutlineNoFood } from "react-icons/md";
+import { Link, useLocation } from "react-router-dom";
 
 const BottomNavbar: React.FC = () => {
   const { pathname } = useLocation();
@@ -40,10 +41,16 @@ const BottomNavbar: React.FC = () => {
       activeIcon: <BsGearFill size={24} />,
       inactiveIcon: <BsGear size={24} />,
     },
+    {
+      to: "/fasting",
+      isActive: pathname === "/fasting",
+      activeIcon: <MdNoFood size={24} />,
+      inactiveIcon: <MdOutlineNoFood size={24} />,
+    },
   ];
 
   return (
-    <nav className="sticky bottom-0 left-0 right-0 bg-white border-t shadow-sm flex justify-around items-center py-2 z-50">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-sm flex justify-around items-center py-2 z-50">
       {navItems.map((item, index) => {
         const isActive = pathname === item.to;
         return (
