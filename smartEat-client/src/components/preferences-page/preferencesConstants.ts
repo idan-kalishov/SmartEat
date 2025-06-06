@@ -9,6 +9,9 @@ import {
 import { PreferencePage, PreferenceOption } from "../../types/preferencesTypes";
 
 export const PAGES: PreferencePage[] = [
+  "age", // New fun page! 🎂
+  "weight", // New fun page! ⚖️
+  "height", // New fun page! 📏
   "gender",
   "activity",
   "goal",
@@ -18,6 +21,9 @@ export const PAGES: PreferencePage[] = [
 ];
 
 export const PAGE_HEADINGS: Record<PreferencePage, string> = {
+  age: "🎂 How many candles on your cake?",
+  weight: "⚖️ What does the scale say?",
+  height: "📏 How tall are you?",
   gender: "What is your gender?",
   activity: "What is your activity level?",
   goal: "What is your main goal?",
@@ -27,6 +33,11 @@ export const PAGE_HEADINGS: Record<PreferencePage, string> = {
 };
 
 export const PAGE_OPTIONS: Record<PreferencePage, PreferenceOption[]> = {
+  // No options needed for age, weight, height as they use numeric inputs
+  age: [],
+  weight: [],
+  height: [],
+
   gender: [
     { value: Gender.GENDER_MALE, label: "Male", emoji: "👨" },
     { value: Gender.GENDER_FEMALE, label: "Female", emoji: "👩" },
