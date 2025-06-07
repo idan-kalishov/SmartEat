@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 interface WaterTrackerProps {
   initialAmountLiters: number;
@@ -47,17 +48,19 @@ const WaterTracker: React.FC<WaterTrackerProps> = ({
   const rows = Math.floor(filledCups / cupsPerRow) + 1;
 
   return (
-    <div className="p-6 mt-6 rounded-xl shadow-md bg-white w-fit mx-auto">
-      <h2 className="text-lg font-semibold mb-4 text-center text-blue-800">
-        Water Tracker
-        <span className="block text-gray-500 text-sm mt-1">
-          {(filledCups * cupVolume).toFixed(2)} L
-        </span>
-      </h2>
+    <Card className="w-full max-w-md mx-auto shadow-xl border-none rounded-2xl mt-3 bg-gradient-to-br from-sky-50 to-white">
+      <CardHeader className="text-center">
+        <CardTitle className="text-blue-800 text-xl font-bold">
+          Water Tracker
+        </CardTitle>
+        <p className="text-gray-500 text-sm mt-1">
+          {(filledCups * cupVolume).toFixed(2)} L consumed
+        </p>
+      </CardHeader>
 
-      <div className="flex flex-col gap-3">
+      <CardContent className="flex flex-col gap-4 pb-6">
         {Array.from({ length: rows }).map((_, rowIndex) => (
-          <div key={rowIndex} className="grid grid-cols-5 gap-3">
+          <div key={rowIndex} className="grid grid-cols-5 gap-2 justify-center">
             {Array.from({ length: cupsPerRow }).map((_, cupIndex) => {
               const globalIndex = rowIndex * cupsPerRow + cupIndex;
               const isFilled = globalIndex < filledCups;
@@ -68,14 +71,14 @@ const WaterTracker: React.FC<WaterTrackerProps> = ({
                   src={isFilled ? "/cups/filled.png" : "/cups/empty.png"}
                   alt={isFilled ? "Filled cup" : "Empty cup"}
                   onClick={() => handleCupClick(globalIndex)}
-                  className="w-10 h-20 cursor-pointer transition-transform hover:scale-110"
+                  className="w-10 h-20 cursor-pointer transition-transform duration-150 hover:scale-110"
                 />
               );
             })}
           </div>
         ))}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
