@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import HorizontalDatePicker from "../components/HorizontalDatePicker";
 import MealCard from "../components/meals/MealCard";
 import MealsLogModal from "../components/meals/MealsLogModal";
+import WaterTracker from "@/components/water-tracker/WaterTracker";
 
 const MealsLogPage: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -38,10 +39,15 @@ const MealsLogPage: React.FC = () => {
               className="w-full flex flex-col items-start bg-green-100 rounded p-4 hover:bg-green-200 transition cursor-pointer"
               onClick={() => setShowModal(true)}
             >
-              <MealCard meal={lastMeal} onClick={() => setShowModal(true)} isPreview={true} />
+              <MealCard
+                meal={lastMeal}
+                onClick={() => setShowModal(true)}
+                isPreview={true}
+              />
               {meals.length > 1 && (
                 <div className="text-xs text-gray-500 mt-2 text-center w-full">
-                  And {meals.length - 1} more meal{meals.length - 1 > 1 ? 's' : ''}...
+                  And {meals.length - 1} more meal
+                  {meals.length - 1 > 1 ? "s" : ""}...
                 </div>
               )}
             </div>
@@ -50,9 +56,20 @@ const MealsLogPage: React.FC = () => {
           <span className="text-gray-400">No meals logged for this date.</span>
         )}
       </div>
-      {showModal && <MealsLogModal meals={meals} onClose={() => setShowModal(false)} />}
+      {showModal && (
+        <MealsLogModal meals={meals} onClose={() => setShowModal(false)} />
+      )}
+
+      <WaterTracker
+        selectedDate={selectedDate}
+        initialAmountLiters={0} // replace with waterAmount when available
+        onWaterChange={(newLiters, date) => {
+          console.log(`Water updated: ${newLiters}L on ${date.toDateString()}`);
+          // TODO: sync to API here
+        }}
+      />
     </div>
   );
 };
 
-export default MealsLogPage; 
+export default MealsLogPage;
