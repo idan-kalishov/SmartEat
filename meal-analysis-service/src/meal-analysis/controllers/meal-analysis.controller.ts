@@ -1,16 +1,16 @@
 // src/food-recognition/food-recognition.controller.ts
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
-import { FoodRecognitionService } from '../services/food-recognition.service';
 import {
   AnalyzeMealResponse,
   IngredientDetailsResponse,
 } from 'src/generated/food-recognition';
+import { MealAnalysisService } from '../services/meal-analysis.service';
 
 @Controller()
-export class FoodRecognitionController {
+export class MealAnalysisController {
   constructor(
-    private readonly foodRecognitionService: FoodRecognitionService,
+    private readonly mealAnalysisService: MealAnalysisService,
   ) {}
 
   @GrpcMethod('FoodRecognitionService', 'AnalyzeMeal')
@@ -24,7 +24,7 @@ export class FoodRecognitionController {
     } as Express.Multer.File;
 
     return {
-      items: await this.foodRecognitionService.analyzeMeal(file),
+      items: await this.mealAnalysisService.analyzeMeal(file),
     };
   }
 
@@ -33,7 +33,7 @@ export class FoodRecognitionController {
     names: string[];
   }): Promise<IngredientDetailsResponse> {
     return {
-      items: await this.foodRecognitionService.fetchNutritionDataForIngredients(
+      items: await this.mealAnalysisService.fetchNutritionDataForIngredients(
         data.names,
       ),
     };

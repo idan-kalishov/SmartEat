@@ -26,12 +26,10 @@ export function createServer(): Application {
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
   const corsOptions = {
-    origin: (origin: any, callback: any) => {
-      if (!origin) return callback(null, true);
-
-      callback(null, true);
-    },
+    origin: true, // Allow all origins in development
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
   };
 
   app.use(cors(corsOptions));

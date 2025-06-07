@@ -1,7 +1,6 @@
 // src/food-recognition/food-recognition.client.ts
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Client, ClientGrpc } from '@nestjs/microservices';
-import { Observable } from 'rxjs';
 import { foodRecognitionGrpcOptions } from '../food-recognition.config';
 import {
   AnalyzeMealResponse,
