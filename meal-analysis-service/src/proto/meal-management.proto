@@ -40,7 +40,8 @@ message Meal {
   string id = 1;
   string userId = 2;
   string createdAt = 3; // ISO date string
-  repeated Ingredient ingredients = 4;
+  string name = 4; // Name of the meal
+  repeated Ingredient ingredients = 5;
 }
 
 message Ingredient {

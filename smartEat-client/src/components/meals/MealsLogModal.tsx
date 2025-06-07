@@ -15,12 +15,11 @@ const MealsLogModal: React.FC<MealsLogModalProps> = ({ meals, onClose }) => {
   const [expandedMealIdx, setExpandedMealIdx] = useState<number | null>(null);
 
   const handleEditMeal = (meal: Meal) => {
-    // Stub: implement edit logic later
-    alert(`Edit meal: ${meal._id}`);
+    alert(`Edit meal: ${meal.id}`);
   };
+
   const handleDeleteMeal = (meal: Meal) => {
-    // Stub: implement delete logic later
-    alert(`Delete meal: ${meal._id}`);
+    alert(`Delete meal: ${meal.id}`);
   };
 
   const toggleExpand = (index: number) => {
@@ -41,8 +40,8 @@ const MealsLogModal: React.FC<MealsLogModalProps> = ({ meals, onClose }) => {
           {meals.length === 0 ? (
             <p className="text-gray-500 text-center">No meals logged for this date</p>
           ) : (
-            meals.map((meal, mealIdx) => (
-              <MealCard key={meal._id} meal={meal} />
+            meals.map((meal) => (
+              <MealCard key={meal.id} meal={meal} />
             ))
           )}
         </div>

@@ -56,6 +56,7 @@ export class MealManagementController {
         id: '',
         userId,
         createdAt: new Date().toISOString(),
+        name: meal.name,
         ingredients: meal.ingredients,
       };
 

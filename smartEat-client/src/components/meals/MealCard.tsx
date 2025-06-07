@@ -22,12 +22,10 @@ const MealCard: React.FC<MealCardProps> = ({ meal, onClick, isPreview }) => {
   const handleCardClick = onClick ? () => onClick(meal) : (isPreview ? () => {} : () => setExpanded(!expanded));
 
   const handleEditMeal = (meal: Meal) => {
-    // Stub: implement edit logic later
-    alert(`Edit meal: ${meal._id}`);
+    alert(`Edit meal: ${meal.id}`);
   };
   const handleDeleteMeal = (meal: Meal) => {
-    // Stub: implement delete logic later
-    alert(`Delete meal: ${meal._id}`);
+    alert(`Delete meal: ${meal.id}`);
   };
 
   // Close menu when clicking outside (simple approach)

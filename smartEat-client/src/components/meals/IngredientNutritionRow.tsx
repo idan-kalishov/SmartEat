@@ -7,7 +7,7 @@ interface IngredientNutritionRowProps {
 }
 
 const IngredientNutritionRow: React.FC<IngredientNutritionRowProps> = ({ ingredient }) => {
-  const nutrition = ingredient.per100gNutrition;
+  const nutrition = ingredient.nutrition?.per100g;
   const weight = ingredient.weight;
   return (
     <div className="mb-2">
@@ -16,10 +16,10 @@ const IngredientNutritionRow: React.FC<IngredientNutritionRowProps> = ({ ingredi
       </div>
       {nutrition && (
         <NutritionSummaryRow
-          calories={((nutrition.calories.value * weight) / 100).toFixed(0)}
-          protein={((nutrition.protein.value * weight) / 100).toFixed(1)}
-          fat={((nutrition.fat.value * weight) / 100).toFixed(1)}
-          carbs={((nutrition.carbs.value * weight) / 100).toFixed(1)}
+          calories={((nutrition.calories?.value || 0) * weight / 100).toFixed(0)}
+          protein={((nutrition.protein?.value || 0) * weight / 100).toFixed(1)}
+          fat={((nutrition.fat?.value || 0) * weight / 100).toFixed(1)}
+          carbs={((nutrition.carbs?.value || 0) * weight / 100).toFixed(1)}
           className="mt-1 text-xs"
         />
       )}

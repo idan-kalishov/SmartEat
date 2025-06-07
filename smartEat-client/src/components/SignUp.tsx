@@ -127,8 +127,8 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
         "name"
       ) as HTMLInputElement;
 
-      const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/auth/register`,
+      await axios.post(
+        `${import.meta.env.VITE_API_GW_URL}/auth/register`,
         {
           email: email.value,
           password: password.value,

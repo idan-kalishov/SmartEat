@@ -86,10 +86,10 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
         "password"
       ) as HTMLInputElement;
       const apiClient = axios.create({
-        baseURL: import.meta.env.VITE_BACKEND_URL,
+        baseURL: import.meta.env.VITE_API_GW_URL,
         withCredentials: true,
       });
-      await apiClient.post(`${import.meta.env.VITE_BACKEND_URL}/auth/login`, {
+      await apiClient.post(`${import.meta.env.VITE_API_GW_URL}/auth/login`, {
         email: email.value,
         password: password.value,
       });
@@ -212,7 +212,7 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
               variant="outlined"
               onClick={() =>
                 (window.location.href = `${
-                  import.meta.env.VITE_BACKEND_URL
+                  import.meta.env.VITE_API_GW_URL
                 }/auth/google`)
               }
               startIcon={<GoogleIcon />}
