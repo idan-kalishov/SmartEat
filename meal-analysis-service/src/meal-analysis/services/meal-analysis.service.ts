@@ -3,15 +3,13 @@ import { Injectable } from '@nestjs/common';
 import { lastValueFrom } from 'rxjs';
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { nutritionDTO } from '../types/MealRecognitionResult.interface';
 import {
-  IngredientDetailsResponse,
   IngredientsRecognitionResult,
   MealRecognitionResult,
 } from 'src/generated/food-recognition';
 
 @Injectable()
-export class FoodRecognitionService {
+export class MealAnalysisService {
   private readonly geminiPrompt = `
     The system should accurately detect and label various foods displayed in the image, providing the name, USDA-compatible food label, and approximate weight in grams for each item.
     Do not group multiple ingredients into a single label. Always separate combined dishes into their individual food components. For example, if the image shows creamy mushroom pasta, the output should include separate entries for cream, mushrooms, and pasta.
@@ -136,8 +134,6 @@ export class FoodRecognitionService {
   }
 
   private async fetchNutritionData(foodName: string): Promise<any> {
-    const apiBaseUrl = 'https://api.nal.usda.gov/fdc/v1/foods/search';
-    const apiKey = process.env.USDA_API_KEY;
 
     // 1. Clean and prepare the search term
     const cleanedName = foodName

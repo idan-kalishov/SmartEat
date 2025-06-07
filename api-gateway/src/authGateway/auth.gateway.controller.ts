@@ -6,6 +6,7 @@ import {
   Get,
   Res,
   Req,
+  Put,
 } from '@nestjs/common';
 import { AuthGatewayService } from './auth.gateway.service';
 import { Response as ExpressResponse } from 'express';
@@ -106,6 +107,30 @@ export class AuthGatewayController {
       throw new HttpException(
         err.response?.data || 'Verification error',
         err.response?.status || 401,
+      );
+    }
+  }
+
+  @Put('update')
+  async updateUser(@Body() body: any, @Req() req: Request) {
+    try {
+      return await this.authGatewayService.updateUser(body, req);
+    } catch (err) {
+      throw new HttpException(
+        err.response?.data || 'Update user error',
+        err.response?.status || 500,
+      );
+    }
+  }
+
+  @Put('update-profile')
+  async updateUserProfile(@Body() body: any, @Req() req: Request) {
+    try {
+      return await this.authGatewayService.updateUserProfile(body, req);
+    } catch (err) {
+      throw new HttpException(
+        err.response?.data || 'Update profile error',
+        err.response?.status || 500,
       );
     }
   }

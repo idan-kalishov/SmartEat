@@ -4,7 +4,7 @@ import {
   AIRecommendRequest,
   UserProfile,
 } from '@generated/nutrition';
-import { RecommendationsClient } from 'src/grpc/clients/recommendationsv.client';
+import { RecommendationsClient } from 'src/grpc/clients/recommendations.client';
 
 @Controller('nutrition')
 export class NutritionController {

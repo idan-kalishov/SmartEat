@@ -1,24 +1,22 @@
-// src/recognition/controller/food-recognition.controller.ts
 import {
+  BadRequestException,
+  Body,
   Controller,
   Post,
-  Body,
-  UseInterceptors,
   UploadedFile,
-  BadRequestException,
+  UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
-import {
-  AnalyzeMealResponseDto,
-  IngredientDetailsResponseDto,
-} from '../dto/responses.dto';
-import { FoodRecognitionClient } from 'src/grpc/clients/food-recognition.client';
 import { IngredientDetailsResponse } from '@generated/food-recognition';
+import { FoodRecognitionClient } from 'src/grpc/clients/food-recognition.client';
+import {
+  AnalyzeMealResponseDto
+} from '../dto/responses.dto';
 
 @Controller('food-recognition')
 export class FoodRecognitionController {
-  constructor(private readonly client: FoodRecognitionClient) {}
+  constructor(private readonly client: FoodRecognitionClient) { }
 
   @Post('analyze-meal')
   @UseInterceptors(FileInterceptor('image'))

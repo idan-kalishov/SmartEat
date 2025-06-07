@@ -1,33 +1,41 @@
-import { Injectable, Req } from '@nestjs/common';
+import { Injectable, Req, Request } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { Response as ExpressResponse } from 'express';
 
 @Injectable()
 export class AuthGatewayService {
-  private authServiceBaseUrl: string;
+  private readonly authServiceBaseUrl: string;
 
   constructor(private readonly httpService: HttpService) {
-    // Get the auth service URL from environment variables
     this.authServiceBaseUrl = 'http://localhost:3000/auth';
   }
 
   async forwardLogin(
     loginData: { email: string; password: string },
     res: ExpressResponse,
-  ) {
-    const response = await firstValueFrom(
-      this.httpService.post(`${this.authServiceBaseUrl}/login`, loginData, {
-        withCredentials: true,
-      }),
-    );
+  ) {    
+    try {
+      const response = await firstValueFrom(
+        this.httpService.post(`${this.authServiceBaseUrl}/login`, loginData, {
+          withCredentials: true,
+        }),
+      );
 
-    const setCookieHeader = response.headers['set-cookie'];
-    if (setCookieHeader) {
-      res.setHeader('Set-Cookie', setCookieHeader);
+      const setCookieHeader = response.headers['set-cookie'];
+      if (setCookieHeader) {
+        res.setHeader('Set-Cookie', setCookieHeader);
+      }
+
+      return res.send(response.data);
+    } catch (error) {
+      console.error('Login error:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      throw error;
     }
-
-    return res.send(response.data);
   }
 
   async forwardRegister(registerData: {
@@ -79,17 +87,6 @@ export class AuthGatewayService {
     return response.data;
   }
 
-  async getUserDetails(req: Request) {
-    const sanitizedHeaders = this.getSanitizedHeaders(req);
-
-    const response = await firstValueFrom(
-      this.httpService.get(`${this.authServiceBaseUrl}/me`, {
-        headers: sanitizedHeaders,
-      }),
-    );
-    return response.data;
-  }
-
   private getSanitizedHeaders(req: Request) {
     const sanitizedHeaders: Record<string, string> = {};
 
@@ -101,5 +98,45 @@ export class AuthGatewayService {
       }
     }
     return sanitizedHeaders;
+  }
+
+  private getEssentialHeaders(req: Request) {
+    const essentialHeaders: Record<string, string> = {};
+    
+    // Only forward specific headers we need
+    if (req.headers['cookie']) {
+      essentialHeaders['cookie'] = req.headers['cookie'];
+    }
+    if (req.headers['authorization']) {
+      essentialHeaders['authorization'] = req.headers['authorization'];
+    }
+    
+    return essentialHeaders;
+  }
+
+  async getUserDetails(req: Request) {
+    try {
+      const headers = this.getEssentialHeaders(req);
+      const url = `${this.authServiceBaseUrl}/me`;
+
+      const response = await firstValueFrom(
+        this.httpService.get(url, {
+          headers,
+          withCredentials: true,
+          timeout: 5000
+        }),
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error('Error in getUserDetails:', {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+        headers: error.response?.headers,
+        stack: error.stack
+      });
+      throw error;
+    }
   }
 }
