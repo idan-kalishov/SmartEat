@@ -82,19 +82,19 @@ export interface IUser extends Document {
 }
 
 const dietaryRestrictionsSchema = new Schema({
-  preference: { type: Number, enum: Object.values(DietaryPreference), default: 0 },
-  allergies: [{ type: Number, enum: Object.values(Allergy), default: 0 }],
+  preference: { type: Number, default: 0 },
+  allergies: [{ type: Number, default: 0 }],
   disliked_ingredients: [{ type: String }],
 }, { _id: false });
 
 const userProfileSchema = new Schema({
   age: { type: Number },
-  gender: { type: Number, enum: Object.values(Gender), default: 0 },
+  gender: { type: Number, default: 0 },
   weight_kg: { type: Number },
   height_cm: { type: Number },
-  activity_level: { type: Number, enum: Object.values(ActivityLevel), default: 0 },
-  weight_goal: { type: Number, enum: Object.values(WeightGoal), default: 0 },
-  goal_intensity: { type: Number, enum: Object.values(GoalIntensity), default: 0 },
+  activity_level: { type: Number, default: 0 },
+  weight_goal: { type: Number, default: 0 },
+  goal_intensity: { type: Number, default: 0 },
   dietary_restrictions: { type: dietaryRestrictionsSchema },
 }, { _id: false });
 
