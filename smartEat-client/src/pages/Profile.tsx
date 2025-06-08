@@ -7,11 +7,12 @@ import {
   LuClock,
   LuFootprints,
   LuGlassWater,
-  LuPencil, LuLogOut,
+  LuPencil,
+  LuLogOut,
 } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
 import apiClient from "@/services/authService.ts";
-import {useDispatch} from "react-redux";
+import { useDispatch } from "react-redux";
 
 const ProfilePage: React.FC = () => {
   const dispatch = useDispatch();
@@ -54,26 +55,36 @@ const ProfilePage: React.FC = () => {
       </div>
 
       <div className="px-6 py-8">
-        <h2 className="text-3xl font-bold mb-4">My Goals</h2>
+        <h2 className="text-3xl font-bold mb-4">About You</h2>
         <div className="grid grid-cols-2 gap-2">
           <GoalCube
-            title="target weight"
-            value="80kg"
+            title="Gender"
+            value="Male"
             icon={<LuWeight className="w-6 h-6 mr-2 text-gray-700" />}
           />
           <GoalCube
-            title="Calorie Goal"
-            value="2000 kcal"
-            icon={<LuClock className="w-6 h-6 mr-2 text-gray-700" />}
-          />
-          <GoalCube
-            title="Step Goal"
-            value="8000 steps"
+            title="Activity"
+            value="Moderate"
             icon={<LuFootprints className="w-6 h-6 mr-2 text-gray-700" />}
           />
           <GoalCube
-            title="Water Goal"
-            value="3L"
+            title="Goal"
+            value="Gain weight"
+            icon={<LuFootprints className="w-6 h-6 mr-2 text-gray-700" />}
+          />
+          <GoalCube
+            title="Intensity"
+            value="Mild"
+            icon={<LuClock className="w-6 h-6 mr-2 text-gray-700" />}
+          />
+          <GoalCube
+            title="Diet"
+            value="Keto"
+            icon={<LuGlassWater className="w-6 h-6 mr-2 text-gray-700" />}
+          />
+          <GoalCube
+            title="Allergy"
+            value="None"
             icon={<LuGlassWater className="w-6 h-6 mr-2 text-gray-700" />}
           />
         </div>
@@ -81,8 +92,8 @@ const ProfilePage: React.FC = () => {
 
       <div className="flex justify-center pb-10">
         <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 bg-red-500 text-white px-6 py-3 rounded-full shadow-md hover:bg-red-600 transition"
+          onClick={handleLogout}
+          className="flex items-center gap-2 bg-red-500 text-white px-6 py-3 rounded-full shadow-md hover:bg-red-600 transition"
         >
           <LuLogOut className="w-5 h-5" />
           Log Out

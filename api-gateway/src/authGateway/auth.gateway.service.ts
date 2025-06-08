@@ -21,7 +21,7 @@ export class AuthGatewayService {
           withCredentials: true,
         }),
       );
-
+      
       const setCookieHeader = response.headers['set-cookie'];
       if (setCookieHeader) {
         res.setHeader('Set-Cookie', setCookieHeader);

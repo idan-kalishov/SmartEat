@@ -1,6 +1,10 @@
 import { Allergy } from "../types/userTypes";
 
+// Updated to include the fun new numeric input pages! 🎉
 export type PreferencePage =
+  | "age" // 🎂 How many candles?
+  | "weight" // ⚖️ Scale confession time!
+  | "height" // 📏 Reach for the stars!
   | "gender"
   | "activity"
   | "goal"
