@@ -42,6 +42,7 @@ message Meal {
   string createdAt = 3; // ISO date string
   string name = 4; // Name of the meal
   repeated Ingredient ingredients = 5;
+  optional string imageUrl = 6; // URL to the meal image
 }
 
 message Ingredient {

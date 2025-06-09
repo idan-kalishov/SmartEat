@@ -25,7 +25,8 @@ export class MealManagementController {
       userId: mongoMeal.userId,
       createdAt: mongoMeal.createdAt.toISOString(),
       ingredients: mongoMeal.ingredients,
-      name: mongoMeal.name
+      name: mongoMeal.name,
+      imageUrl: mongoMeal.imageUrl,
     };
   }
 
@@ -45,7 +46,7 @@ export class MealManagementController {
   }
 
   @GrpcMethod('MealManagementService', 'SaveMeal')
-  async saveMeal(data: SaveMealRequest): Promise<SaveMealResponse> {
+  async saveMeal(data: SaveMealRequest, metadata: Metadata): Promise<SaveMealResponse> {
     try {
       if (!data.meal) {
         throw new BadRequestException('Meal data is required');
@@ -63,12 +64,28 @@ export class MealManagementController {
         throw new BadRequestException('User ID mismatch');
       }
 
-      const mealId = await this.mealManagementService.saveMeal(data.meal);
+      // Check if image data is provided in metadata
+      let imageFile: Express.Multer.File | undefined;
+      const imageData = metadata.get('image-data');
+      const imageMimeType = metadata.get('image-mime-type');
+      const imageName = metadata.get('image-name');
 
-    return {
-      mealId,
-      success: true,
-    };
+      if (imageData && imageMimeType && imageName) {
+        const buffer = Buffer.from(imageData[0] as string, 'base64');
+        imageFile = {
+          buffer,
+          mimetype: imageMimeType[0] as string,
+          originalname: imageName[0] as string,
+          size: buffer.length,
+        } as Express.Multer.File;
+      }
+
+      const mealId = await this.mealManagementService.saveMeal(data.meal, imageFile);
+
+      return {
+        mealId,
+        success: true,
+      };
     } catch (error) {
       console.error('Error saving meal:', error);
       throw error;
@@ -78,11 +95,11 @@ export class MealManagementController {
   @GrpcMethod('MealManagementService', 'DeleteMeal')
   async deleteMeal(data: DeleteMealRequest): Promise<DeleteMealResponse> {
     try {
-    const success = await this.mealManagementService.deleteMeal(
+      const success = await this.mealManagementService.deleteMeal(
         data.userId,
-      data.mealId,
-    );
-    return { success };
+        data.mealId,
+      );
+      return { success };
     } catch (error) {
       console.error('Error deleting meal:', error);
       throw error;
@@ -94,8 +111,8 @@ export class MealManagementController {
     try {
       const meals = await this.mealManagementService.getMealsByDate(
         data.userId,
-      data.date,
-    );
+        data.date,
+      );
       return {
         meals: meals.map(meal => this.transformToGrpcMeal(meal)),
       };

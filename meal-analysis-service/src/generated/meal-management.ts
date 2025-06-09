@@ -49,6 +49,8 @@ export interface Meal {
   /** Name of the meal */
   name: string;
   ingredients: Ingredient[];
+  /** URL to the meal image */
+  imageUrl?: string | undefined;
 }
 
 export interface Ingredient {
@@ -360,6 +362,9 @@ export const Meal: MessageFns<Meal> = {
     for (const v of message.ingredients) {
       Ingredient.encode(v!, writer.uint32(42).fork()).join();
     }
+    if (message.imageUrl !== undefined) {
+      writer.uint32(50).string(message.imageUrl);
+    }
     return writer;
   },
 
@@ -408,6 +413,14 @@ export const Meal: MessageFns<Meal> = {
           }
 
           message.ingredients.push(Ingredient.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.imageUrl = reader.string();
           continue;
         }
       }
