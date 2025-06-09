@@ -10,7 +10,7 @@ import {
   BsHouseFill,
   BsPerson,
   BsPersonFill,
-} from "react-icons/bs"; // Filled icons
+} from "react-icons/bs";
 import {MdNoFood, MdOutlineNoFood} from "react-icons/md";
 import {Link, useLocation} from "react-router-dom";
 

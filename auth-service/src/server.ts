@@ -7,10 +7,7 @@ import express, { Application } from "express";
 import mongoose from "mongoose";
 import passport from "passport";
 import path from "path";
-import swaggerJsDoc from "swagger-jsdoc";
-import swaggerUI from "swagger-ui-express";
 import authRoutes from "./routes/authRoutes";
-import userRouter from "./routes/userRoutes";
 import initializePassport from "./passport";
 
 export function createServer(): Application {
@@ -37,35 +34,12 @@ export function createServer(): Application {
   // Serve static files (e.g., uploaded images)
   app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
-  // Swagger configuration
-  const options = {
-    definition: {
-      openapi: "3.0.0",
-      info: {
-        title: "Web Dev 2025 REST API",
-        version: "1.0.0",
-        description: "REST server including authentication using JWT",
-      },
-      servers: [
-        { url: "http://localhost:3000" },
-        { url: "http://10.10.246.32:80" },
-        { url: "https://10.10.246.32" },
-        { url: "https://node32.cs.colman.ac.il" },
-      ],
-    },
-    apis: ["./src/routes/*.ts"],
-  };
-
-  const specs = swaggerJsDoc(options);
-  app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
-
   // Additional middleware
   app.use(express.json());
   app.use(bodyParser.json());
 
   // Set up routes
   app.use("/auth", authRoutes);
-  app.use("/user", userRouter);
 
   if (!process.env.DB_CONNECT) {
     throw new Error("DB_CONNECT environment variable is not defined");

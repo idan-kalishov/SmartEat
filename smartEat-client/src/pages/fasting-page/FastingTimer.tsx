@@ -362,7 +362,7 @@ const FastingTimer = () => {
                                         {currentStage.name}
                                     </p>
                                     <p className="text-sm text-green-600">
-                                        שלב {currentStage.stage + 1}
+                                        stage {currentStage.stage + 1}
                                     </p>
                                 </div>
                             </div>
