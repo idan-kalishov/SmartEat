@@ -4,7 +4,7 @@ import {setUser} from "@/store/appState";
 import React from "react";
 import {LuClock, LuFootprints, LuGlassWater, LuLogOut, LuPencil, LuWeight,} from "react-icons/lu";
 import {useNavigate} from "react-router-dom";
-import apiClient from "@/services/authService.ts";
+import api from "@/services/api";
 import {useDispatch} from "react-redux";
 
 const ProfilePage: React.FC = () => {
@@ -12,7 +12,7 @@ const ProfilePage: React.FC = () => {
     const navigate = useNavigate();
 
     const handleLogout = async () => {
-        await apiClient.post("/auth/logout");
+        await api.post("/auth/logout");
         dispatch(setUser(null));
         navigate(ROUTES.LOGIN);
     };

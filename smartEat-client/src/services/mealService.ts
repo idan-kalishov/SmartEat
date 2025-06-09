@@ -1,7 +1,5 @@
-import axios from "axios";
 import { Meal } from "@/types/meals/mealTypes";
-
-const API_URL = "https://localhost:3002";
+import api from "./api";
 
 function formatDateLocal(date: Date): string {
   // Returns YYYY-MM-DD in local time
@@ -13,8 +11,6 @@ function formatDateLocal(date: Date): string {
 
 export const getMealsByDate = async (date: Date): Promise<Meal[]> => {
   const dateStr = formatDateLocal(date); // Use local date
-  const response = await axios.get<{ meals: Meal[] }>(`${API_URL}/meals/by-date/${dateStr}`, {
-    withCredentials: true
-  });
+  const response = await api.get<{ meals: Meal[] }>(`/meals/by-date/${dateStr}`);
   return response.data.meals;
 }; 

@@ -16,6 +16,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { GoogleIcon } from "./CustomeIcons";
 import { ROUTES } from "@/Routing/routes";
 import AppTheme from "@/shared-theme/AppTheme";
+import api from "@/services/api";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -85,11 +86,8 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
       const password = (event.target as HTMLFormElement).elements.namedItem(
         "password"
       ) as HTMLInputElement;
-      const apiClient = axios.create({
-        baseURL: import.meta.env.VITE_API_GW_URL,
-        withCredentials: true,
-      });
-      await apiClient.post(`${import.meta.env.VITE_API_GW_URL}/auth/login`, {
+
+      await api.post("/auth/login", {
         email: email.value,
         password: password.value,
       });
@@ -211,8 +209,7 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
               fullWidth
               variant="outlined"
               onClick={() =>
-                (window.location.href = `${
-                  import.meta.env.VITE_API_GW_URL
+              (window.location.href = `${import.meta.env.VITE_API_GW_URL
                 }/auth/google`)
               }
               startIcon={<GoogleIcon />}

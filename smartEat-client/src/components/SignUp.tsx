@@ -15,6 +15,7 @@ import Typography from "@mui/material/Typography";
 import axios from "axios";
 import * as React from "react";
 import { Link, useNavigate } from "react-router-dom";
+import api from "@/services/api";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -127,14 +128,11 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
         "name"
       ) as HTMLInputElement;
 
-      await axios.post(
-        `${import.meta.env.VITE_API_GW_URL}/auth/register`,
-        {
-          email: email.value,
-          password: password.value,
-          userName: name.value,
-        }
-      );
+      await api.post("/auth/register", {
+        email: email.value,
+        password: password.value,
+        userName: name.value,
+      });
 
       setSnackbarMessage("Registration successful!");
       setSnackbarSeverity("success");

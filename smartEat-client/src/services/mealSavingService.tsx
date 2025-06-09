@@ -1,5 +1,5 @@
 import { CustomeToastPromise } from "@/components/CustomeToastPromise";
-import axios from "axios";
+import api from "./api";
 
 interface Ingredient {
   name: string;
@@ -13,8 +13,6 @@ interface Meal {
   name: string;
   ingredients: Ingredient[];
 }
-
-const API_URL = "https://localhost:3002";
 
 export const logMealToBackend = async (
   name: string,
@@ -35,12 +33,7 @@ export const logMealToBackend = async (
   };
 
   return CustomeToastPromise(
-    axios.post(`${API_URL}/meals`, mealData, {
-      headers: {
-        "Content-Type": "application/json"
-      },
-      withCredentials: true
-    }).then(response => response.data),
+    api.post("/meals", mealData).then(response => response.data),
     {
       loadingMessage: "Logging meal...",
       successMessage: "Meal was successfully saved!",
