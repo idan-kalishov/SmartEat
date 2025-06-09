@@ -1,4 +1,5 @@
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
+import api from "@/services/api";
 import {
   Ingredient,
   Nutrient,
@@ -9,9 +10,6 @@ import {
   IngredientsRecognitionResult,
   MealRecognitionResult,
 } from "@/types/protoServicesTypes";
-
-// Base URL for the API
-const BASE_URL = "https://localhost:3002";
 
 // Define the shape of the food recognition response
 export interface FoodRecognitionResponse {
@@ -41,14 +39,13 @@ export const analyzeFoodImage = async (
   formData.append("image", imageFile);
 
   try {
-    const response = await axios.post(
-      `${BASE_URL}/food-recognition/analyze-meal`,
+    const response = await api.post(
+      "/food-recognition/analyze-meal",
       formData,
       {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-        timeout: 30000, // Optional: Increase timeout if needed
       }
     );
     console.log(response);
@@ -77,12 +74,9 @@ export const fetchNutritionalDataForIngredients = async (
   ingredientNames: string[]
 ): Promise<IngredientsRecognitionResult[]> => {
   try {
-    const response = await axios.post(
-      `${BASE_URL}/food-recognition/ingredient-details`,
-      {
-        names: ingredientNames,
-      }
-    );
+    const response = await api.post("/food-recognition/ingredient-details", {
+      names: ingredientNames,
+    });
     console.log("result  " + JSON.stringify(response.data));
     return response.data?.items;
   } catch (error) {

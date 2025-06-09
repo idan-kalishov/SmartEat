@@ -50,9 +50,8 @@ interface MealAnalysis {
 
 export default function ResultsPage() {
   useScrollLock();
-
   const location = useLocation();
-  const { name, image, ingredients, analysis } = location.state || {};
+  const { name, image, ingredients: mealIngredients, analysis } = location.state || {};
   const [servingSize, setServingSize] = useState(1);
   const navigate = useNavigate();
 
@@ -64,14 +63,37 @@ export default function ResultsPage() {
     positiveFeedback: "Your meal appears to be well-balanced.",
   };
 
-  const totalNutrition = calculateTotalNutrition(ingredients || []);
+  const totalNutrition = calculateTotalNutrition(mealIngredients || []);
   const adjustedNutrition = adjustNutritionForServing(
     totalNutrition,
     servingSize
   );
 
   const handleLogAndNavigate = () => {
-    logMealToBackend(name, servingSize, adjustedNutrition);
+    if (!mealIngredients || !name) {
+      // Handle case where ingredients or name are not available
+      return;
+    }
+
+    const ingredients = mealIngredients.map(ing => ({
+      name: ing.name,
+      weight: ing.weight * servingSize, // Adjust weight by serving size
+      nutrition: {
+        per100g: {
+          calories: adjustedNutrition.calories / (adjustedNutrition.totalWeight * servingSize) * 100,
+          protein: adjustedNutrition.protein / (adjustedNutrition.totalWeight * servingSize) * 100,
+          totalFat: adjustedNutrition.totalFat / (adjustedNutrition.totalWeight * servingSize) * 100,
+          totalCarbohydrates: adjustedNutrition.totalCarbohydrates / (adjustedNutrition.totalWeight * servingSize) * 100,
+          fiber: adjustedNutrition.fiber / (adjustedNutrition.totalWeight * servingSize) * 100,
+          ...Object.entries(vitaminAndMinerals).reduce((acc, [key, value]) => ({
+            ...acc,
+            [key]: value / (adjustedNutrition.totalWeight * servingSize) * 100
+          }), {})
+        }
+      }
+    }));
+
+    logMealToBackend(name, ingredients);
     navigate("/");
   };
 

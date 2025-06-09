@@ -1,12 +1,10 @@
 // src/services/mealAnalysisService.ts
-import axios from "axios";
 import { UserProfile } from "../types/userTypes";
 import {
   TransformedIngredient,
   NutritionData,
 } from "../types/imageAnalyizeTypes";
-
-const BASE_URL = "https://localhost:3002";
+import api from "./api";
 
 export interface MealAnalysisResponse {
   rating: {
@@ -76,14 +74,6 @@ export async function analyzeMeal(
 
   console.log("Sending meal analysis:", payload);
 
-  const response = await axios.post(
-    `${BASE_URL}/nutrition/meal-rating`,
-    payload,
-    {
-      headers: { "Content-Type": "application/json" },
-      timeout: 30000,
-    }
-  );
-
+  const response = await api.post("/nutrition/meal-rating", payload);
   return response.data;
 }

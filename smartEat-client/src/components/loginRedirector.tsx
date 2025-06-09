@@ -3,7 +3,7 @@ import {useNavigate, useLocation} from "react-router-dom";
 import queryString from "query-string";
 import {useDispatch} from "react-redux";
 import {setUser} from "../store/appState";
-import apiClient from "@/services/authService.ts";
+import api from "@/services/api";
 
 const LoginRedirector = () => {
     const navigate = useNavigate();
@@ -33,10 +33,10 @@ const LoginRedirector = () => {
                     }
                 }
 
-                const verifyResponse = await apiClient.get("/auth/verify");
+                const verifyResponse = await api.get("/auth/verify");
                 if (verifyResponse.status === 200) {
                     try {
-                        const response = await apiClient.get("/auth/me");
+                        const response = await api.get("/auth/me");
                         dispatch(setUser(response.data.user));
                     } catch (error) {
                         console.error("Failed to fetch user data:", error);
@@ -47,18 +47,15 @@ const LoginRedirector = () => {
                     navigate("/login", {replace: true});
                 }
             } catch (error) {
-                navigate("/login");
+                console.error("Auth verification failed:", error);
+                navigate("/login", {replace: true});
             }
         };
 
-        if (location.pathname === "/verify-auth") {
-            verifyAuth();
-        } else {
-            navigate("/login", {replace: true});
-        }
-    }, [location, navigate]);
+        verifyAuth();
+    }, [location, navigate, dispatch]);
 
-    return <div>Processing authentication...</div>;
+    return null;
 };
 
 export default LoginRedirector;
