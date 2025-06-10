@@ -19,4 +19,5 @@ export interface Meal {
   createdAt: string; // ISO date string
   name: string;
   ingredients: Ingredient[];
+  imageUrl?: string; // URL to the meal image
 } 

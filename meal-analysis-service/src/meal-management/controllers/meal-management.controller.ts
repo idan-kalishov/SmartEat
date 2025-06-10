@@ -1,31 +1,32 @@
-import { Controller, BadRequestException } from '@nestjs/common';
+import { BadRequestException, Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
-import { MealManagementService } from '../services/meal-management.service';
 import {
-  SaveMealRequest,
-  SaveMealResponse,
   DeleteMealRequest,
   DeleteMealResponse,
   GetMealsByDateRequest,
   GetMealsByDateResponse,
   Meal as GrpcMeal,
-  ImageData,
+  MealResponse as GrpcMealResponse,
+  SaveMealRequest,
+  SaveMealResponse
 } from '../../generated/meal-management';
 import { Meal as MongoMeal } from '../schemas/meal.schema';
+import { MealManagementService } from '../services/meal-management.service';
 
 @Controller()
 export class MealManagementController {
   constructor(
     private readonly mealManagementService: MealManagementService,
-  ) {}
+  ) { }
 
-  private transformToGrpcMeal(mongoMeal: MongoMeal): GrpcMeal {
+  private transformToGrpcMealResponse(mongoMeal: MongoMeal): GrpcMealResponse {
     return {
       id: mongoMeal._id.toString(),
       userId: mongoMeal.userId,
       createdAt: mongoMeal.createdAt.toISOString(),
       ingredients: mongoMeal.ingredients,
       name: mongoMeal.name,
+      imageUrl: mongoMeal.imageUrl,
     };
   }
 
@@ -65,20 +66,17 @@ export class MealManagementController {
 
       // Extract image data from meal object if present
       let imageFile: Express.Multer.File | undefined;
-      
+
       if (data.meal.imageData) {
         const { data: imageBase64, mimeType, name } = data.meal.imageData;
         const buffer = Buffer.from(imageBase64, 'base64');
-        
+
         imageFile = {
           buffer,
           mimetype: mimeType,
           originalname: name,
           size: buffer.length,
         } as Express.Multer.File;
-
-        // Remove imageData from meal object before saving
-        delete data.meal.imageData;
       }
 
       const mealId = await this.mealManagementService.saveMeal(data.meal, imageFile);
@@ -114,8 +112,9 @@ export class MealManagementController {
         data.userId,
         data.date,
       );
+
       return {
-        meals: meals.map(meal => this.transformToGrpcMeal(meal)),
+        meals: meals.map(meal => this.transformToGrpcMealResponse(meal)),
       };
     } catch (error) {
       console.error('Error getting meals by date:', error);

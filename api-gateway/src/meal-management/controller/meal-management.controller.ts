@@ -1,24 +1,24 @@
 import {
+  GetMealsByDateResponse,
+  Ingredient,
+  Meal,
+} from '@generated/meal-management';
+import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
+  InternalServerErrorException,
   Param,
   Post,
   Request,
-  BadRequestException,
-  InternalServerErrorException,
-  UseInterceptors,
   UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { MealManagementClient } from 'src/grpc/clients/meal-management.client';
 import { AuthGatewayService } from 'src/authGateway/auth.gateway.service';
-import {
-  Meal,
-  GetMealsByDateResponse,
-  Ingredient,
-} from '@generated/meal-management';
+import { MealManagementClient } from 'src/grpc/clients/meal-management.client';
 
 // Proper type for the meal data from form data
 interface MealFormData {
@@ -38,7 +38,7 @@ export class MealManagementController {
   constructor(
     private readonly client: MealManagementClient,
     private readonly authService: AuthGatewayService,
-  ) {}
+  ) { }
 
   private validateMealData(meal: Meal): void {
     if (!meal.ingredients || !Array.isArray(meal.ingredients) || meal.ingredients.length === 0) {
@@ -61,17 +61,17 @@ export class MealManagementController {
       if (mealData.meal && typeof mealData.meal === 'string') {
         return JSON.parse(mealData.meal);
       }
-      
+
       // If individual fields are provided, construct the meal data
       if (mealData.name && mealData.ingredients) {
         return {
           name: mealData.name,
-          ingredients: typeof mealData.ingredients === 'string' 
-            ? JSON.parse(mealData.ingredients) 
+          ingredients: typeof mealData.ingredients === 'string'
+            ? JSON.parse(mealData.ingredients)
             : mealData.ingredients,
         };
       }
-      
+
       throw new Error('Invalid meal data format');
     } catch (parseError) {
       throw new BadRequestException('Invalid meal data format');
@@ -88,7 +88,7 @@ export class MealManagementController {
     try {
       const parsedMeal = this.parseMealData(mealData);
       const userDetails = await this.authService.getUserDetails(req);
-      
+
       if (!userDetails?.user?._id) {
         throw new BadRequestException('User not authenticated');
       }

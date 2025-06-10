@@ -93,7 +93,7 @@ export default function ResultsPage() {
       }
     }));
 
-    logMealToBackend(name, ingredients);
+    logMealToBackend(name, ingredients, image);
     navigate("/");
   };
 
