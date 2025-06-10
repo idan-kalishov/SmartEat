@@ -46,13 +46,14 @@ export interface Meal {
   userId: string;
   /** ISO date string */
   createdAt: string;
+  /** Name of the meal */
+  name: string;
   ingredients: Ingredient[];
 }
 
 export interface Ingredient {
   name: string;
   weight: number;
-  usdaFoodLabel?: string | undefined;
   nutrition?: NutritionInfo | undefined;
 }
 
@@ -339,7 +340,7 @@ export const GetMealsByDateResponse: MessageFns<GetMealsByDateResponse> = {
 };
 
 function createBaseMeal(): Meal {
-  return { id: "", userId: "", createdAt: "", ingredients: [] };
+  return { id: "", userId: "", createdAt: "", name: "", ingredients: [] };
 }
 
 export const Meal: MessageFns<Meal> = {
@@ -353,8 +354,11 @@ export const Meal: MessageFns<Meal> = {
     if (message.createdAt !== "") {
       writer.uint32(26).string(message.createdAt);
     }
+    if (message.name !== "") {
+      writer.uint32(34).string(message.name);
+    }
     for (const v of message.ingredients) {
-      Ingredient.encode(v!, writer.uint32(34).fork()).join();
+      Ingredient.encode(v!, writer.uint32(42).fork()).join();
     }
     return writer;
   },
@@ -395,6 +399,14 @@ export const Meal: MessageFns<Meal> = {
             break;
           }
 
+          message.name = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
           message.ingredients.push(Ingredient.decode(reader, reader.uint32()));
           continue;
         }
@@ -420,11 +432,8 @@ export const Ingredient: MessageFns<Ingredient> = {
     if (message.weight !== 0) {
       writer.uint32(17).double(message.weight);
     }
-    if (message.usdaFoodLabel !== undefined) {
-      writer.uint32(26).string(message.usdaFoodLabel);
-    }
     if (message.nutrition !== undefined) {
-      NutritionInfo.encode(message.nutrition, writer.uint32(34).fork()).join();
+      NutritionInfo.encode(message.nutrition, writer.uint32(26).fork()).join();
     }
     return writer;
   },
@@ -454,14 +463,6 @@ export const Ingredient: MessageFns<Ingredient> = {
         }
         case 3: {
           if (tag !== 26) {
-            break;
-          }
-
-          message.usdaFoodLabel = reader.string();
-          continue;
-        }
-        case 4: {
-          if (tag !== 34) {
             break;
           }
 

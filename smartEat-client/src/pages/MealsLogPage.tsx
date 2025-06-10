@@ -4,13 +4,14 @@ import HorizontalDatePicker from "../components/HorizontalDatePicker";
 import MealCard from "../components/meals/MealCard";
 import MealsLogModal from "../components/meals/MealsLogModal";
 import WaterTracker from "@/components/water-tracker/WaterTracker";
+import ExerciseCard from "@/components/exercise/ExerciseCard";
 
 const MealsLogPage: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const { meals, isLoading } = useMealsByDate(selectedDate);
+  const { meals = [], isLoading, error } = useMealsByDate(selectedDate);
   const [showModal, setShowModal] = useState(false);
 
-  const lastMeal = meals[meals.length - 1];
+  const lastMeal = meals.length > 0 ? meals[meals.length - 1] : null;
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-green-200 py-4 px-2 sm:py-8">
@@ -33,6 +34,8 @@ const MealsLogPage: React.FC = () => {
           <div className="flex justify-center items-center py-4">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
           </div>
+        ) : error ? (
+          <span className="text-red-500">{error}</span>
         ) : lastMeal ? (
           <>
             <div
@@ -56,7 +59,8 @@ const MealsLogPage: React.FC = () => {
           <span className="text-gray-400">No meals logged for this date.</span>
         )}
       </div>
-      {showModal && (
+      <ExerciseCard />
+      {showModal && meals.length > 0 && (
         <MealsLogModal meals={meals} onClose={() => setShowModal(false)} />
       )}
 

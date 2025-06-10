@@ -117,6 +117,7 @@ const login = async (req: Request, res: Response) => {
 
         const tokens = generateToken(user._id.toString());
 
+        console.log(tokens?.accessToken);
         if (!tokens) {
             res.status(500).send("Server Error");
             return;

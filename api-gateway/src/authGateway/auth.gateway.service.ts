@@ -21,7 +21,7 @@ export class AuthGatewayService {
           withCredentials: true,
         }),
       );
-
+      
       const setCookieHeader = response.headers['set-cookie'];
       if (setCookieHeader) {
         res.setHeader('Set-Cookie', setCookieHeader);
@@ -130,6 +130,58 @@ export class AuthGatewayService {
       return response.data;
     } catch (error) {
       console.error('Error in getUserDetails:', {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+        headers: error.response?.headers,
+        stack: error.stack
+      });
+      throw error;
+    }
+  }
+
+  async updateUser(userData: any, req: Request) {
+    try {
+      const headers = this.getEssentialHeaders(req);
+      const url = `${this.authServiceBaseUrl}/update`;
+
+      const response = await firstValueFrom(
+        this.httpService.put(url, userData, {
+          headers,
+          withCredentials: true,
+          timeout: 5000
+        }),
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error('Error in updateUser:', {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+        headers: error.response?.headers,
+        stack: error.stack
+      });
+      throw error;
+    }
+  }
+
+  async updateUserProfile(profileData: any, req: Request) {
+    try {
+      const headers = this.getEssentialHeaders(req);
+      const url = `${this.authServiceBaseUrl}/update-profile`;
+
+      const response = await firstValueFrom(
+        this.httpService.put(url, profileData, {
+          headers,
+          withCredentials: true,
+          timeout: 5000
+        }),
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error('Error in updateUserProfile:', {
         message: error.message,
         status: error.response?.status,
         data: error.response?.data,
