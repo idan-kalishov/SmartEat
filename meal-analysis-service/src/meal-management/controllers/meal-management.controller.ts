@@ -9,9 +9,9 @@ import {
   GetMealsByDateRequest,
   GetMealsByDateResponse,
   Meal as GrpcMeal,
+  ImageData,
 } from '../../generated/meal-management';
 import { Meal as MongoMeal } from '../schemas/meal.schema';
-import { Metadata } from '@grpc/grpc-js';
 
 @Controller()
 export class MealManagementController {
@@ -26,7 +26,6 @@ export class MealManagementController {
       createdAt: mongoMeal.createdAt.toISOString(),
       ingredients: mongoMeal.ingredients,
       name: mongoMeal.name,
-      imageUrl: mongoMeal.imageUrl,
     };
   }
 
@@ -46,7 +45,7 @@ export class MealManagementController {
   }
 
   @GrpcMethod('MealManagementService', 'SaveMeal')
-  async saveMeal(data: SaveMealRequest, metadata: Metadata): Promise<SaveMealResponse> {
+  async saveMeal(data: SaveMealRequest): Promise<SaveMealResponse> {
     try {
       if (!data.meal) {
         throw new BadRequestException('Meal data is required');
@@ -64,20 +63,22 @@ export class MealManagementController {
         throw new BadRequestException('User ID mismatch');
       }
 
-      // Check if image data is provided in metadata
+      // Extract image data from meal object if present
       let imageFile: Express.Multer.File | undefined;
-      const imageData = metadata.get('image-data');
-      const imageMimeType = metadata.get('image-mime-type');
-      const imageName = metadata.get('image-name');
-
-      if (imageData && imageMimeType && imageName) {
-        const buffer = Buffer.from(imageData[0] as string, 'base64');
+      
+      if (data.meal.imageData) {
+        const { data: imageBase64, mimeType, name } = data.meal.imageData;
+        const buffer = Buffer.from(imageBase64, 'base64');
+        
         imageFile = {
           buffer,
-          mimetype: imageMimeType[0] as string,
-          originalname: imageName[0] as string,
+          mimetype: mimeType,
+          originalname: name,
           size: buffer.length,
         } as Express.Multer.File;
+
+        // Remove imageData from meal object before saving
+        delete data.meal.imageData;
       }
 
       const mealId = await this.mealManagementService.saveMeal(data.meal, imageFile);

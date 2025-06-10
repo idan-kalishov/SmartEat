@@ -1,18 +1,18 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { Client, ClientGrpc } from '@nestjs/microservices';
-import { BadRequestException } from '@nestjs/common';
-import { mealManagementGrpcOptions } from '../meal-management.config';
 import {
-  Meal,
-  SaveMealRequest,
-  SaveMealResponse,
   DeleteMealRequest,
   DeleteMealResponse,
   GetMealsByDateRequest,
   GetMealsByDateResponse,
+  Meal,
   MealManagementServiceClient,
+  SaveMealRequest,
+  SaveMealResponse,
+  ImageData,
 } from '@generated/meal-management';
+import { BadRequestException, Injectable, OnModuleInit } from '@nestjs/common';
+import { Client, ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import { mealManagementGrpcOptions } from '../meal-management.config';
 
 @Injectable()
 export class MealManagementClient implements OnModuleInit {
@@ -42,7 +42,7 @@ export class MealManagementClient implements OnModuleInit {
     });
   }
 
-  async saveMeal(userId: string, meal: Meal): Promise<SaveMealResponse> {
+  async saveMeal(userId: string, meal: Meal, image?: Express.Multer.File): Promise<SaveMealResponse> {
     try {
       if (!userId) {
         throw new BadRequestException('User ID is required');
@@ -54,11 +54,23 @@ export class MealManagementClient implements OnModuleInit {
         throw new BadRequestException('User ID mismatch');
       }
 
+      // Create a meal with image data if provided
+      const mealWithImageData: Meal = { ...meal };
+      
+      if (image) {
+        const imageData: ImageData = {
+          data: image.buffer.toString('base64'),
+          mimeType: image.mimetype,
+          name: image.originalname,
+        };
+        mealWithImageData.imageData = imageData;
+      }
+
       const request: SaveMealRequest = {
         userId,
-        meal,
+        meal: mealWithImageData,
       };
-      
+
       return await firstValueFrom(this.mealService.saveMeal(request));
     } catch (error) {
       console.error('Error in client saveMeal:', error);
