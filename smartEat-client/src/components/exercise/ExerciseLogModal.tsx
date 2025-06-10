@@ -6,7 +6,23 @@ interface MealsLogModalProps {
 
 const ExerciseLogModal: React.FC<MealsLogModalProps> = ({ onClose }) => {
   const [exerciseType, setExerciseType] = useState("");
-  const [intensityLevel, setIntensityLevel] = useState("");
+  const [minutes, setMinutes] = useState(0);
+
+  const handleSubmit = () => {
+    console.log(`${minutes} ${exerciseType}`);
+    onClose();
+  };
+
+  const handleMinuteChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const cleanedValue = event.target.value.replace(/[^0-9]/g, "");
+
+    const cleanedValueNoZero = cleanedValue.replace(
+      /^0+/,
+      ""
+    ) as unknown as number;
+
+    setMinutes(cleanedValueNoZero < 1440 ? cleanedValueNoZero : minutes);
+  };
 
   return (
     <div className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-50">
@@ -18,26 +34,35 @@ const ExerciseLogModal: React.FC<MealsLogModalProps> = ({ onClose }) => {
           &times;
         </button>
         <h2 className="text-xl font-bold mb-4 text-center">add exercise</h2>
-        <div className="space-y-6 max-h-[60vh] overflow-y-auto">
+        <div className="space-y-6 overflow-y-auto justify-items-center inline">
           <select
             id="countries"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            className="bg-gray-50 border border-gray-300 text-sm rounded-lg block w-full p-2.5"
             onChange={(event) => setExerciseType(event.target.value)}
           >
             <option selected>Choose an exercise type</option>
-            <option value="cardio">cardio</option>
-            <option value="strength">strength</option>
+            <option value="weight lifting">weight lifting</option>
+            <option value="basketball">basketball</option>
+            <option value="football">football</option>
+            <option value="swimming">swimming</option>
+            <option value="light cardio">light cardio</option>
+            <option value="moderate cardio">moderate cardio</option>
+            <option value="intense cardio">intense cardio</option>
           </select>
-          <select
-            id="countries"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            onChange={(event) => setIntensityLevel(event.target.value)}
+          <input
+            type="number"
+            className="border border-gray-300 rounded-lg py-2 px-4 w-full"
+            placeholder="minutes"
+            value={minutes}
+            onChange={handleMinuteChange}
+          />
+          <button
+            type="submit"
+            className="bg-blue-500 text-white py-2 px-4 rounded-lg block mx-auto"
+            onClick={handleSubmit}
           >
-            <option selected>Choose intensity level</option>
-            <option value="Light">Light</option>
-            <option value="Moderate">Moderate</option>
-            <option value="Hard">Hard</option>
-          </select>
+            Submit
+          </button>
         </div>
       </div>
     </div>
