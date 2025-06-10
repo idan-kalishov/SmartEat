@@ -21,7 +21,7 @@ export const logMealToBackend = async (
 ) => {
   // Create FormData for multipart upload
   const formData = new FormData();
-  
+
   const mealData: Meal = {
     name,
     ingredients: ingredients.map(ing => ({
@@ -57,18 +57,23 @@ export const logMealToBackend = async (
     }
   }
 
-  return CustomeToastPromise(
-    api.post("/meals", formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data', // Let browser set the boundary
-      },
-    }).then(response => response.data),
+  // Create the API promise first
+  const apiPromise = api.post("/meals", formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data', // Let browser set the boundary
+    },
+  }).then(response => response.data);
+
+  CustomeToastPromise(
+    apiPromise,
     {
       loadingMessage: "Logging meal...",
       successMessage: "Meal was successfully saved!",
       errorMessage: "Failed to log meal, Please try Again",
     }
   );
+
+  return apiPromise;
 };
 
 // Helper function to determine units for different nutrients
@@ -90,6 +95,6 @@ function getUnitForKey(key: string): string {
     vitaminB12: "µg",
     magnesium: "mg"
   };
-  
+
   return unitMap[key] || "g";
 }
