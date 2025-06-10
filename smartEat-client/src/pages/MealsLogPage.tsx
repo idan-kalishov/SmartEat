@@ -1,9 +1,10 @@
 import { useMealsByDate } from "@/hooks/meals/useMealsByDate";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import HorizontalDatePicker from "../components/HorizontalDatePicker";
 import MealCard from "../components/meals/MealCard";
 import MealsLogModal from "../components/meals/MealsLogModal";
 import ExerciseCard from "@/components/exercise/ExerciseCard";
+import apiClient from "@/services/authService";
 
 const MealsLogPage: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -11,6 +12,15 @@ const MealsLogPage: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
 
   const lastMeal = meals[meals.length - 1];
+
+  const handleA = async () => {
+    const a = await apiClient.post("/nutrition/daily-exercise");
+    debugger;
+  };
+
+  useEffect(() => {
+    handleA();
+  }, []);
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-green-200 py-4 px-2 sm:py-8">

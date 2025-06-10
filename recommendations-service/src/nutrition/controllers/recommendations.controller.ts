@@ -26,6 +26,12 @@ export class RecommendationsController {
     );
   }
 
+  @GrpcMethod('NutritionsRatingService', 'GetDailyExerciseGoal')
+  getDailyExerciseGoal(userProfile: UserProfile): Number {
+    debugger;
+    return this.nutritionsRatingService.calculateTDEE(userProfile);
+  }
+
   @GrpcMethod('NutritionsRatingService', 'AnalyzeMeal')
   async analyzeMeal(
     request: MealAnalysisRequest,
