@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import { CustomeToastPromise } from "@/components/CustomeToastPromise";
+import { deleteMeal } from "@/services/mealService";
 import { Meal } from "@/types/meals/mealTypes";
-import MealNutritionSummary from "./MealNutritionSummary";
+import React, { useState } from "react";
 import IngredientNutritionRow from "./IngredientNutritionRow";
+import MealNutritionSummary from "./MealNutritionSummary";
 import MenuActionButton from "./MenuActionButton";
 
 interface MealCardProps {
@@ -11,21 +13,40 @@ interface MealCardProps {
   onClick?: (meal: Meal) => void;
   // Indicates if the card is being used in a smaller preview context
   isPreview?: boolean;
+  // Optional callback to refresh meals list after deletion
+  onMealDeleted?: () => void;
 }
 
-const MealCard: React.FC<MealCardProps> = ({ meal, onClick, isPreview }) => {
+const MealCard: React.FC<MealCardProps> = ({ meal, onClick, isPreview, onMealDeleted }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   // Expanded state is only used if not in preview mode
   const [expanded, setExpanded] = useState(false);
 
   // Use provided onClick if available, otherwise use internal expand/collapse (only if not in preview)
-  const handleCardClick = onClick ? () => onClick(meal) : (isPreview ? () => {} : () => setExpanded(!expanded));
+  const handleCardClick = onClick ? () => onClick(meal) : (isPreview ? () => { } : () => setExpanded(!expanded));
 
   const handleEditMeal = (meal: Meal) => {
     alert(`Edit meal: ${meal.id}`);
   };
-  const handleDeleteMeal = (meal: Meal) => {
-    alert(`Delete meal: ${meal.id}`);
+
+  const handleDeleteMeal = async (meal: Meal) => {
+    // Create the API promise first
+    const apiPromise = deleteMeal(meal.id).then(response => {
+      if (response.success) {
+        // Call the callback to refresh the meals list
+        onMealDeleted?.();
+      }
+      return response;
+    });
+
+    CustomeToastPromise(
+      apiPromise,
+      {
+        loadingMessage: "Deleting meal...",
+        successMessage: "Meal was successfully deleted!",
+        errorMessage: "Failed to delete meal, Please try again",
+      }
+    );
   };
 
   // Close menu when clicking outside (simple approach)

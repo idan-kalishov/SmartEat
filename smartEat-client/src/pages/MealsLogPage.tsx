@@ -1,16 +1,21 @@
-import {useMealsByDate} from "@/hooks/meals/useMealsByDate";
-import React, {useState} from "react";
+import ExerciseCard from "@/components/exercise/ExerciseCard";
+import { useMealsByDate } from "@/hooks/meals/useMealsByDate";
+import React, { useState } from "react";
 import HorizontalDatePicker from "../components/HorizontalDatePicker";
 import MealCard from "../components/meals/MealCard";
 import MealsLogModal from "../components/meals/MealsLogModal";
-import ExerciseCard from "@/components/exercise/ExerciseCard";
 
 const MealsLogPage: React.FC = () => {
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-    const {meals = [], isLoading, error} = useMealsByDate(selectedDate);
+    const { meals = [], isLoading, error, fetchMeals } = useMealsByDate(selectedDate);
     const [showModal, setShowModal] = useState(false);
 
     const lastMeal = meals.length > 0 ? meals[meals.length - 1] : null;
+
+    const handleMealDeleted = () => {
+        // Refresh the meals list for the current date
+        fetchMeals();
+    };
 
     return (
         <div className="flex flex-col items-center min-h-screen bg-green-200 py-4 px-2 sm:py-8">
@@ -26,9 +31,9 @@ const MealsLogPage: React.FC = () => {
                 />
             </div>
             <div className="w-full max-w-md bg-white rounded-lg shadow p-4 sm:p-6 flex flex-col items-center">
-        <span className="text-gray-500 text-sm sm:text-base mb-2">
-          Logged Meals ({meals.length})
-        </span>
+                <span className="text-gray-500 text-sm sm:text-base mb-2">
+                    Logged Meals ({meals.length})
+                </span>
                 {isLoading ? (
                     <div className="flex justify-center items-center py-4">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
@@ -45,6 +50,7 @@ const MealsLogPage: React.FC = () => {
                                 meal={lastMeal}
                                 onClick={() => setShowModal(true)}
                                 isPreview={true}
+                                onMealDeleted={handleMealDeleted}
                             />
                             {meals.length > 1 && (
                                 <div className="text-xs text-gray-500 mt-2 text-center w-full">
@@ -58,9 +64,9 @@ const MealsLogPage: React.FC = () => {
                     <span className="text-gray-400">No meals logged for this date.</span>
                 )}
             </div>
-            <ExerciseCard/>
+            <ExerciseCard />
             {showModal && meals.length > 0 && (
-                <MealsLogModal meals={meals} onClose={() => setShowModal(false)}/>
+                <MealsLogModal meals={meals} onClose={() => setShowModal(false)} onMealDeleted={handleMealDeleted} />
             )}
         </div>
     );

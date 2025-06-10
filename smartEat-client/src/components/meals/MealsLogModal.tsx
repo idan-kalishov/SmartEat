@@ -1,30 +1,14 @@
-import React, { useState } from "react";
 import { Meal } from "@/types/meals/mealTypes";
-import IngredientNutritionRow from "./IngredientNutritionRow";
-import MealNutritionSummary from "./MealNutritionSummary";
-import MenuActionButton from "./MenuActionButton";
+import React from "react";
 import MealCard from "./MealCard";
 
 interface MealsLogModalProps {
   meals: Meal[];
   onClose: () => void;
+  onMealDeleted?: () => void;
 }
 
-const MealsLogModal: React.FC<MealsLogModalProps> = ({ meals, onClose }) => {
-  const [menuOpenIdx, setMenuOpenIdx] = useState<number | null>(null);
-  const [expandedMealIdx, setExpandedMealIdx] = useState<number | null>(null);
-
-  const handleEditMeal = (meal: Meal) => {
-    alert(`Edit meal: ${meal.id}`);
-  };
-
-  const handleDeleteMeal = (meal: Meal) => {
-    alert(`Delete meal: ${meal.id}`);
-  };
-
-  const toggleExpand = (index: number) => {
-    setExpandedMealIdx(expandedMealIdx === index ? null : index);
-  };
+const MealsLogModal: React.FC<MealsLogModalProps> = ({ meals, onClose, onMealDeleted }) => {
 
   return (
     <div className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-50">
@@ -41,7 +25,7 @@ const MealsLogModal: React.FC<MealsLogModalProps> = ({ meals, onClose }) => {
             <p className="text-gray-500 text-center">No meals logged for this date</p>
           ) : (
             meals.map((meal) => (
-              <MealCard key={meal.id} meal={meal} />
+              <MealCard key={meal.id} meal={meal} onMealDeleted={onMealDeleted} />
             ))
           )}
         </div>
