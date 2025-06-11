@@ -1,7 +1,7 @@
-import React from "react";
-import { Toaster } from "sonner";
 import Routing from "@/Routing/Routing.tsx";
 import BottomNavbar from "@/components/BottomNavbar.tsx";
+import React from "react";
+import { Toaster } from "sonner";
 
 const App: React.FC = () => {
   return (
