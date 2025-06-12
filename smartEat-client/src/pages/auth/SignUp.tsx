@@ -1,9 +1,9 @@
+import { ROUTES } from "@/Routing/routes";
+import api from "@/services/api";
+import axios from "axios";
+import { Utensils } from "lucide-react";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ROUTES } from "@/Routing/routes";
-import { Utensils } from "lucide-react";
-import axios from "axios";
-import api from "@/services/api";
 
 export default function SignUp() {
   const [emailError, setEmailError] = useState("");
@@ -57,7 +57,7 @@ export default function SignUp() {
         password: password,
       });
 
-      navigate("/preferences");
+      navigate("/verify-auth");
     } catch (err) {
       if (axios.isAxiosError(err)) {
         setError(

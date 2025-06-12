@@ -1,25 +1,21 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
 import { ROUTES } from "@/Routing/routes";
-import { persistor, setUser } from "@/store/appState";
-import api from "@/services/api";
-import Layout from "../components/Layout";
+import api, { clearAuthHeader } from "@/services/api";
+import { logout, persistor, setUser } from "@/store/appState";
 import {
-  User,
-  PencilLine,
-  Weight,
-  Ruler,
   Activity,
-  Target,
-  Salad,
-  AlertOctagon,
-  LogOut,
   ChevronRight,
-  Save,
   ImagePlus,
+  LogOut,
+  PencilLine,
+  Salad,
+  Save,
+  User,
+  Weight,
 } from "lucide-react";
-import { logout } from "@/store/appState";
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import Layout from "../components/Layout";
 
 interface ProfileSection {
   id: string;
@@ -170,13 +166,17 @@ const ProfilePage: React.FC = () => {
     try {
       // Call the backend logout endpoint
       await api.post("/auth/logout");
+      clearAuthHeader();
 
       // Dispatch Redux logout action to clear state
       dispatch(logout());
+      dispatch(setUser(null));
       await persistor.purge();
 
       // Navigate to sign-in page
+      localStorage.clear();
       navigate(ROUTES.SIGNIN);
+      window.location.reload();
     } catch (error) {
       console.error("Logout failed:", error);
       // Optionally show an error toast or message
