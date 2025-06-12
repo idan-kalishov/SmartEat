@@ -3,8 +3,6 @@ import React from "react";
 import {
   BsArrowUpCircle,
   BsArrowUpCircleFill,
-  BsGear,
-  BsGearFill,
   BsHouse,
   BsHouseFill,
   BsPerson,

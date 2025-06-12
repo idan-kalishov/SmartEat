@@ -1,6 +1,6 @@
 import { ROUTES } from "@/Routing/routes";
 import api, { clearAuthHeader } from "@/services/api";
-import { logout, persistor, setUser } from "@/store/appState";
+import { logout, persistor, RootState, setUser } from "@/store/appState";
 import {
   Activity,
   ChevronRight,
@@ -13,9 +13,17 @@ import {
   Weight,
 } from "lucide-react";
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
+import { Gender } from "@/types/userTypes";
+import {
+  getActivityLevelLabel,
+  getDietaryPreferenceLabel,
+  getGenderLabel,
+  getGoalIntensityLabel,
+  getWeightGoalLabel,
+} from "@/utils/prefernces";
 
 interface ProfileSection {
   id: string;
@@ -38,6 +46,7 @@ const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const [editMode, setEditMode] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null);
+  const { userProfile } = useSelector((state: RootState) => state.user);
 
   const sections: ProfileSection[] = [
     {
@@ -55,7 +64,7 @@ const ProfilePage: React.FC = () => {
         {
           id: "age",
           label: "Age",
-          value: 25,
+          value: userProfile.age,
           type: "number",
           min: 13,
           max: 120,
@@ -63,7 +72,7 @@ const ProfilePage: React.FC = () => {
         {
           id: "gender",
           label: "Gender",
-          value: "Male",
+          value: getGenderLabel[userProfile.gender],
           type: "select",
           options: ["Male", "Female", "Other"],
         },
@@ -77,7 +86,7 @@ const ProfilePage: React.FC = () => {
         {
           id: "weight",
           label: "Weight",
-          value: 70,
+          value: userProfile.weight_kg,
           type: "number",
           unit: "kg",
           min: 20,
@@ -86,7 +95,7 @@ const ProfilePage: React.FC = () => {
         {
           id: "height",
           label: "Height",
-          value: 175,
+          value: userProfile.height_cm,
           type: "number",
           unit: "cm",
           min: 100,
@@ -102,21 +111,21 @@ const ProfilePage: React.FC = () => {
         {
           id: "activity_level",
           label: "Activity Level",
-          value: "Moderate",
+          value: getActivityLevelLabel(userProfile.activity_level),
           type: "select",
           options: ["Sedentary", "Light", "Moderate", "Active", "Very Active"],
         },
         {
           id: "goal",
           label: "Weight Goal",
-          value: "Gain weight",
+          value: getWeightGoalLabel(userProfile.weight_goal),
           type: "select",
           options: ["Lose weight", "Maintain", "Gain weight"],
         },
         {
           id: "intensity",
           label: "Goal Intensity",
-          value: "Mild",
+          value: getGoalIntensityLabel(userProfile.goal_intensity),
           type: "select",
           options: ["Mild", "Moderate", "Aggressive"],
         },
@@ -130,7 +139,9 @@ const ProfilePage: React.FC = () => {
         {
           id: "diet_type",
           label: "Diet Type",
-          value: "Keto",
+          value: getDietaryPreferenceLabel(
+            userProfile.dietary_restrictions.preference
+          ),
           type: "select",
           options: [
             "None",
@@ -144,7 +155,7 @@ const ProfilePage: React.FC = () => {
         {
           id: "allergies",
           label: "Allergies",
-          value: "None",
+          value: userProfile.dietary_restrictions.allergies.toString(),
           type: "select",
           options: [
             "None",
