@@ -16,9 +16,9 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
-import { Gender } from "@/types/userTypes";
 import {
   getActivityLevelLabel,
+  getAllergyLabel,
   getDietaryPreferenceLabel,
   getGenderLabel,
   getGoalIntensityLabel,
@@ -155,7 +155,9 @@ const ProfilePage: React.FC = () => {
         {
           id: "allergies",
           label: "Allergies",
-          value: userProfile.dietary_restrictions.allergies.toString(),
+          value: userProfile.dietary_restrictions.allergies
+            .map((allergy) => getAllergyLabel(allergy))
+            .toString(),
           type: "select",
           options: [
             "None",
