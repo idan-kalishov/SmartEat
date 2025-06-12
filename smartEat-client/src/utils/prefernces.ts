@@ -1,5 +1,6 @@
 import {
   ActivityLevel,
+  Allergy,
   DietaryPreference,
   Gender,
   GoalIntensity,
@@ -45,6 +46,19 @@ export const dietaryPreferenceLabels: Record<DietaryPreference, string> = {
   [DietaryPreference.DIETARY_PREFERENCE_PALEO]: "Paleo",
 };
 
+export const allergyLabels: Record<Allergy, string> = {
+  [Allergy.ALLERGY_UNSPECIFIED]: "Unspecified",
+  [Allergy.ALLERGY_NONE]: "None",
+  [Allergy.ALLERGY_DAIRY]: "Dairy",
+  [Allergy.ALLERGY_EGGS]: "Eggs",
+  [Allergy.ALLERGY_GLUTEN]: "Gluten",
+  [Allergy.ALLERGY_PEANUTS]: "Peanuts",
+  [Allergy.ALLERGY_TREE_NUTS]: "Tree Nuts",
+  [Allergy.ALLERGY_FISH]: "Fish",
+  [Allergy.ALLERGY_SHELLFISH]: "Shellfish",
+  [Allergy.ALLERGY_SOY]: "Soy",
+};
+
 export const getGenderLabel = (gender: Gender): string => {
   return genderLabels[gender] || "Unknown";
 };
@@ -65,4 +79,8 @@ export const getDietaryPreferenceLabel = (
   preference: DietaryPreference
 ): string => {
   return dietaryPreferenceLabels[preference] || "Unknown";
+};
+
+export const getAllergyLabel = (allergy: Allergy): string => {
+  return allergyLabels[allergy] || "Unknown";
 };
