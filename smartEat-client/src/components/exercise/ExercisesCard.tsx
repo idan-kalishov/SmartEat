@@ -38,10 +38,11 @@ const ExercisesCard: React.FC = () => {
         </div>
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center justify-center w-8 h-8 bg-emerald-500 text-white rounded-full hover:bg-emerald-600 transition-all"
+          className="flex items-center gap-1 px-2.5 py-1 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-all text-sm font-medium"
           title="Add Exercise"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-3.5 h-3.5" />
+          Add Exercise
         </button>
       </div>
 

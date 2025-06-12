@@ -1,9 +1,9 @@
 import React from "react";
-import { IngredientDetails } from "@/types/meals/mealTypes";
+import { Ingredient } from "@/types/meals/mealTypes";
 import NutritionSummaryRow from "./NutritionSummaryRow";
 
 interface IngredientNutritionRowProps {
-  ingredient: IngredientDetails;
+  ingredient: Ingredient;
 }
 
 const IngredientNutritionRow: React.FC<IngredientNutritionRowProps> = ({ ingredient }) => {
@@ -16,10 +16,10 @@ const IngredientNutritionRow: React.FC<IngredientNutritionRowProps> = ({ ingredi
       </div>
       {nutrition && (
         <NutritionSummaryRow
-          calories={((nutrition.calories?.value || 0) * weight / 100).toFixed(0)}
-          protein={((nutrition.protein?.value || 0) * weight / 100).toFixed(1)}
-          fat={((nutrition.fat?.value || 0) * weight / 100).toFixed(1)}
-          carbs={((nutrition.carbs?.value || 0) * weight / 100).toFixed(1)}
+          calories={Math.round((nutrition.calories?.value || 0) * weight / 100)}
+          protein={Number(((nutrition.protein?.value || 0) * weight / 100).toFixed(1))}
+          fat={Number(((nutrition.fat?.value || 0) * weight / 100).toFixed(1))}
+          carbs={Number(((nutrition.carbs?.value || 0) * weight / 100).toFixed(1))}
           className="mt-1 text-xs"
         />
       )}

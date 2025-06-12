@@ -45,12 +45,6 @@ const BottomNavbar: React.FC = () => {
       label: "Add",
     },
     {
-      to: ROUTES.PREFERENCES,
-      activeIcon: <BsGearFill size={24} />,
-      inactiveIcon: <BsGear size={24} />,
-      label: "Preferences",
-    },
-    {
       to: ROUTES.PROFILE,
       activeIcon: <BsPersonFill size={24} />,
       inactiveIcon: <BsPerson size={24} />,

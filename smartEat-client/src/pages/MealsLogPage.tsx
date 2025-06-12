@@ -15,13 +15,57 @@ import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/Routing/routes";
 import DailyIntakeProgress from "@/components/insights/DailyIntakeProgress";
 import WaterTracker from "@/components/water-tracker/WaterTracker";
+import { calculateTotalNutrition } from "@/utils/nutrientCalculations";
+import { Ingredient as ImageAnalyzeIngredient, NutritionData } from "@/types/imageAnalyizeTypes";
+import { Meal, Ingredient as MealIngredient } from "@/types/meals/mealTypes";
+import { MealDetailsModal } from "@/components/meals/MealDetailsModal";
 
 type Tab = "overview" | "statistics";
+
+const createEmptyNutritionData = (): NutritionData => ({
+  calories: { value: 0, unit: "KCAL" },
+  totalFat: { value: 0, unit: "G" },
+  totalCarbohydrates: { value: 0, unit: "G" },
+  sugars: { value: 0, unit: "G" },
+  protein: { value: 0, unit: "G" },
+  iron: { value: 0, unit: "MG" },
+  fiber: { value: 0, unit: "G" },
+  vitaminA: { value: 0, unit: "MCG" },
+  vitaminC: { value: 0, unit: "MG" },
+  vitaminD: { value: 0, unit: "MCG" },
+  vitaminB12: { value: 0, unit: "MCG" },
+  calcium: { value: 0, unit: "MG" },
+  magnesium: { value: 0, unit: "MG" }
+});
+
+const convertToImageAnalyzeIngredient = (ingredient: MealIngredient): ImageAnalyzeIngredient => {
+  const nutritionData = createEmptyNutritionData();
+  
+  // Map the per100g nutrition data to the required structure
+  if (ingredient.nutrition?.per100g) {
+    Object.entries(ingredient.nutrition.per100g).forEach(([key, nutrient]) => {
+      const normalizedKey = key.toLowerCase();
+      if (normalizedKey in nutritionData) {
+        nutritionData[normalizedKey as keyof NutritionData] = {
+          value: nutrient.value || 0,
+          unit: nutrient.unit
+        };
+      }
+    });
+  }
+
+  return {
+    name: ingredient.name,
+    weight: ingredient.weight.toString(),
+    nutrition: { per100g: nutritionData }
+  };
+};
 
 const MealsLogPage: React.FC = () => {
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [activeTab, setActiveTab] = useState<Tab>("overview");
+  const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
   const {
     meals = [],
     isLoading,
@@ -93,9 +137,9 @@ const MealsLogPage: React.FC = () => {
                 </div>
                 <button
                   onClick={() => navigate(ROUTES.UPLOAD)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-all text-sm font-medium"
+                  className="flex items-center gap-1 px-2.5 py-1 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-all text-sm font-medium"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-3.5 h-3.5" />
                   Add Meal
                 </button>
               </div>
@@ -112,7 +156,7 @@ const MealsLogPage: React.FC = () => {
                     <div
                       key={index}
                       className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all cursor-pointer border border-gray-100"
-                      onClick={() => navigate(`/result?id=${meal.id}`)}
+                      onClick={() => setSelectedMeal(meal)}
                     >
                       {meal.image ? (
                         <img
@@ -134,12 +178,20 @@ const MealsLogPage: React.FC = () => {
                           <span>{formatTime(meal.createdAt)}</span>
                         </div>
                         <div className="flex items-center gap-2 mt-1.5">
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800">
-                            {Math.round(meal.nutrition.calories)} cal
-                          </span>
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                            {Math.round(meal.nutrition.protein)}g protein
-                          </span>
+                          {(() => {
+                            const convertedIngredients = meal.ingredients.map(convertToImageAnalyzeIngredient);
+                            const nutrition = calculateTotalNutrition(convertedIngredients);
+                            return (
+                              <>
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800">
+                                  {Math.round(nutrition.calories)} cal
+                                </span>
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                  {Math.round(nutrition.protein)}g protein
+                                </span>
+                              </>
+                            );
+                          })()}
                         </div>
                       </div>
                     </div>
@@ -166,6 +218,12 @@ const MealsLogPage: React.FC = () => {
         )}
 
         <WaterTracker selectedDate={selectedDate}></WaterTracker>
+
+        <MealDetailsModal
+          meal={selectedMeal}
+          isOpen={!!selectedMeal}
+          onClose={() => setSelectedMeal(null)}
+        />
       </div>
     </Layout>
   );
