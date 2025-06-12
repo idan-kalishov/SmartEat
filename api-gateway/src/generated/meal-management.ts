@@ -38,7 +38,16 @@ export interface GetMealsByDateRequest {
 }
 
 export interface GetMealsByDateResponse {
-  meals: Meal[];
+  meals: MealResponse[];
+}
+
+export interface ImageData {
+  /** Base64 encoded image data */
+  data: string;
+  /** MIME type of the image */
+  mimeType: string;
+  /** Original filename */
+  name: string;
 }
 
 export interface Meal {
@@ -49,6 +58,20 @@ export interface Meal {
   /** Name of the meal */
   name: string;
   ingredients: Ingredient[];
+  /** Image data for upload */
+  imageData?: ImageData | undefined;
+}
+
+export interface MealResponse {
+  id: string;
+  userId: string;
+  /** ISO date string */
+  createdAt: string;
+  /** Name of the meal */
+  name: string;
+  ingredients: Ingredient[];
+  /** URL to the meal image (for responses) */
+  imageUrl?: string | undefined;
 }
 
 export interface Ingredient {
@@ -309,7 +332,7 @@ function createBaseGetMealsByDateResponse(): GetMealsByDateResponse {
 export const GetMealsByDateResponse: MessageFns<GetMealsByDateResponse> = {
   encode(message: GetMealsByDateResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     for (const v of message.meals) {
-      Meal.encode(v!, writer.uint32(10).fork()).join();
+      MealResponse.encode(v!, writer.uint32(10).fork()).join();
     }
     return writer;
   },
@@ -326,7 +349,66 @@ export const GetMealsByDateResponse: MessageFns<GetMealsByDateResponse> = {
             break;
           }
 
-          message.meals.push(Meal.decode(reader, reader.uint32()));
+          message.meals.push(MealResponse.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseImageData(): ImageData {
+  return { data: "", mimeType: "", name: "" };
+}
+
+export const ImageData: MessageFns<ImageData> = {
+  encode(message: ImageData, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.data !== "") {
+      writer.uint32(10).string(message.data);
+    }
+    if (message.mimeType !== "") {
+      writer.uint32(18).string(message.mimeType);
+    }
+    if (message.name !== "") {
+      writer.uint32(26).string(message.name);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ImageData {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseImageData();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.data = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.mimeType = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.name = reader.string();
           continue;
         }
       }
@@ -359,6 +441,9 @@ export const Meal: MessageFns<Meal> = {
     }
     for (const v of message.ingredients) {
       Ingredient.encode(v!, writer.uint32(42).fork()).join();
+    }
+    if (message.imageData !== undefined) {
+      ImageData.encode(message.imageData, writer.uint32(50).fork()).join();
     }
     return writer;
   },
@@ -408,6 +493,106 @@ export const Meal: MessageFns<Meal> = {
           }
 
           message.ingredients.push(Ingredient.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.imageData = ImageData.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseMealResponse(): MealResponse {
+  return { id: "", userId: "", createdAt: "", name: "", ingredients: [] };
+}
+
+export const MealResponse: MessageFns<MealResponse> = {
+  encode(message: MealResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.userId !== "") {
+      writer.uint32(18).string(message.userId);
+    }
+    if (message.createdAt !== "") {
+      writer.uint32(26).string(message.createdAt);
+    }
+    if (message.name !== "") {
+      writer.uint32(34).string(message.name);
+    }
+    for (const v of message.ingredients) {
+      Ingredient.encode(v!, writer.uint32(42).fork()).join();
+    }
+    if (message.imageUrl !== undefined) {
+      writer.uint32(50).string(message.imageUrl);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): MealResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMealResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.userId = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.createdAt = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.name = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.ingredients.push(Ingredient.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.imageUrl = reader.string();
           continue;
         }
       }

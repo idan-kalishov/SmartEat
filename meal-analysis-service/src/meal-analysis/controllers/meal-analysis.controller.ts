@@ -11,7 +11,7 @@ import { MealAnalysisService } from '../services/meal-analysis.service';
 export class MealAnalysisController {
   constructor(
     private readonly mealAnalysisService: MealAnalysisService,
-  ) {}
+  ) { }
 
   @GrpcMethod('FoodRecognitionService', 'AnalyzeMeal')
   async analyzeMeal(data: { image: Buffer }): Promise<AnalyzeMealResponse> {

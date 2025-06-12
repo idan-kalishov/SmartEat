@@ -49,12 +49,18 @@ const MealCard: React.FC<MealCardProps> = ({ meal, onClick, isPreview }) => {
   return (
     // Adjust padding and layout based on isPreview prop
     <div className={`bg-gray-50 rounded-lg shadow relative w-full max-w-full box-border overflow-hidden ${isPreview ? 'py-2' : 'p-4'}`}>
-      {/* Meal Image (top, full width) */}
-      <img
-        src={meal.imageUrl}
-        alt="Meal"
-        className="w-full h-32 object-cover rounded-t-lg"
-      />
+      {/* Meal Image (top, full width) - only show if imageUrl exists */}
+      {meal.imageUrl && (
+        <img
+          src={meal.imageUrl}
+          alt="Meal"
+          className="w-full h-32 object-cover rounded-t-lg"
+          onError={(e) => {
+            // Hide the image if it fails to load
+            e.currentTarget.style.display = 'none';
+          }}
+        />
+      )}
 
       {/* Meal Content (name, summary, etc.) */}
       <div
