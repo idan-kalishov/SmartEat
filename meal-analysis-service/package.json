@@ -16,6 +16,7 @@
     "generate:proto": "if not exist src\\generated md src\\generated && npm run generate:proto:food-recognition && npm run generate:proto:meal-management",
     "generate:proto:food-recognition": "protoc --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=src/generated --ts_proto_opt=nestJs=true,outputServices=grpc-js,returnObservable=false --proto_path=src/proto src/proto/food-recognition.proto",
     "generate:proto:meal-management": "protoc --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=src/generated --ts_proto_opt=nestJs=true,outputServices=grpc-js,returnObservable=false --proto_path=src/proto src/proto/meal-management.proto",
+    "generate:proto:exercise": "protoc --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=src/generated --ts_proto_opt=nestJs=true,outputServices=grpc-js,returnObservable=false --proto_path=src/proto src/proto/exercise.proto",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",

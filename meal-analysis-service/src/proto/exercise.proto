@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package exercise;
+
+service ExerciseService {
+  rpc SaveExercise(SaveExerciseRequest) returns (SaveExerciseResponse);
+  rpc GetExercisesByDate(GetExercisesByDateRequest) returns (GetExercisesByDateResponse);
+}
+
+message SaveExerciseRequest {
+  string userId = 1;
+  Exercise exercise = 2;
+}
+
+message SaveExerciseResponse {
+  string exerciseId = 1;
+  bool success = 2;
+}
+
+message GetExercisesByDateResponse {
+  repeated Exercise exercises = 1;
+}
+
+message GetExercisesByDateRequest {
+  string userId = 1;
+  string date = 2; // ISO date string
+}
+
+message Exercise {
+  string id = 1;
+  string userId = 2;
+  string name = 3;
+  string calories = 4;
+  double minutes = 5;
+  string createdAt = 6; // ISO date string
+}
