@@ -1,19 +1,27 @@
 import React from "react";
 
 interface MenuActionButtonProps {
-  children: React.ReactNode;
   onClick: () => void;
-  colorClass?: string; // e.g., 'text-red-600 hover:bg-red-50'
+  children: React.ReactNode;
+  colorClass?: string;
+  icon?: React.ReactNode;
 }
 
-const MenuActionButton: React.FC<MenuActionButtonProps> = ({ children, onClick, colorClass = "text-gray-700 hover:bg-gray-100" }) => (
-  <button
-    className={`block w-full text-left px-4 py-2 text-sm rounded transition duration-150 active:scale-95 focus-visible:ring focus-visible:ring-green-200 ${colorClass}`}
-    onClick={onClick}
-    type="button"
-  >
-    {children}
-  </button>
-);
+const MenuActionButton: React.FC<MenuActionButtonProps> = ({
+  onClick,
+  children,
+  colorClass = "text-gray-700 hover:bg-gray-50",
+  icon
+}) => {
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full px-3 py-2 text-left flex items-center gap-2 text-sm transition-colors ${colorClass}`}
+    >
+      {icon}
+      <span>{children}</span>
+    </button>
+  );
+};
 
 export default MenuActionButton; 

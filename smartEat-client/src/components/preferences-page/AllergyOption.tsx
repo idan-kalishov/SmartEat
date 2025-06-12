@@ -1,5 +1,5 @@
+import { AllergyOptionProps } from "@/types/preferencesTypes";
 import React from "react";
-import { AllergyOptionProps } from "../../types/preferencesTypes";
 
 const AllergyOption: React.FC<AllergyOptionProps> = ({
   option,

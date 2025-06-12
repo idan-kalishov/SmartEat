@@ -1,19 +1,19 @@
 import AllergyOption from "@/components/preferences-page/AllergyOption";
 import ContinueButton from "@/components/preferences-page/ContinueButton";
 import OptionCard from "@/components/preferences-page/OptionCard";
-import ProgressHeader from "@/components/preferences-page/ProgressHeader";
-import { PreferencePage } from "@/types/preferencesTypes";
-import { Allergy, UserProfile } from "@/types/userTypes";
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   PAGE_HEADINGS,
   PAGE_OPTIONS,
   PAGES,
-} from "../components/preferences-page/preferencesConstants";
+} from "@/components/preferences-page/preferencesConstants";
+import ProgressHeader from "@/components/preferences-page/ProgressHeader";
 import api from "@/services/api";
-import { useSelector } from "react-redux";
 import { RootState } from "@/store/appState";
+import { PreferencePage } from "@/types/preferencesTypes";
+import { Allergy, UserProfile } from "@/types/userTypes";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 interface UpdateUserProfileRequest {
   userProfile: UserProfile;
@@ -103,7 +103,6 @@ const NumericInput: React.FC<{
 const UserPreferences: React.FC = () => {
   const navigate = useNavigate();
   const { userProfile } = useSelector((state: RootState) => state.user);
-
   const [step, setStep] = useState(0);
   const [selections, setSelections] = useState<Record<PreferencePage, any>>({
     age: "",
@@ -334,7 +333,7 @@ const UserPreferences: React.FC = () => {
         </h1>
         {renderCurrentPage()}
       </div>
-      <div className="p-4 bg-white border-t border-gray-200 mb-[10%]">
+      <div className="p-4 bg-white border-t border-gray-200 mb-[2%]">
         <ContinueButton canContinue={canContinue()} onClick={handleContinue} />
       </div>
     </div>

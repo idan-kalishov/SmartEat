@@ -1,4 +1,5 @@
 import React from "react";
+import { UtensilsCrossed } from "lucide-react";
 
 interface OverlayWithFrameProps {
   isFullScreen: boolean;
@@ -30,17 +31,23 @@ const OverlayWithFrame: React.FC<OverlayWithFrameProps> = ({
       <div
         style={{
           position: "absolute",
-          top: "8%", // Positioned above the white square
-          left: "50%", // Centered horizontally
-          transform: "translateX(-50%)", // Center alignment
+          top: "2%",
+          left: "50%",
+          transform: "translateX(-50%)",
           color: "white",
-          fontSize: "20px", // Adjust font size for visibility
-          fontWeight: "bold",
+          fontSize: "18px",
+          fontWeight: "500",
           textAlign: "center",
-          zIndex: 4, // Ensure text is above the overlay
+          zIndex: 4,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "8px",
+          paddingBottom: "20px" // Extra padding to ensure separation from frame
         }}
       >
-        Place your food inside the frame 🍽️
+        <UtensilsCrossed className="w-6 h-6 text-white" strokeWidth={2.5} />
+        <span>Place your food inside the frame</span>
       </div>
     )}
 
@@ -49,10 +56,10 @@ const OverlayWithFrame: React.FC<OverlayWithFrameProps> = ({
       <div
         style={{
           position: "absolute",
-          top: "18%", // Moved higher
-          left: "10%", // Adjusted for wider rectangle
-          width: "80%", // Increased width for a wider rectangle
-          height: "40%", // Height remains the same
+          top: "18%",
+          left: "10%",
+          width: "80%",
+          height: "40%",
           pointerEvents: "none",
           zIndex: 3,
         }}
