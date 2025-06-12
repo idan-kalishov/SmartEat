@@ -13,11 +13,19 @@ export interface Ingredient {
   nutrition?: NutritionInfo;
 }
 
+export interface NutritionSummary {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+}
+
 export interface Meal {
   id: string;
   userId: string;
   createdAt: string; // ISO date string
   name: string;
   ingredients: Ingredient[];
-  imageUrl?: string; // URL to the meal image
+  image?: string; // URL to the meal image
+  nutrition: NutritionSummary;
 } 

@@ -11,6 +11,7 @@ import CameraFeed from "./CameraFeed";
 import CaptureButton from "./CaptureButton";
 import MediaUploadIcon from "./MediaUploadIcon";
 import OverlayWithFrame from "./OverlayWithFrame";
+import { X } from "lucide-react";
 
 export interface FoodVerifyTransferObject {
   foodRecognitionResponse: MealRecognitionResult[];
@@ -110,6 +111,15 @@ const CameraWithFrameAndLoading = () => {
             touchAction: "none",
           }}
         >
+          {/* Close Button */}
+          <button
+            onClick={() => navigate(-1)}
+            className="absolute top-4 right-4 z-50 p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
+            style={{ backdropFilter: 'blur(4px)' }}
+          >
+            <X className="w-6 h-6 text-white" />
+          </button>
+
           {/* Camera Feed */}
           <CameraFeed ref={webcamRef} />
 

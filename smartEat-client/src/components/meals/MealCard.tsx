@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import IngredientNutritionRow from "./IngredientNutritionRow";
 import MealNutritionSummary from "./MealNutritionSummary";
 import MenuActionButton from "./MenuActionButton";
+import { MoreVertical, Edit2, Trash2 } from "lucide-react";
 
 interface MealCardProps {
   meal: Meal;
@@ -69,13 +70,13 @@ const MealCard: React.FC<MealCardProps> = ({ meal, onClick, isPreview, onMealDel
 
   return (
     // Adjust padding and layout based on isPreview prop
-    <div className={`bg-gray-50 rounded-lg shadow relative w-full max-w-full box-border overflow-hidden ${isPreview ? 'py-2' : 'p-4'}`}>
+    <div className={`bg-transparent rounded-lg relative w-full max-w-full box-border overflow-hidden ${isPreview ? 'py-2' : 'p-4'}`}>
       {/* Meal Image (top, full width) - only show if imageUrl exists */}
       {meal.imageUrl && (
         <img
           src={meal.imageUrl}
           alt="Meal"
-          className="w-full h-32 object-cover rounded-t-lg"
+          className="w-full h-32 object-cover rounded-lg shadow-sm"
           onError={(e) => {
             // Hide the image if it fails to load
             e.currentTarget.style.display = 'none';
@@ -89,30 +90,32 @@ const MealCard: React.FC<MealCardProps> = ({ meal, onClick, isPreview, onMealDel
         onClick={handleCardClick}
       >
         {/* Meal name and ellipsis button in a row */}
-        <div className="w-full flex flex-row items-center justify-between">
+        <div className="flex justify-between items-start w-full">
           <div className="font-bold text-green-700 text-lg">
             {meal.name}
           </div>
           {/* Only show menu if not in preview mode */}
           {!isPreview && (
-            <div className="relative z-10 ml-2" onClick={(e) => e.stopPropagation()}>
+            <div className="relative z-10" onClick={(e) => e.stopPropagation()}>
               <button
-                className="text-gray-500 hover:text-gray-700 p-1 rounded-full focus:outline-none transition duration-150 hover:bg-gray-200 active:scale-90 focus-visible:ring focus-visible:ring-green-300"
+                className="text-gray-400 hover:text-gray-600 p-1 rounded-full focus:outline-none transition-colors hover:bg-gray-100 active:scale-95"
                 onClick={handleMenuButtonClick}
                 type="button"
               >
-                <span style={{ fontSize: 22, lineHeight: 1 }}>⋯</span>
+                <MoreVertical className="w-5 h-5" />
               </button>
               {menuOpen && (
-                <div className="absolute right-0 mt-2 w-28 bg-white border border-gray-200 rounded shadow-lg py-1">
+                <div className="absolute right-0 mt-1 w-36 bg-white border border-gray-100 rounded-lg shadow-lg py-1 overflow-hidden">
                   <MenuActionButton
                     onClick={() => { setMenuOpen(false); handleEditMeal(meal); }}
+                    icon={<Edit2 className="w-4 h-4" />}
                   >
                     Edit
                   </MenuActionButton>
                   <MenuActionButton
                     onClick={() => { setMenuOpen(false); handleDeleteMeal(meal); }}
                     colorClass="text-red-600 hover:bg-red-50"
+                    icon={<Trash2 className="w-4 h-4" />}
                   >
                     Delete
                   </MenuActionButton>

@@ -1,3 +1,4 @@
+import React from "react";
 import { DailyNutritionOverview } from "@/components/result-page/DailyNutritionOverview";
 import { NutrientCircle } from "@/components/result-page/NutrientCircle";
 import { NutritionGrade } from "@/components/result-page/NutritionGrade";
@@ -14,6 +15,7 @@ import {
 } from "@/utils/nutrientCalculations";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import Layout from "../components/Layout";
 
 const vitaminAndMineralKeys = [
   "iron",
@@ -111,74 +113,76 @@ export default function ResultsPage() {
   }, {} as Record<string, number>);
 
   return (
-    <div className="min-h-screen bg-gray-100 relative overflow-hidden">
-      <ResultsHeader
-        name={name}
-        image={image}
-        onBack={() => window.history.back()}
-      />
+    <Layout>
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
+        <ResultsHeader
+          name={name}
+          image={image}
+          onBack={() => window.history.back()}
+        />
 
-      <div className="max-w-md mx-auto relative">
-        <Card className="z-10 relative shadow-lg mt-[-20px]">
-          <CardContent className="pt-6 pb-2 max-h-[calc(100dvh-120px)] overflow-y-auto">
-            <NutritionSummary
-              calories={adjustedNutrition.calories}
-              servingSize={servingSize}
-              onServingSizeChange={adjustServingSize}
-            />
-
-            <div className="grid grid-cols-2 gap-6 mb-4">
-              <NutrientCircle
-                label="Carbs"
-                value={adjustedNutrition.totalCarbohydrates}
-                color="#facc15"
-                totalWeight={adjustedNutrition.totalWeight}
+        <div className="max-w-md mx-auto relative">
+          <Card className="z-10 relative shadow-lg mt-[-20px]">
+            <CardContent className="pt-6 pb-2 max-h-[calc(100dvh-120px)] overflow-y-auto">
+              <NutritionSummary
+                calories={adjustedNutrition.calories}
+                servingSize={servingSize}
+                onServingSizeChange={adjustServingSize}
               />
-              <NutrientCircle
-                label="Protein"
-                value={adjustedNutrition.protein}
-                color="#f87171"
-                totalWeight={adjustedNutrition.totalWeight}
+
+              <div className="grid grid-cols-2 gap-6 mb-4">
+                <NutrientCircle
+                  label="Carbs"
+                  value={adjustedNutrition.totalCarbohydrates}
+                  color="#facc15"
+                  totalWeight={adjustedNutrition.totalWeight}
+                />
+                <NutrientCircle
+                  label="Protein"
+                  value={adjustedNutrition.protein}
+                  color="#f87171"
+                  totalWeight={adjustedNutrition.totalWeight}
+                />
+                <NutrientCircle
+                  label="Fat"
+                  value={adjustedNutrition.totalFat}
+                  color="#60a5fa"
+                  totalWeight={adjustedNutrition.totalWeight}
+                />
+                <NutrientCircle
+                  label="Fibre"
+                  value={adjustedNutrition.fiber}
+                  color="#4ade80"
+                  totalWeight={adjustedNutrition.totalWeight}
+                />
+              </div>
+
+              <VitaminAndMinerals nutrients={vitaminAndMinerals} />
+
+              {mealAnalysis.dailyRecommendations && (
+                <DailyNutritionOverview
+                  adjustedNutrition={adjustedNutrition}
+                  dailyRecommendations={mealAnalysis.dailyRecommendations}
+                />
+              )}
+
+              {/* Use our updated NutritionGrade component with the analysis data */}
+              <NutritionGrade
+                grade={mealAnalysis.grade}
+                score={mealAnalysis.score}
+                recommendations={mealAnalysis.recommendations}
+                positiveFeedback={mealAnalysis.positiveFeedback}
               />
-              <NutrientCircle
-                label="Fat"
-                value={adjustedNutrition.totalFat}
-                color="#60a5fa"
-                totalWeight={adjustedNutrition.totalWeight}
-              />
-              <NutrientCircle
-                label="Fibre"
-                value={adjustedNutrition.fiber}
-                color="#4ade80"
-                totalWeight={adjustedNutrition.totalWeight}
-              />
-            </div>
 
-            <VitaminAndMinerals nutrients={vitaminAndMinerals} />
+              {/* Display daily recommendations if available */}
 
-            {mealAnalysis.dailyRecommendations && (
-              <DailyNutritionOverview
-                adjustedNutrition={adjustedNutrition}
-                dailyRecommendations={mealAnalysis.dailyRecommendations}
-              />
-            )}
-
-            {/* Use our updated NutritionGrade component with the analysis data */}
-            <NutritionGrade
-              grade={mealAnalysis.grade}
-              score={mealAnalysis.score}
-              recommendations={mealAnalysis.recommendations}
-              positiveFeedback={mealAnalysis.positiveFeedback}
-            />
-
-            {/* Display daily recommendations if available */}
-
-            <Button onClick={handleLogAndNavigate} className="w-full mt-4 mb-4">
-              Log Meal
-            </Button>
-          </CardContent>
-        </Card>
+              <Button onClick={handleLogAndNavigate} className="w-full mt-4 mb-4">
+                Log Meal
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 }

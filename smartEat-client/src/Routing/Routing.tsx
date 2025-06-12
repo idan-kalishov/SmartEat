@@ -4,10 +4,9 @@ import ResultsPage from "@/pages/ResultsPage.tsx";
 import IngredientVerificationPage from "@/pages/IngredientVerificationPage.tsx";
 import {ROUTES} from "./routes";
 import ProtectedRoute from "@/components/ProtectedRoutes.tsx";
-import SignUpPage from "@/pages/SignUpPage.tsx";
-import LoginPage from "@/pages/LoginPage.tsx";
+import SignUp from "@/pages/auth/SignUp.tsx";
+import SignIn from "@/pages/auth/SignIn.tsx";
 import LoginRedirector from "@/components/loginRedirector.tsx";
-import UserPreferences from "@/pages/preferencesPage.tsx";
 import MealsLogPage from "@/pages/MealsLogPage";
 import ProfilePage from "@/pages/Profile";
 import FastingTimer from "@/pages/fasting-page/FastingTimer.tsx";
@@ -15,8 +14,8 @@ import FastingTimer from "@/pages/fasting-page/FastingTimer.tsx";
 const Routing = () => {
     return (
         <Routes>
-            <Route path={ROUTES.LOGIN} element={<LoginPage/>}/>
-            <Route path={ROUTES.SIGNUP} element={<SignUpPage/>}/>
+            <Route path={ROUTES.SIGNIN} element={<SignIn/>}/>
+            <Route path={ROUTES.SIGNUP} element={<SignUp/>}/>
             <Route path="/verify-auth" element={<LoginRedirector/>}/>
 
             <Route element={<ProtectedRoute/>}>
@@ -24,7 +23,6 @@ const Routing = () => {
                 <Route path={ROUTES.UPLOAD} element={<Upload/>}/>
                 <Route path={ROUTES.RESULT} element={<ResultsPage/>}/>
                 <Route path={ROUTES.FASTING} element={<FastingTimer/>}/>
-                <Route path={ROUTES.PREFERENCES} element={<UserPreferences/>}/>
                 <Route path={ROUTES.VERIFY} element={<IngredientVerificationPage/>}/>
                 <Route path={ROUTES.PROFILE} element={<ProfilePage/>}/>
             </Route>

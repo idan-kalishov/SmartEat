@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { ROUTES } from '@/Routing/routes';
 
 const BACKEND_URL = import.meta.env.VITE_API_GW_URL;
 
@@ -27,7 +28,7 @@ api.interceptors.response.use(
                 return api(originalRequest);
             } catch (refreshError) {
                 console.error(refreshError);
-                window.location.href = "/login";
+                window.location.href = ROUTES.SIGNIN;
             }
         }
 
