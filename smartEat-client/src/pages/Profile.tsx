@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { ROUTES } from "@/Routing/routes";
-import { setUser } from "@/store/appState";
+import { persistor, setUser } from "@/store/appState";
 import api from "@/services/api";
 import Layout from "../components/Layout";
 import {
@@ -17,8 +17,9 @@ import {
   LogOut,
   ChevronRight,
   Save,
-  ImagePlus
+  ImagePlus,
 } from "lucide-react";
+import { logout } from "@/store/appState";
 
 interface ProfileSection {
   id: string;
@@ -41,7 +42,7 @@ const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const [editMode, setEditMode] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null);
-  
+
   const sections: ProfileSection[] = [
     {
       id: "personal",
@@ -49,41 +50,53 @@ const ProfilePage: React.FC = () => {
       icon: <User className="w-5 h-5" />,
       fields: [
         { id: "name", label: "Full Name", value: "Idan Janach", type: "text" },
-        { id: "email", label: "Email", value: "idanjanach4455@gmail.com", type: "text" },
-        { id: "age", label: "Age", value: 25, type: "number", min: 13, max: 120 },
-        { 
-          id: "gender", 
-          label: "Gender", 
-          value: "Male", 
-          type: "select",
-          options: ["Male", "Female", "Other"]
+        {
+          id: "email",
+          label: "Email",
+          value: "idanjanach4455@gmail.com",
+          type: "text",
         },
-      ]
+        {
+          id: "age",
+          label: "Age",
+          value: 25,
+          type: "number",
+          min: 13,
+          max: 120,
+        },
+        {
+          id: "gender",
+          label: "Gender",
+          value: "Male",
+          type: "select",
+          options: ["Male", "Female", "Other"],
+        },
+      ],
     },
     {
       id: "body",
       label: "Body Metrics",
       icon: <Weight className="w-5 h-5" />,
       fields: [
-        { 
-          id: "weight", 
-          label: "Weight", 
-          value: 70, 
+        {
+          id: "weight",
+          label: "Weight",
+          value: 70,
           type: "number",
           unit: "kg",
           min: 20,
-          max: 300
+          max: 300,
         },
-        { 
-          id: "height", 
-          label: "Height", 
-          value: 175, 
+        {
+          id: "height",
+          label: "Height",
+          value: 175,
           type: "number",
           unit: "cm",
           min: 100,
-          max: 250
+          max: 250,
         },
-      ]
+      ],
     },
     {
       id: "activity",
@@ -95,23 +108,23 @@ const ProfilePage: React.FC = () => {
           label: "Activity Level",
           value: "Moderate",
           type: "select",
-          options: ["Sedentary", "Light", "Moderate", "Active", "Very Active"]
+          options: ["Sedentary", "Light", "Moderate", "Active", "Very Active"],
         },
         {
           id: "goal",
           label: "Weight Goal",
           value: "Gain weight",
           type: "select",
-          options: ["Lose weight", "Maintain", "Gain weight"]
+          options: ["Lose weight", "Maintain", "Gain weight"],
         },
         {
           id: "intensity",
           label: "Goal Intensity",
           value: "Mild",
           type: "select",
-          options: ["Mild", "Moderate", "Aggressive"]
-        }
-      ]
+          options: ["Mild", "Moderate", "Aggressive"],
+        },
+      ],
     },
     {
       id: "diet",
@@ -123,25 +136,52 @@ const ProfilePage: React.FC = () => {
           label: "Diet Type",
           value: "Keto",
           type: "select",
-          options: ["None", "Vegetarian", "Vegan", "Keto", "Paleo", "Mediterranean"]
+          options: [
+            "None",
+            "Vegetarian",
+            "Vegan",
+            "Keto",
+            "Paleo",
+            "Mediterranean",
+          ],
         },
         {
           id: "allergies",
           label: "Allergies",
           value: "None",
           type: "select",
-          options: ["None", "Peanuts", "Tree Nuts", "Dairy", "Eggs", "Soy", "Wheat", "Fish", "Shellfish"]
-        }
-      ]
-    }
+          options: [
+            "None",
+            "Peanuts",
+            "Tree Nuts",
+            "Dairy",
+            "Eggs",
+            "Soy",
+            "Wheat",
+            "Fish",
+            "Shellfish",
+          ],
+        },
+      ],
+    },
   ];
 
   const handleLogout = async () => {
-    await api.post("/auth/logout");
-    dispatch(setUser(null));
-    navigate(ROUTES.SIGNIN);
-  };
+    try {
+      // Call the backend logout endpoint
+      await api.post("/auth/logout");
 
+      // Dispatch Redux logout action to clear state
+      dispatch(logout());
+      await persistor.purge();
+
+      // Navigate to sign-in page
+      navigate(ROUTES.SIGNIN);
+    } catch (error) {
+      console.error("Logout failed:", error);
+      // Optionally show an error toast or message
+    }
+  };
   const handleSave = () => {
     setEditMode(false);
     setActiveSection(null);
@@ -167,8 +207,10 @@ const ProfilePage: React.FC = () => {
                   <ImagePlus className="w-4 h-4 text-gray-600" />
                 </button>
               </div>
-              
-              <h1 className="text-xl font-semibold text-gray-800">Idan Janach</h1>
+
+              <h1 className="text-xl font-semibold text-gray-800">
+                Idan Janach
+              </h1>
               <p className="text-gray-500 text-sm mt-1">
                 idanjanach4455@gmail.com
               </p>
@@ -181,7 +223,9 @@ const ProfilePage: React.FC = () => {
               <div key={section.id} className="p-4">
                 <button
                   onClick={() => {
-                    setActiveSection(activeSection === section.id ? null : section.id);
+                    setActiveSection(
+                      activeSection === section.id ? null : section.id
+                    );
                     setEditMode(false);
                   }}
                   className="w-full flex items-center justify-between"
@@ -190,11 +234,13 @@ const ProfilePage: React.FC = () => {
                     <div className="p-2 rounded-lg bg-emerald-50 text-emerald-600">
                       {section.icon}
                     </div>
-                    <span className="font-medium text-gray-700">{section.label}</span>
+                    <span className="font-medium text-gray-700">
+                      {section.label}
+                    </span>
                   </div>
-                  <ChevronRight 
+                  <ChevronRight
                     className={`w-5 h-5 text-gray-400 transition-transform ${
-                      activeSection === section.id ? 'rotate-90' : ''
+                      activeSection === section.id ? "rotate-90" : ""
                     }`}
                   />
                 </button>
@@ -209,7 +255,7 @@ const ProfilePage: React.FC = () => {
                             {field.label}
                           </label>
                           {editMode ? (
-                            field.type === 'select' ? (
+                            field.type === "select" ? (
                               <select
                                 className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
                                 defaultValue={field.value}
@@ -244,7 +290,7 @@ const ProfilePage: React.FC = () => {
                           )}
                         </div>
                       ))}
-                      
+
                       {/* Edit/Save Buttons */}
                       <div className="flex justify-end pt-2">
                         {editMode ? (

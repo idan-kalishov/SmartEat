@@ -52,10 +52,17 @@ export default function SignUp() {
 
     try {
       await api.post("/auth/register", { name, email, password });
-      navigate("/verify-auth");
+      await api.post("/auth/login", {
+        email: email,
+        password: password,
+      });
+
+      navigate("/preferences");
     } catch (err) {
       if (axios.isAxiosError(err)) {
-        setError(err.response?.data?.message || "An error occurred during registration");
+        setError(
+          err.response?.data?.message || "An error occurred during registration"
+        );
       } else {
         setError("An unexpected error occurred");
       }
@@ -96,7 +103,10 @@ export default function SignUp() {
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Full Name
                 </label>
                 <input
@@ -106,7 +116,7 @@ export default function SignUp() {
                   autoComplete="name"
                   required
                   className={`w-full px-3 py-2 border ${
-                    nameError ? 'border-red-300' : 'border-gray-300'
+                    nameError ? "border-red-300" : "border-gray-300"
                   } rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500`}
                   placeholder="John Doe"
                 />
@@ -116,7 +126,10 @@ export default function SignUp() {
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Email
                 </label>
                 <input
@@ -126,7 +139,7 @@ export default function SignUp() {
                   autoComplete="email"
                   required
                   className={`w-full px-3 py-2 border ${
-                    emailError ? 'border-red-300' : 'border-gray-300'
+                    emailError ? "border-red-300" : "border-gray-300"
                   } rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500`}
                   placeholder="your@email.com"
                 />
@@ -136,7 +149,10 @@ export default function SignUp() {
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Password
                 </label>
                 <input
@@ -146,7 +162,7 @@ export default function SignUp() {
                   autoComplete="new-password"
                   required
                   className={`w-full px-3 py-2 border ${
-                    passwordError ? 'border-red-300' : 'border-gray-300'
+                    passwordError ? "border-red-300" : "border-gray-300"
                   } rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500`}
                   placeholder="••••••"
                 />
@@ -177,7 +193,11 @@ export default function SignUp() {
 
             {/* Social Login */}
             <button
-              onClick={() => window.location.href = `${import.meta.env.VITE_API_GW_URL}/auth/google`}
+              onClick={() =>
+                (window.location.href = `${
+                  import.meta.env.VITE_API_GW_URL
+                }/auth/google`)
+              }
               className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -204,7 +224,7 @@ export default function SignUp() {
             {/* Sign In Link */}
             <p className="text-center text-gray-500">
               Already have an account?{" "}
-              <Link 
+              <Link
                 to={ROUTES.SIGNIN}
                 className="text-emerald-600 hover:text-emerald-700 font-medium"
               >
@@ -216,4 +236,4 @@ export default function SignUp() {
       </div>
     </div>
   );
-} 
+}

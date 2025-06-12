@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import api from "@/services/api";
+import { DropletIcon } from "lucide-react";
 
 interface WaterTrackerProps {
   selectedDate: Date;
@@ -136,19 +137,32 @@ const WaterTracker: React.FC<WaterTrackerProps> = ({ selectedDate }) => {
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto shadow-xl border-none rounded-2xl mb-[10%] mt-3 bg-gradient-to-br from-sky-50 to-white">
-      <CardHeader className="text-center">
-        <CardTitle className="text-blue-800 text-xl font-bold">
-          Water Tracker
-        </CardTitle>
-        <p className="text-gray-500 text-sm mt-1">
-          {(filledCups * cupVolume).toFixed(2)} L consumed
-        </p>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4 pb-6">
-        {renderCups}
-      </CardContent>
-    </Card>
+    <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-4 mt-[5%]">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <DropletIcon className="w-4 h-4" />
+          <h2 className="text-lg font-semibold text-gray-800">Water Tracker</h2>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="space-y-3">
+        {/* Total water summary */}
+        <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+          <span className="text-sm font-medium text-gray-700">
+            Total Consumed
+          </span>
+          <div className="flex items-center gap-1.5 text-blue-600 font-semibold">
+            <DropletIcon className="w-4 h-4" />
+            {(filledCups * cupVolume).toFixed(2)} L
+          </div>
+        </div>
+
+        {/* Cups Grid */}
+        <div className="p-2">{renderCups}</div>
+      </div>
+    </div>
   );
 };
 
