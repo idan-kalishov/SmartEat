@@ -14,14 +14,14 @@ export class AuthGatewayService {
   async forwardLogin(
     loginData: { email: string; password: string },
     res: ExpressResponse,
-  ) {    
+  ) {
     try {
       const response = await firstValueFrom(
         this.httpService.post(`${this.authServiceBaseUrl}/login`, loginData, {
           withCredentials: true,
         }),
       );
-      
+
       const setCookieHeader = response.headers['set-cookie'];
       if (setCookieHeader) {
         res.setHeader('Set-Cookie', setCookieHeader);
@@ -32,7 +32,7 @@ export class AuthGatewayService {
       console.error('Login error:', {
         message: error.message,
         response: error.response?.data,
-        status: error.response?.status
+        status: error.response?.status,
       });
       throw error;
     }
@@ -102,7 +102,7 @@ export class AuthGatewayService {
 
   private getEssentialHeaders(req: Request) {
     const essentialHeaders: Record<string, string> = {};
-    
+
     // Only forward specific headers we need
     if (req.headers['cookie']) {
       essentialHeaders['cookie'] = req.headers['cookie'];
@@ -110,7 +110,7 @@ export class AuthGatewayService {
     if (req.headers['authorization']) {
       essentialHeaders['authorization'] = req.headers['authorization'];
     }
-    
+
     return essentialHeaders;
   }
 
@@ -123,7 +123,7 @@ export class AuthGatewayService {
         this.httpService.get(url, {
           headers,
           withCredentials: true,
-          timeout: 5000
+          timeout: 5000,
         }),
       );
 
@@ -134,7 +134,7 @@ export class AuthGatewayService {
         status: error.response?.status,
         data: error.response?.data,
         headers: error.response?.headers,
-        stack: error.stack
+        stack: error.stack,
       });
       throw error;
     }
@@ -149,7 +149,7 @@ export class AuthGatewayService {
         this.httpService.put(url, userData, {
           headers,
           withCredentials: true,
-          timeout: 5000
+          timeout: 5000,
         }),
       );
 
@@ -160,7 +160,7 @@ export class AuthGatewayService {
         status: error.response?.status,
         data: error.response?.data,
         headers: error.response?.headers,
-        stack: error.stack
+        stack: error.stack,
       });
       throw error;
     }
@@ -175,7 +175,7 @@ export class AuthGatewayService {
         this.httpService.put(url, profileData, {
           headers,
           withCredentials: true,
-          timeout: 5000
+          timeout: 5000,
         }),
       );
 
@@ -186,7 +186,7 @@ export class AuthGatewayService {
         status: error.response?.status,
         data: error.response?.data,
         headers: error.response?.headers,
-        stack: error.stack
+        stack: error.stack,
       });
       throw error;
     }

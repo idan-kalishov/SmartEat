@@ -137,7 +137,12 @@ export default function SignUp(props: { disableCustomTheme?: boolean }) {
       setSnackbarMessage("Registration successful!");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
-      navigate("/login");
+      await api.post("/auth/login", {
+        email: email.value,
+        password: password.value,
+      });
+
+      navigate("/preferences");
     } catch (err) {
       if (axios.isAxiosError(err)) {
         console.error("Axios Error:", err.response?.data || err.message);
