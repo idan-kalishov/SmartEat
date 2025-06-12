@@ -103,7 +103,6 @@ const NumericInput: React.FC<{
 const UserPreferences: React.FC = () => {
   const navigate = useNavigate();
   const { userProfile } = useSelector((state: RootState) => state.user);
-
   const [step, setStep] = useState(0);
   const [selections, setSelections] = useState<Record<PreferencePage, any>>({
     age: "",
@@ -334,7 +333,7 @@ const UserPreferences: React.FC = () => {
         </h1>
         {renderCurrentPage()}
       </div>
-      <div className="p-7 bg-white border-t border-gray-200 mb-[10%]">
+      <div className="p-4 bg-white border-t border-gray-200 mb-[2%]">
         <ContinueButton canContinue={canContinue()} onClick={handleContinue} />
       </div>
     </div>
