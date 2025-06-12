@@ -33,6 +33,9 @@ export class Meal extends Document {
 
   @Prop({ required: true, default: Date.now })
   createdAt: Date;
+
+  @Prop()
+  imageUrl?: string;
 }
 
 export const MealSchema = SchemaFactory.createForClass(Meal); 

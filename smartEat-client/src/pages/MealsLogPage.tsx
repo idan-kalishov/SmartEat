@@ -1,17 +1,27 @@
+import ExerciseCard from "@/components/exercise/ExerciseCard";
 import { useMealsByDate } from "@/hooks/meals/useMealsByDate";
 import React, { useState } from "react";
 import HorizontalDatePicker from "../components/HorizontalDatePicker";
 import MealCard from "../components/meals/MealCard";
 import MealsLogModal from "../components/meals/MealsLogModal";
 import WaterTracker from "@/components/water-tracker/WaterTracker";
-import ExerciseCard from "@/components/exercise/ExerciseCard";
 
 const MealsLogPage: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const { meals = [], isLoading, error } = useMealsByDate(selectedDate);
+  const {
+    meals = [],
+    isLoading,
+    error,
+    fetchMeals,
+  } = useMealsByDate(selectedDate);
   const [showModal, setShowModal] = useState(false);
 
   const lastMeal = meals.length > 0 ? meals[meals.length - 1] : null;
+
+  const handleMealDeleted = () => {
+    // Refresh the meals list for the current date
+    fetchMeals();
+  };
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-green-200 py-4 px-2 sm:py-8">
@@ -46,6 +56,7 @@ const MealsLogPage: React.FC = () => {
                 meal={lastMeal}
                 onClick={() => setShowModal(true)}
                 isPreview={true}
+                onMealDeleted={handleMealDeleted}
               />
               {meals.length > 1 && (
                 <div className="text-xs text-gray-500 mt-2 text-center w-full">
@@ -61,17 +72,14 @@ const MealsLogPage: React.FC = () => {
       </div>
       <ExerciseCard />
       {showModal && meals.length > 0 && (
-        <MealsLogModal meals={meals} onClose={() => setShowModal(false)} />
+        <MealsLogModal
+          meals={meals}
+          onClose={() => setShowModal(false)}
+          onMealDeleted={handleMealDeleted}
+        />
       )}
 
-      <WaterTracker
-        selectedDate={selectedDate}
-        initialAmountLiters={0} // replace with waterAmount when available
-        onWaterChange={(newLiters, date) => {
-          console.log(`Water updated: ${newLiters}L on ${date.toDateString()}`);
-          // TODO: sync to API here
-        }}
-      />
+      <WaterTracker selectedDate={selectedDate}></WaterTracker>
     </div>
   );
 };

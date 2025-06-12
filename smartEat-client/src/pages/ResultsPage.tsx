@@ -74,7 +74,7 @@ export default function ResultsPage() {
     servingSize
   );
 
-  const handleLogAndNavigate = () => {
+  const handleLogAndNavigate = async () => {
     if (!mealIngredients || !name) {
       // Handle case where ingredients or name are not available
       return;
@@ -117,7 +117,7 @@ export default function ResultsPage() {
       },
     }));
 
-    logMealToBackend(name, ingredients);
+    await logMealToBackend(name, ingredients, image);
     navigate("/");
   };
 
