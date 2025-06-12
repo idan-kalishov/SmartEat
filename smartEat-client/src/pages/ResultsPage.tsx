@@ -1,89 +1,214 @@
-import React, { useEffect, useState } from "react";
+import { DailyNutritionOverview } from "@/components/result-page/DailyNutritionOverview";
+import { NutrientCircle } from "@/components/result-page/NutrientCircle";
+import { NutritionGrade } from "@/components/result-page/NutritionGrade";
+import { NutritionSummary } from "@/components/result-page/NutritionSummary";
+import { ResultsHeader } from "@/components/result-page/ResultHeader";
+import VitaminAndMinerals from "@/components/result-page/VitaminAndMinerals";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import useScrollLock from "@/hooks/useScrollLock";
+import { logMealToBackend } from "@/services/mealSavingService";
+import {
+  adjustNutritionForServing,
+  calculateTotalNutrition,
+} from "@/utils/nutrientCalculations";
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Meal } from "@/types/meals/mealTypes";
-import { calculateTotalNutrition } from "@/utils/nutrientCalculations";
-import { Ingredient as ImageAnalyzeIngredient, NutritionData } from "@/types/imageAnalyizeTypes";
-import { Ingredient as MealIngredient } from "@/types/meals/mealTypes";
-import { ROUTES } from "@/Routing/routes";
-import MealCard from "@/components/meals/MealCard";
+import Layout from "../components/Layout";
 
-const createEmptyNutritionData = (): NutritionData => ({
-  calories: { value: 0, unit: "KCAL" },
-  totalFat: { value: 0, unit: "G" },
-  totalCarbohydrates: { value: 0, unit: "G" },
-  sugars: { value: 0, unit: "G" },
-  protein: { value: 0, unit: "G" },
-  iron: { value: 0, unit: "MG" },
-  fiber: { value: 0, unit: "G" },
-  vitaminA: { value: 0, unit: "MCG" },
-  vitaminC: { value: 0, unit: "MG" },
-  vitaminD: { value: 0, unit: "MCG" },
-  vitaminB12: { value: 0, unit: "MCG" },
-  calcium: { value: 0, unit: "MG" },
-  magnesium: { value: 0, unit: "MG" }
-});
+const vitaminAndMineralKeys = [
+  "iron",
+  "vitaminA",
+  "vitaminC",
+  "vitaminD",
+  "vitaminB12",
+  "calcium",
+  "magnesium",
+] as const;
 
-const convertToImageAnalyzeIngredient = (ingredient: MealIngredient): ImageAnalyzeIngredient => {
-  const nutritionData = createEmptyNutritionData();
-  
-  // Map the per100g nutrition data to the required structure
-  if (ingredient.nutrition?.per100g) {
-    Object.entries(ingredient.nutrition.per100g).forEach(([key, nutrient]) => {
-      const normalizedKey = key.toLowerCase();
-      if (normalizedKey in nutritionData) {
-        nutritionData[normalizedKey as keyof NutritionData] = {
-          value: nutrient.value || 0,
-          unit: nutrient.unit
-        };
-      }
-    });
-  }
-
-  return {
-    name: ingredient.name,
-    weight: ingredient.weight.toString(),
-    nutrition: { per100g: nutritionData }
+interface MealAnalysis {
+  grade: string;
+  score: number;
+  recommendations: string[];
+  positiveFeedback: string;
+  dailyRecommendations?: {
+    calories: number;
+    protein: number;
+    fats: number;
+    carbs: number;
+    fiber: number;
+    micronutrients?: {
+      vitamin_a: number;
+      vitamin_c: number;
+      vitamin_d: number;
+      vitamin_b12: number;
+      calcium: number;
+      iron: number;
+      magnesium: number;
+    };
   };
-};
+}
 
-const ResultsPage: React.FC = () => {
+export default function ResultsPage() {
+  useScrollLock();
   const location = useLocation();
+  const {
+    name,
+    image,
+    ingredients: mealIngredients,
+    analysis,
+  } = location.state || {};
+  const [servingSize, setServingSize] = useState(1);
   const navigate = useNavigate();
-  const [meal, setMeal] = useState<Meal | null>(null);
 
-  useEffect(() => {
-    const mealData = location.state?.meal;
-    if (mealData) {
-      setMeal(mealData);
-    }
-  }, [location.state]);
-
-  const handleMealDeleted = () => {
-    navigate(ROUTES.HOME);
+  // Default values if no analysis is provided
+  const mealAnalysis: MealAnalysis = analysis || {
+    grade: "B",
+    score: 75,
+    recommendations: [],
+    positiveFeedback: "Your meal appears to be well-balanced.",
   };
 
-  if (!meal) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-2">No Meal Data Found</h2>
-          <p className="text-gray-600">Please try again or go back to the home page.</p>
-        </div>
-      </div>
-    );
-  }
+  const totalNutrition = calculateTotalNutrition(mealIngredients || []);
+  const adjustedNutrition = adjustNutritionForServing(
+    totalNutrition,
+    servingSize
+  );
+
+  const handleLogAndNavigate = async () => {
+    if (!mealIngredients || !name) {
+      // Handle case where ingredients or name are not available
+      return;
+    }
+
+    const ingredients = mealIngredients.map((ing) => ({
+      name: ing.name,
+      weight: ing.weight * servingSize, // Adjust weight by serving size
+      nutrition: {
+        per100g: {
+          calories:
+            (adjustedNutrition.calories /
+              (adjustedNutrition.totalWeight * servingSize)) *
+            100,
+          protein:
+            (adjustedNutrition.protein /
+              (adjustedNutrition.totalWeight * servingSize)) *
+            100,
+          totalFat:
+            (adjustedNutrition.totalFat /
+              (adjustedNutrition.totalWeight * servingSize)) *
+            100,
+          totalCarbohydrates:
+            (adjustedNutrition.totalCarbohydrates /
+              (adjustedNutrition.totalWeight * servingSize)) *
+            100,
+          fiber:
+            (adjustedNutrition.fiber /
+              (adjustedNutrition.totalWeight * servingSize)) *
+            100,
+          ...Object.entries(vitaminAndMinerals).reduce(
+            (acc, [key, value]) => ({
+              ...acc,
+              [key]:
+                (value / (adjustedNutrition.totalWeight * servingSize)) * 100,
+            }),
+            {}
+          ),
+        },
+      },
+    }));
+
+    await logMealToBackend(name, ingredients, image);
+    navigate("/");
+  };
+
+  const adjustServingSize = (change: number) => {
+    const newServingSize = Math.max(0.5, servingSize + change);
+    setServingSize(newServingSize);
+  };
+
+  const vitaminAndMinerals = vitaminAndMineralKeys.reduce((acc, key) => {
+    const value = adjustedNutrition[key];
+    if (value != null && typeof value === "number") {
+      acc[key] = value;
+    }
+    return acc;
+  }, {} as Record<string, number>);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        <MealCard
-          meal={meal}
-          onMealDeleted={handleMealDeleted}
-          onClick={() => {}} // Prevent default click behavior
+    <Layout>
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
+        <ResultsHeader
+          name={name}
+          image={image}
+          onBack={() => window.history.back()}
         />
-      </div>
-    </div>
-  );
-};
 
-export default ResultsPage;
+        <div className="max-w-md mx-auto relative h-[calc(100vh-12rem)]">
+          <Card className="z-10 relative shadow-lg mt-[-20px] h-full">
+            <CardContent className="pt-6 pb-2 h-full overflow-y-auto">
+              <NutritionSummary
+                calories={adjustedNutrition.calories}
+                servingSize={servingSize}
+                onServingSizeChange={adjustServingSize}
+              />
+
+              <div className="grid grid-cols-2 gap-6 mb-4">
+                <NutrientCircle
+                  label="Carbs"
+                  value={adjustedNutrition.totalCarbohydrates}
+                  color="#facc15"
+                  totalWeight={adjustedNutrition.totalWeight}
+                />
+                <NutrientCircle
+                  label="Protein"
+                  value={adjustedNutrition.protein}
+                  color="#f87171"
+                  totalWeight={adjustedNutrition.totalWeight}
+                />
+                <NutrientCircle
+                  label="Fat"
+                  value={adjustedNutrition.totalFat}
+                  color="#60a5fa"
+                  totalWeight={adjustedNutrition.totalWeight}
+                />
+                <NutrientCircle
+                  label="Fibre"
+                  value={adjustedNutrition.fiber}
+                  color="#4ade80"
+                  totalWeight={adjustedNutrition.totalWeight}
+                />
+              </div>
+
+              <VitaminAndMinerals nutrients={vitaminAndMinerals} />
+
+              {mealAnalysis.dailyRecommendations && (
+                <DailyNutritionOverview
+                  adjustedNutrition={adjustedNutrition}
+                  dailyRecommendations={mealAnalysis.dailyRecommendations}
+                />
+              )}
+
+              {/* Use our updated NutritionGrade component with the analysis data */}
+              <NutritionGrade
+                grade={mealAnalysis.grade}
+                score={mealAnalysis.score}
+                recommendations={mealAnalysis.recommendations}
+                positiveFeedback={mealAnalysis.positiveFeedback}
+              />
+
+              {/* Display daily recommendations if available */}
+
+              <Button
+                onClick={handleLogAndNavigate}
+                className="w-full mt-4 mb-4"
+              >
+                Log Meal
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </Layout>
+  );
+}
