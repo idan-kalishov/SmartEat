@@ -56,9 +56,6 @@ const LoginRedirector = () => {
           })
         );
 
-        console.log("user from /auth/me", user);
-
-
         // Step 4: Dispatch fetchUserProfile (optional, already set above)
         await dispatch(fetchUserProfile()).unwrap();
 
