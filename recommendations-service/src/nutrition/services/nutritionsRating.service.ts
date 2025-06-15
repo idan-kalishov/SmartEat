@@ -21,7 +21,9 @@ export class NutritionsRatingService {
     }
   }
 
-  private calculateTDEE(bmr: number, user: UserProfile): number {
+  calculateTDEE(user: UserProfile): number {
+    const bmr = this.calculateBMR(user);
+
     const activityFactors = [1.2, 1.375, 1.55, 1.725, 1.9];
     let tdee = bmr * activityFactors[user.activityLevel];
 
@@ -39,8 +41,7 @@ export class NutritionsRatingService {
   }
 
   calculateDailyRecommendations(user: UserProfile): NutrientRecommendation {
-    const bmr = this.calculateBMR(user);
-    const tdee = this.calculateTDEE(bmr, user);
+    const tdee = this.calculateTDEE(user);
 
     let proteinPerKg = 1.6;
     if (user.weightGoal === WeightGoal.WEIGHT_GOAL_LOSE) proteinPerKg = 2.2;
