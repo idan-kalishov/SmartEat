@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { ArrowRight, Timer, Clock, Play, Pause, Check, RotateCcw, Clock4 } from "lucide-react";
+import React, {useEffect, useState} from "react";
+import {ArrowRight, Check, Clock, Clock4, Pause, Play, RotateCcw, Timer} from "lucide-react";
 import Layout from "../../components/Layout";
 
 const FastingTimer: React.FC = () => {
@@ -18,7 +18,7 @@ const FastingTimer: React.FC = () => {
                 };
             }
         } catch (error) {
-            console.log("Failed to load saved data");
+            console.log("Failed to load saved data", error);
         }
         return {
             fastingState: null,
@@ -33,12 +33,12 @@ const FastingTimer: React.FC = () => {
     const [fastingState, setFastingState] = useState(savedData.fastingState);
     const [startTime, setStartTime] = useState(savedData.startTime);
     const [currentTime, setCurrentTime] = useState(new Date());
-    const [selectedPlan, setSelectedPlan] = useState(savedData.selectedPlan);
+    const [selectedPlan] = useState(savedData.selectedPlan);
     const [fastingHours, setFastingHours] = useState(savedData.fastingHours);
     const [completedFasting, setCompletedFasting] = useState(
         savedData.completedFasting
     );
-    const [showPlanModal, setShowPlanModal] = useState(false);
+    const [showPlanModal] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
 
     // שמירת נתונים
@@ -53,7 +53,7 @@ const FastingTimer: React.FC = () => {
             };
             sessionStorage.setItem("fastingData", JSON.stringify(dataToSave));
         } catch (error) {
-            console.log("Failed to save data");
+            console.log("Failed to save data", error);
         }
     };
 
@@ -125,7 +125,6 @@ const FastingTimer: React.FC = () => {
 
     const elapsed = getElapsedTime();
     const progress = getProgress();
-    const progressAngle = (progress / 100) * 360;
 
     // חישוב זמן שנותר לצום
     const getRemainingTime = () => {
@@ -141,47 +140,20 @@ const FastingTimer: React.FC = () => {
 
     const remaining = getRemainingTime();
 
-    // חישוב שלב הצום הנוכחי
-    const getCurrentStage = () => {
-        if (elapsed.hours < 3)
-            return {stage: 0, name: "Start of the fast", icon: "⬆️"};
-        if (elapsed.hours < 8)
-            return {stage: 1, name: "Sugar burning", icon: "⬇️"};
-        if (elapsed.hours < 12)
-            return {stage: 2, name: "Fat burning", icon: "🔥"};
-        return {stage: 3, name: "Ketosis", icon: "🧠"};
-    };
-
-    const currentStage = getCurrentStage();
-
-    // Preset fasting plans
-    const presetPlans = [
-        {name: "12", hours: 12, description: "For beginners"},
-        {name: "14", hours: 14, description: "Easy and convenient"},
-        {name: "16", hours: 16, description: "Popular"},
-        {name: "18", hours: 18, description: "Advanced"},
-        {name: "20", hours: 20, description: "Challenge"},
-        {name: "24", hours: 24, description: "Full day"},
-    ];
-
-    // עדכון תוכנית הצום
-    const updateFastingPlan = (plan) => {
-        setSelectedPlan(plan.name);
-        setFastingHours(plan.hours);
-        setShowPlanModal(false);
-    };
-
     if (fastingState === "completed" && completedFasting) {
         return (
             <Layout>
-                <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 py-4 px-2 sm:py-6">
+                <div
+                    className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 py-4 px-2 sm:py-6">
                     <div className="w-full max-w-md mx-auto">
-                        <h1 className="text-2xl sm:text-3xl font-bold text-green-800 mb-6 text-center">Intermittent Fasting</h1>
-                        
+                        <h1 className="text-2xl sm:text-3xl font-bold text-green-800 mb-6 text-center">Intermittent
+                            Fasting</h1>
+
                         <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden">
                             <div className="p-6 text-center">
-                                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-emerald-100 flex items-center justify-center">
-                                    <Check className="w-8 h-8 text-emerald-600" />
+                                <div
+                                    className="w-16 h-16 mx-auto mb-4 rounded-full bg-emerald-100 flex items-center justify-center">
+                                    <Check className="w-8 h-8 text-emerald-600"/>
                                 </div>
                                 <h2 className="text-2xl font-bold text-gray-800 mb-2">Fasting Complete!</h2>
                                 <p className="text-gray-600 mb-6">Great job on completing your fast!</p>
@@ -189,7 +161,7 @@ const FastingTimer: React.FC = () => {
                                     onClick={resetFasting}
                                     className="inline-flex items-center gap-2 bg-emerald-500 text-white px-6 py-3 rounded-xl font-medium shadow-sm hover:bg-emerald-600 transition-all"
                                 >
-                                    <RotateCcw className="w-5 h-5" />
+                                    <RotateCcw className="w-5 h-5"/>
                                     Start New Fast
                                 </button>
                             </div>
@@ -204,20 +176,21 @@ const FastingTimer: React.FC = () => {
         <Layout>
             <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 py-4 px-2 sm:py-6">
                 <div className="w-full max-w-md mx-auto">
-                    <h1 className="text-2xl sm:text-3xl font-bold text-green-800 mb-6 text-center">Intermittent Fasting</h1>
-                    
+                    <h1 className="text-2xl sm:text-3xl font-bold text-green-800 mb-6 text-center">Intermittent
+                        Fasting</h1>
+
                     <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden">
                         <div className="p-6">
                             <div className="flex flex-col items-center mb-4">
                                 <div className="flex items-center gap-2 mb-2">
-                                    <Timer className="w-6 h-6 text-emerald-600" />
+                                    <Timer className="w-6 h-6 text-emerald-600"/>
                                     <h2 className="text-xl font-semibold text-gray-800">Fasting Timer</h2>
                                 </div>
                                 <button
                                     onClick={() => setShowSettings(!showSettings)}
                                     className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-all"
                                 >
-                                    <Clock4 className="w-4 h-4 text-gray-500" />
+                                    <Clock4 className="w-4 h-4 text-gray-500"/>
                                     <span className="text-gray-600 text-sm font-medium">{fastingHours} hour fast</span>
                                 </button>
                             </div>
@@ -244,7 +217,7 @@ const FastingTimer: React.FC = () => {
                                         onClick={() => setShowSettings(false)}
                                         className="w-full inline-flex items-center justify-center gap-2 bg-emerald-500 text-white px-6 py-3 rounded-xl font-medium shadow-sm hover:bg-emerald-600 transition-all"
                                     >
-                                        <ArrowRight className="w-5 h-5" />
+                                        <ArrowRight className="w-5 h-5"/>
                                         Continue
                                     </button>
                                 </div>
@@ -291,7 +264,7 @@ const FastingTimer: React.FC = () => {
                                                 onClick={endFasting}
                                                 className="inline-flex items-center gap-2 bg-red-500 text-white px-6 py-3 rounded-xl font-medium shadow-sm hover:bg-red-600 transition-all"
                                             >
-                                                <Pause className="w-5 h-5" />
+                                                <Pause className="w-5 h-5"/>
                                                 Stop Fast
                                             </button>
                                         ) : (
@@ -299,7 +272,7 @@ const FastingTimer: React.FC = () => {
                                                 onClick={startFasting}
                                                 className="inline-flex items-center gap-2 bg-emerald-500 text-white px-6 py-3 rounded-xl font-medium shadow-sm hover:bg-emerald-600 transition-all"
                                             >
-                                                <Play className="w-5 h-5" />
+                                                <Play className="w-5 h-5"/>
                                                 Start Fast
                                             </button>
                                         )}
@@ -308,7 +281,7 @@ const FastingTimer: React.FC = () => {
                                     {fastingState === "active" && (
                                         <div className="mt-6 p-4 bg-emerald-50 rounded-xl">
                                             <div className="flex items-center gap-2 text-emerald-700">
-                                                <Clock className="w-5 h-5" />
+                                                <Clock className="w-5 h-5"/>
                                                 <span className="font-medium">
                                                     {`${remaining.hours.toString().padStart(2, "0")}:${remaining.minutes.toString().padStart(2, "0")}`} remaining
                                                 </span>

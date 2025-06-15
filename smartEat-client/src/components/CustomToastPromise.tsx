@@ -1,7 +1,7 @@
 import { toast } from "sonner";
 import React from "react";
 
-export function CustomeToastPromise<T>(
+export function CustomToastPromise<T>(
   promise: Promise<T>,
   {
     loadingMessage = "Loading...",
