@@ -1,11 +1,17 @@
 import {ArrowRight, Droplets, Edit} from "lucide-react";
 import {useEffect, useState} from "react";
+import {useSelector} from "react-redux";
+import {RootState} from "@/store/appState.ts";
 
 const FastingTimer = () => {
+
+    const user = useSelector((state: RootState) => state.appState.user);
+
+
     // טעינת נתונים מהשמירה
     const loadSavedData = () => {
         try {
-            const saved = sessionStorage.getItem("fastingData");
+            const saved = localStorage.getItem("fastingData" + user._id);
             if (saved) {
                 const data = JSON.parse(saved);
                 return {
@@ -49,7 +55,7 @@ const FastingTimer = () => {
                 fastingHours,
                 completedFasting,
             };
-            sessionStorage.setItem("fastingData", JSON.stringify(dataToSave));
+            localStorage.setItem("fastingData" + user._id, JSON.stringify(dataToSave));
         } catch (error) {
             console.log("Failed to save data");
         }
@@ -102,7 +108,6 @@ const FastingTimer = () => {
         setCompletedFasting(null);
     };
 
-    // סיום צום
     const endFasting = () => {
         const elapsed = getElapsedTime();
         setCompletedFasting({
@@ -110,6 +115,7 @@ const FastingTimer = () => {
             startTime,
             endTime: new Date(),
         });
+        localStorage.removeItem("fastingData" + user._id);
         setFastingState("completed");
         setStartTime(null);
     };
@@ -156,6 +162,7 @@ const FastingTimer = () => {
     };
 
     if (fastingState === "completed" && completedFasting) {
+
         return (
             <div className="min-h-screen bg-gray-50 p-4">
                 <div className="max-w-md mx-auto bg-white rounded-2xl shadow-lg overflow-hidden">
