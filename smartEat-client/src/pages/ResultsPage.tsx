@@ -50,9 +50,13 @@ interface MealAnalysis {
 
 export default function ResultsPage() {
   useScrollLock();
-
   const location = useLocation();
-  const { name, image, ingredients, analysis } = location.state || {};
+  const {
+    name,
+    image,
+    ingredients: mealIngredients,
+    analysis,
+  } = location.state || {};
   const [servingSize, setServingSize] = useState(1);
   const navigate = useNavigate();
 
@@ -64,14 +68,56 @@ export default function ResultsPage() {
     positiveFeedback: "Your meal appears to be well-balanced.",
   };
 
-  const totalNutrition = calculateTotalNutrition(ingredients || []);
+  const totalNutrition = calculateTotalNutrition(mealIngredients || []);
   const adjustedNutrition = adjustNutritionForServing(
     totalNutrition,
     servingSize
   );
 
-  const handleLogAndNavigate = () => {
-    logMealToBackend(name, servingSize, adjustedNutrition);
+  const handleLogAndNavigate = async () => {
+    if (!mealIngredients || !name) {
+      // Handle case where ingredients or name are not available
+      return;
+    }
+
+    const ingredients = mealIngredients.map((ing) => ({
+      name: ing.name,
+      weight: ing.weight * servingSize, // Adjust weight by serving size
+      nutrition: {
+        per100g: {
+          calories:
+            (adjustedNutrition.calories /
+              (adjustedNutrition.totalWeight * servingSize)) *
+            100,
+          protein:
+            (adjustedNutrition.protein /
+              (adjustedNutrition.totalWeight * servingSize)) *
+            100,
+          totalFat:
+            (adjustedNutrition.totalFat /
+              (adjustedNutrition.totalWeight * servingSize)) *
+            100,
+          totalCarbohydrates:
+            (adjustedNutrition.totalCarbohydrates /
+              (adjustedNutrition.totalWeight * servingSize)) *
+            100,
+          fiber:
+            (adjustedNutrition.fiber /
+              (adjustedNutrition.totalWeight * servingSize)) *
+            100,
+          ...Object.entries(vitaminAndMinerals).reduce(
+            (acc, [key, value]) => ({
+              ...acc,
+              [key]:
+                (value / (adjustedNutrition.totalWeight * servingSize)) * 100,
+            }),
+            {}
+          ),
+        },
+      },
+    }));
+
+    await logMealToBackend(name, ingredients, image);
     navigate("/");
   };
 
@@ -89,16 +135,16 @@ export default function ResultsPage() {
   }, {} as Record<string, number>);
 
   return (
-    <div className="min-h-screen bg-gray-100 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
       <ResultsHeader
         name={name}
         image={image}
         onBack={() => window.history.back()}
       />
 
-      <div className="max-w-md mx-auto relative">
-        <Card className="z-10 relative shadow-lg mt-[-20px]">
-          <CardContent className="pt-6 pb-2 max-h-[calc(100dvh-120px)] overflow-y-auto">
+      <div className="max-w-md mx-auto relative h-[calc(100vh-12rem)]">
+        <Card className="z-10 relative shadow-lg mt-[-20px] h-full">
+          <CardContent className="pt-6 pb-2 h-full overflow-y-auto">
             <NutritionSummary
               calories={adjustedNutrition.calories}
               servingSize={servingSize}
@@ -151,7 +197,10 @@ export default function ResultsPage() {
 
             {/* Display daily recommendations if available */}
 
-            <Button onClick={handleLogAndNavigate} className="w-full mt-4 mb-4">
+            <Button
+              onClick={handleLogAndNavigate}
+              className="w-full mt-4 mb-4"
+            >
               Log Meal
             </Button>
           </CardContent>

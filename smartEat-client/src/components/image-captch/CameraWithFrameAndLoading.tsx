@@ -4,13 +4,14 @@ import { useNavigate } from "react-router-dom";
 import Webcam from "react-webcam";
 import useScrollLock from "../../hooks/useScrollLock";
 import LoadingScreen from "../../pages/loading/LoadingScreen";
-import { base64ToFile, fileToBase64 } from "../../utils/base64ToFile";
-import { cropImageToSquare } from "../../utils/cropImageToSquare";
-import { analyzeFoodImage } from "../../utils/mealAnalysisApi";
+import { base64ToFile, fileToBase64 } from "@/utils/base64ToFile.ts";
+import { cropImageToSquare } from "@/utils/cropImageToSquare.ts";
+import { analyzeFoodImage } from "@/utils/mealAnalysisApi.ts";
 import CameraFeed from "./CameraFeed";
 import CaptureButton from "./CaptureButton";
 import MediaUploadIcon from "./MediaUploadIcon";
 import OverlayWithFrame from "./OverlayWithFrame";
+import { X } from "lucide-react";
 
 export interface FoodVerifyTransferObject {
   foodRecognitionResponse: MealRecognitionResult[];
@@ -20,7 +21,6 @@ export interface FoodVerifyTransferObject {
 const CameraWithFrameAndLoading = () => {
   const webcamRef = useRef<Webcam>(null);
   const [isIdentifying, setIsIdentifying] = useState(false); // State to track loading
-  const [isFullScreen, setIsFullScreen] = useState(false);
   const navigate = useNavigate();
 
   // Disable scrolling on mobile devices
@@ -110,11 +110,20 @@ const CameraWithFrameAndLoading = () => {
             touchAction: "none",
           }}
         >
+          {/* Close Button */}
+          <button
+            onClick={() => navigate(-1)}
+            className="absolute top-4 right-4 z-50 p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
+            style={{ backdropFilter: 'blur(4px)' }}
+          >
+            <X className="w-6 h-6 text-white" />
+          </button>
+
           {/* Camera Feed */}
           <CameraFeed ref={webcamRef} />
 
           {/* Overlay with Frame */}
-          <OverlayWithFrame isFullScreen={isFullScreen} />
+          <OverlayWithFrame />
 
           {/* Footer */}
           <div

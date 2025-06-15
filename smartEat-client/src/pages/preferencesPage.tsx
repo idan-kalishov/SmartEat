@@ -1,16 +1,23 @@
 import AllergyOption from "@/components/preferences-page/AllergyOption";
 import ContinueButton from "@/components/preferences-page/ContinueButton";
 import OptionCard from "@/components/preferences-page/OptionCard";
-import ProgressHeader from "@/components/preferences-page/ProgressHeader";
-import { PreferencePage } from "@/types/preferencesTypes";
-import { Allergy } from "@/types/userTypes";
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import {
-  PAGES,
   PAGE_HEADINGS,
   PAGE_OPTIONS,
-} from "../components/preferences-page/preferencesConstants";
+  PAGES,
+} from "@/components/preferences-page/preferencesConstants";
+import ProgressHeader from "@/components/preferences-page/ProgressHeader";
+import api from "@/services/api";
+import { RootState } from "@/store/appState";
+import { PreferencePage } from "@/types/preferencesTypes";
+import { Allergy, UserProfile } from "@/types/userTypes";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+
+interface UpdateUserProfileRequest {
+  userProfile: UserProfile;
+}
 
 const NumericInput: React.FC<{
   emoji: string;
@@ -34,7 +41,6 @@ const NumericInput: React.FC<{
   funFact,
 }) => {
   const [input, setInput] = useState(value.toString());
-
   useEffect(() => {
     setInput(value.toString());
   }, [value]);
@@ -42,12 +48,10 @@ const NumericInput: React.FC<{
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setInput(val);
-
     if (val === "") {
       onChange("");
       return;
     }
-
     const num = parseFloat(val);
     if (!isNaN(num)) {
       onChange(num);
@@ -62,8 +66,7 @@ const NumericInput: React.FC<{
       (min && num < min) ||
       (max && num > max)
     ) {
-      // Reset on invalid
-      setInput(value.toString());
+      setInput(value.toString()); // Reset on invalid
     } else {
       setInput(num.toString());
     }
@@ -75,7 +78,6 @@ const NumericInput: React.FC<{
         <div className="text-6xl mb-3">{emoji}</div>
         <h2 className="text-xl font-semibold text-gray-800">{label}</h2>
       </div>
-
       <div className="relative mb-4">
         <input
           type="text"
@@ -89,7 +91,6 @@ const NumericInput: React.FC<{
           {unit}
         </span>
       </div>
-
       {funFact && (
         <div className="text-center text-sm text-gray-600 bg-gray-50 rounded-lg p-3">
           💡 {funFact}
@@ -100,6 +101,8 @@ const NumericInput: React.FC<{
 };
 
 const UserPreferences: React.FC = () => {
+  const navigate = useNavigate();
+  const { userProfile } = useSelector((state: RootState) => state.user);
   const [step, setStep] = useState(0);
   const [selections, setSelections] = useState<Record<PreferencePage, any>>({
     age: "",
@@ -115,47 +118,54 @@ const UserPreferences: React.FC = () => {
   const [selectedAllergies, setSelectedAllergies] = useState<Allergy[]>([]);
 
   const currentPage = PAGES[step];
-  const currentOptions = PAGE_OPTIONS[currentPage];
   const totalSteps = PAGES.length;
   const progress = ((step + 1) / totalSteps) * 100;
-  const navigate = useNavigate();
+
+  // 🧠 Prefill selections from Redux store if userProfile exists
+  useEffect(() => {
+    if (userProfile) {
+      setSelections({
+        age: userProfile.age || "",
+        weight: userProfile.weight_kg || "",
+        height: userProfile.height_cm || "",
+        gender: userProfile.gender,
+        activity: userProfile.activity_level,
+        goal: userProfile.weight_goal,
+        intensity: userProfile.goal_intensity,
+        diet: userProfile.dietary_restrictions?.preference,
+        allergy: [],
+      });
+
+      if (userProfile.dietary_restrictions?.allergies?.length > 0) {
+        setSelectedAllergies(userProfile.dietary_restrictions.allergies);
+      }
+    }
+  }, [userProfile]);
 
   const handleSelect = (value: any) => {
     if (currentPage === "allergy") {
-      // Handle "None" selection
       if (value === Allergy.ALLERGY_NONE) {
-        if (selectedAllergies.includes(Allergy.ALLERGY_NONE)) {
-          // If "None" is already selected, deselect it
-          setSelectedAllergies([]);
-        } else {
-          // Select "None" and clear all others
-          setSelectedAllergies([Allergy.ALLERGY_NONE]);
-        }
+        setSelectedAllergies((prev) =>
+          prev.includes(Allergy.ALLERGY_NONE) ? [] : [Allergy.ALLERGY_NONE]
+        );
       } else {
-        // Handle regular allergy selection
-        let newAllergies = [...selectedAllergies];
-
-        // Remove "None" if it exists
-        newAllergies = newAllergies.filter((a) => a !== Allergy.ALLERGY_NONE);
-
-        if (newAllergies.includes(value)) {
-          // If allergy is already selected, remove it
-          newAllergies = newAllergies.filter((a) => a !== value);
-        } else {
-          // Add the new allergy
-          newAllergies.push(value);
-        }
-
-        setSelectedAllergies(newAllergies);
+        setSelectedAllergies((prev) => {
+          const newAllergies = [...prev].filter(
+            (a) => a !== Allergy.ALLERGY_NONE
+          );
+          if (newAllergies.includes(value)) {
+            return newAllergies.filter((a) => a !== value);
+          } else {
+            return [...newAllergies, value];
+          }
+        });
       }
     } else {
-      // For all other options (including numeric inputs)
       setSelections({ ...selections, [currentPage]: value });
     }
   };
 
   const handleContinue = () => {
-    // Update selections with the latest allergies if we're on the allergy page
     const updatedSelections = { ...selections };
     if (currentPage === "allergy") {
       updatedSelections.allergy = selectedAllergies;
@@ -165,50 +175,53 @@ const UserPreferences: React.FC = () => {
       setSelections(updatedSelections);
       setStep(step + 1);
     } else {
-      // Create complete UserProfile object
-      const userProfile = {
-        age: updatedSelections.age as number,
-        gender: updatedSelections.gender,
-        weight_kg: updatedSelections.weight as number,
-        height_cm: updatedSelections.height as number,
-        activity_level: updatedSelections.activity,
-        weight_goal: updatedSelections.goal,
-        goal_intensity: updatedSelections.intensity,
-        dietary_restrictions: updatedSelections.diet,
-        allergies: selectedAllergies,
+      const userProfileData = {
+        userProfile: {
+          age: Number(updatedSelections.age),
+          gender: Number(updatedSelections.gender),
+          weight_kg: Number(updatedSelections.weight),
+          height_cm: Number(updatedSelections.height),
+          activity_level: Number(updatedSelections.activity),
+          weight_goal: Number(updatedSelections.goal),
+          goal_intensity: Number(updatedSelections.intensity),
+          dietary_restrictions: {
+            preference: Number(updatedSelections.diet),
+            allergies: selectedAllergies,
+            disliked_ingredients: [],
+          },
+        },
       };
 
-      console.log("Complete UserProfile:", userProfile);
-      // Here you could save to your backend or context
-      navigate("/");
+      updateUserProfile(userProfileData)
+        .then(() => {
+          console.log("Profile updated successfully");
+          navigate("/");
+        })
+        .catch((err) => {
+          console.error("Error updating profile:", err);
+          alert("Failed to save your preferences. Please try again.");
+        });
     }
   };
 
   const handleBack = () => {
-    if (step > 0) {
-      setStep(step - 1);
-    }
+    if (step > 0) setStep(step - 1);
   };
 
   const canContinue = () => {
     if (currentPage === "allergy") {
       return selectedAllergies.length > 0;
     }
+    if (["age", "weight", "height"].includes(currentPage)) {
+      const value = selections[currentPage];
+      const rules = {
+        age: { min: 13, max: 120 },
+        weight: { min: 20, max: 300 },
+        height: { min: 100, max: 250 },
+      }[currentPage];
 
-    // Handle numeric input pages
-    if (currentPage === "age") {
-      const age = selections.age;
-      return age !== "" && age >= 13 && age <= 120;
+      return value !== "" && value >= rules.min && value <= rules.max;
     }
-    if (currentPage === "weight") {
-      const weight = selections.weight;
-      return weight !== "" && weight >= 20 && weight <= 300;
-    }
-    if (currentPage === "height") {
-      const height = selections.height;
-      return height !== "" && height >= 100 && height <= 250;
-    }
-
     return selections[currentPage] !== undefined;
   };
 
@@ -216,55 +229,46 @@ const UserPreferences: React.FC = () => {
     switch (currentPage) {
       case "age":
         return (
-          <div className="space-y-6">
-            <NumericInput
-              emoji="🎂"
-              label="How many candles on your cake?"
-              value={selections.age}
-              onChange={(value) => handleSelect(value)}
-              placeholder="25"
-              unit="years"
-              min={13}
-              max={120}
-              funFact="Don't worry, we won't tell anyone your real age! 😉"
-            />
-          </div>
+          <NumericInput
+            emoji="🎂"
+            label="How many candles on your cake?"
+            value={selections.age}
+            onChange={(value) => handleSelect(value)}
+            placeholder="25"
+            unit="years"
+            min={13}
+            max={120}
+            funFact="Don't worry, we won't tell anyone your real age! 😉"
+          />
         );
-
       case "weight":
         return (
-          <div className="space-y-6">
-            <NumericInput
-              emoji="⚖️"
-              label="What does the scale say?"
-              value={selections.weight}
-              onChange={(value) => handleSelect(value)}
-              placeholder="70"
-              unit="kg"
-              min={20}
-              max={300}
-              funFact="Remember, muscle weighs more than fat! 💪"
-            />
-          </div>
+          <NumericInput
+            emoji="⚖️"
+            label="What does the scale say?"
+            value={selections.weight}
+            onChange={(value) => handleSelect(value)}
+            placeholder="70"
+            unit="kg"
+            min={20}
+            max={300}
+            funFact="Remember, muscle weighs more than fat! 💪"
+          />
         );
-
       case "height":
         return (
-          <div className="space-y-6">
-            <NumericInput
-              emoji="📏"
-              label="How tall are you?"
-              value={selections.height}
-              onChange={(value) => handleSelect(value)}
-              placeholder="175"
-              unit="cm"
-              min={100}
-              max={250}
-              funFact="Fun fact: You're actually tallest in the morning! 🌅"
-            />
-          </div>
+          <NumericInput
+            emoji="📏"
+            label="How tall are you?"
+            value={selections.height}
+            onChange={(value) => handleSelect(value)}
+            placeholder="175"
+            unit="cm"
+            min={100}
+            max={250}
+            funFact="Fun fact: You're actually tallest in the morning! 🌅"
+          />
         );
-
       case "allergy":
         return (
           <>
@@ -273,8 +277,6 @@ const UserPreferences: React.FC = () => {
               isSelected={selectedAllergies.includes(Allergy.ALLERGY_NONE)}
               onClick={() => handleSelect(Allergy.ALLERGY_NONE)}
             />
-
-            {/* Always show other allergies, but disable them if "None" is selected */}
             <div className="grid grid-cols-2 gap-3">
               {PAGE_OPTIONS.allergy.slice(1).map((option) => (
                 <AllergyOption
@@ -292,11 +294,10 @@ const UserPreferences: React.FC = () => {
             </div>
           </>
         );
-
       default:
         return (
           <div className="space-y-4">
-            {currentOptions?.map((option) => (
+            {PAGE_OPTIONS[currentPage]?.map((option) => (
               <OptionCard
                 key={option.value}
                 option={option}
@@ -309,6 +310,16 @@ const UserPreferences: React.FC = () => {
     }
   };
 
+  const updateUserProfile = async (
+    data: UpdateUserProfileRequest
+  ): Promise<void> => {
+    try {
+      await api.put("/auth/update-profile", data);
+    } catch (error) {
+      throw error;
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <ProgressHeader
@@ -316,16 +327,13 @@ const UserPreferences: React.FC = () => {
         onBack={handleBack}
         showBackButton={step > 0}
       />
-
       <div className="flex-1 px-4 py-6 overflow-y-auto">
         <h1 className="text-3xl font-bold text-center mb-8">
           {PAGE_HEADINGS[currentPage]}
         </h1>
-
         {renderCurrentPage()}
       </div>
-
-      <div className="p-4 bg-white border-t border-gray-200 mb-[10%]">
+      <div className="p-4 bg-white border-t border-gray-200 mb-[2%]">
         <ContinueButton canContinue={canContinue()} onClick={handleContinue} />
       </div>
     </div>

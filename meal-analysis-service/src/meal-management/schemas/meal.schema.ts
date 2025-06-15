@@ -25,11 +25,17 @@ export class Meal extends Document {
   @Prop({ required: true })
   userId: string;
 
+  @Prop({ required: true })
+  name: string;
+
   @Prop({ type: [Ingredient], required: true })
   ingredients: Ingredient[];
 
   @Prop({ required: true, default: Date.now })
   createdAt: Date;
+
+  @Prop()
+  imageUrl?: string;
 }
 
 export const MealSchema = SchemaFactory.createForClass(Meal); 

@@ -5,10 +5,17 @@ import { AuthGatewayModule } from './authGateway/auth.gateway.module';
 import { FoodRecognitionModule } from './recognition/food-recognition.module';
 import { RecommendationsModule } from './recommendations/recommendations.module';
 import { MealManagementModule } from './meal-management/meal-management.module';
+import { WaterTrackingModule } from './water-tracker/water-tracking.module';
 
 @Module({
-  imports: [RecommendationsModule, AuthGatewayModule, FoodRecognitionModule, MealManagementModule],
+  imports: [
+    RecommendationsModule,
+    AuthGatewayModule,
+    FoodRecognitionModule,
+    MealManagementModule,
+    WaterTrackingModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

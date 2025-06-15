@@ -1,27 +1,44 @@
 import {
+  GetMealsByDateResponse,
+  Ingredient,
+  Meal,
+} from '@generated/meal-management';
+import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
+  InternalServerErrorException,
   Param,
   Post,
   Request,
-  BadRequestException,
-  InternalServerErrorException,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
-import { MealManagementClient } from 'src/grpc/clients/meal-management.client';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGatewayService } from 'src/authGateway/auth.gateway.service';
-import {
-  Meal,
-  GetMealsByDateResponse,
-} from '@generated/meal-management';
+import { MealManagementClient } from 'src/grpc/clients/meal-management.client';
+
+// Proper type for the meal data from form data
+interface MealFormData {
+  meal?: string; // JSON string from form data
+  name?: string;
+  ingredients?: string; // JSON string from form data
+}
+
+// Type for parsed meal data
+interface ParsedMealData {
+  name: string;
+  ingredients: Ingredient[];
+}
 
 @Controller('meals')
 export class MealManagementController {
   constructor(
     private readonly client: MealManagementClient,
     private readonly authService: AuthGatewayService,
-  ) {}
+  ) { }
 
   private validateMealData(meal: Meal): void {
     if (!meal.ingredients || !Array.isArray(meal.ingredients) || meal.ingredients.length === 0) {
@@ -38,15 +55,40 @@ export class MealManagementController {
     });
   }
 
+  private parseMealData(mealData: MealFormData): ParsedMealData {
+    try {
+      // If meal data is a JSON string (from form data), parse it
+      if (mealData.meal && typeof mealData.meal === 'string') {
+        return JSON.parse(mealData.meal);
+      }
+
+      // If individual fields are provided, construct the meal data
+      if (mealData.name && mealData.ingredients) {
+        return {
+          name: mealData.name,
+          ingredients: typeof mealData.ingredients === 'string'
+            ? JSON.parse(mealData.ingredients)
+            : mealData.ingredients,
+        };
+      }
+
+      throw new Error('Invalid meal data format');
+    } catch (parseError) {
+      throw new BadRequestException('Invalid meal data format');
+    }
+  }
+
   @Post()
+  @UseInterceptors(FileInterceptor('image'))
   async saveMeal(
     @Request() req,
-    @Body() meal: Omit<Meal, 'id' | 'userId' | 'createdAt'>,
+    @Body() mealData: MealFormData,
+    @UploadedFile() image?: Express.Multer.File,
   ): Promise<{ mealId: string; success: boolean }> {
     try {
-      this.validateMealData(meal as Meal);
+      const parsedMeal = this.parseMealData(mealData);
       const userDetails = await this.authService.getUserDetails(req);
-      
+
       if (!userDetails?.user?._id) {
         throw new BadRequestException('User not authenticated');
       }
@@ -56,10 +98,12 @@ export class MealManagementController {
         id: '',
         userId,
         createdAt: new Date().toISOString(),
-        ingredients: meal.ingredients,
+        name: parsedMeal.name,
+        ingredients: parsedMeal.ingredients,
       };
 
-      return await this.client.saveMeal(userId, completeMeal);
+      // Send complete meal data and image to the service
+      return await this.client.saveMeal(userId, completeMeal, image);
     } catch (error) {
       console.error('Error in saveMeal controller:', error);
       if (error instanceof BadRequestException) {

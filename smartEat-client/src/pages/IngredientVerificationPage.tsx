@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FoodVerifyTransferObject } from "../components/image-captch/CameraWithFrameAndLoading";
 import { getDefaultUserProfile } from "../types/userTypes";
-import { analyzeMeal } from "@/services/mealReatingService";
+import { analyzeMeal } from "@/services/mealRatingService.tsx";
 import LoadingScreen from "./loading/LoadingScreen";
 import IngredientVerificationHeader from "../components/verfication-page/IngredientVerificationHeader";
 import MealImageDisplay from "../components/verfication-page/MealImageDisplay";

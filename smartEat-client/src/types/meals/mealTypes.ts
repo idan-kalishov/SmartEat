@@ -1,4 +1,30 @@
-export interface NutritionDetails { value: number; unit: string; }
-export type Per100gNutrition = Record<string, NutritionDetails>;
-export interface IngredientDetails { name: string; weight: number; usdaFoodLabel?: string; per100gNutrition?: Per100gNutrition; }
-export interface Meal { _id: string; userId: string; ingredients: IngredientDetails[]; imageUrl?: string; createdAt: string; updatedAt: string; name: string; } 
+export interface Nutrient {
+  value?: number;
+  unit: string;
+}
+
+export interface NutritionInfo {
+  per100g: Record<string, Nutrient>;
+}
+
+export interface Ingredient {
+  name: string;
+  weight: number;
+  nutrition?: NutritionInfo;
+}
+
+export interface NutritionSummary {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+}
+
+export interface Meal {
+  id: string;
+  userId: string;
+  createdAt: string; // ISO date string
+  name: string;
+  ingredients: Ingredient[];
+  imageUrl?: string; // URL to the meal image
+} 
