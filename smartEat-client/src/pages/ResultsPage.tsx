@@ -135,16 +135,16 @@ export default function ResultsPage() {
   }, {} as Record<string, number>);
 
   return (
-    <div className="min-h-screen bg-gray-100 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
       <ResultsHeader
         name={name}
         image={image}
         onBack={() => window.history.back()}
       />
 
-      <div className="max-w-md mx-auto relative">
-        <Card className="z-10 relative shadow-lg mt-[-20px]">
-          <CardContent className="pt-6 pb-2 max-h-[calc(100dvh-120px)] overflow-y-auto">
+      <div className="max-w-md mx-auto relative h-[calc(100vh-12rem)]">
+        <Card className="z-10 relative shadow-lg mt-[-20px] h-full">
+          <CardContent className="pt-6 pb-2 h-full overflow-y-auto">
             <NutritionSummary
               calories={adjustedNutrition.calories}
               servingSize={servingSize}
@@ -199,7 +199,7 @@ export default function ResultsPage() {
 
             <Button
               onClick={handleLogAndNavigate}
-              className="w-full mt-4 mb-[10%]"
+              className="w-full mt-4 mb-4"
             >
               Log Meal
             </Button>

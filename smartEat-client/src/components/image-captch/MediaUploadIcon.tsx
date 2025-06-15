@@ -1,4 +1,5 @@
 import React from "react";
+import { ImagePlus } from "lucide-react";
 
 interface MediaUploadIconProps {
   onUpload: (file: File) => void;
@@ -17,30 +18,18 @@ const MediaUploadIcon: React.FC<MediaUploadIconProps> = ({ onUpload }) => {
       {/* Media Upload Icon (Far Right) */}
       <label
         htmlFor="file-upload"
-        style={{
-          position: "absolute",
-          bottom: "20px", // Positioned near the bottom
-          right: "10%", // Positioned at the far right
-          cursor: "pointer",
-          zIndex: 6, // Ensure it's above other layers
-        }}
+        className="absolute bottom-6 right-[10%] cursor-pointer z-[6] flex flex-col items-center gap-1"
       >
-        <span
-          style={{
-            fontSize: "40px",
-            color: "white",
-          }}
-          className="material-symbols-outlined"
-        >
-          photo_library
-        </span>
+        <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center hover:bg-white/20 transition-all">
+          <ImagePlus className="w-6 h-6 text-white" strokeWidth={2.5} />
+        </div>
       </label>
       <input
         id="file-upload"
         type="file"
         accept="image/*"
-        style={{ display: "none" }} // Hide the default file input
-        onChange={handleFileUpload} // Ensure this is correctly bound
+        className="hidden"
+        onChange={handleFileUpload}
       />
     </>
   );

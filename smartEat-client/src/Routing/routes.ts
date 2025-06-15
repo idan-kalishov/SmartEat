@@ -1,8 +1,8 @@
 export const ROUTES = {
     VERIFY_AUTH: "/verify-auth",
     HOME: "/home",
-    LOGIN: "/login",
-    SIGNUP: "/register",
+    SIGNIN: "/signin",
+    SIGNUP: "/signup",
     UPLOAD: "/upload",
     USER_PROFILE: "/user-profile",
     VERIFY: "/verify",

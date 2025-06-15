@@ -8,9 +8,11 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const register = async (req: Request, res: Response): Promise<void> => {
-  const { email, password, userName } = req.body;
+  const { email, password, name } = req.body;
 
-  if (!email || !password || !userName) {
+  console.log(email, password, name);
+
+  if (!email || !password || !name) {
     res.status(400).json({ message: "Missing email, password, or username" });
     return;
   }
@@ -34,7 +36,7 @@ const register = async (req: Request, res: Response): Promise<void> => {
 
     const user = await userModel.create({
       email,
-      userName,
+      name,
       password: hashedPassword,
     });
 
