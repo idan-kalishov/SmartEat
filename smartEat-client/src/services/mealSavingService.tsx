@@ -1,4 +1,4 @@
-import { CustomeToastPromise } from "@/components/CustomeToastPromise";
+import { CustomToastPromise } from "@/components/CustomToastPromise.tsx";
 import api from "./api";
 
 interface Ingredient {
@@ -64,7 +64,7 @@ export const logMealToBackend = async (
     },
   }).then(response => response.data);
 
-  CustomeToastPromise(
+  CustomToastPromise(
     apiPromise,
     {
       loadingMessage: "Logging meal...",

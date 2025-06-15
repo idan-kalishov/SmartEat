@@ -5,7 +5,7 @@ import { X, Flame, Dumbbell, Cookie, Wheat, ChevronDown, ChevronUp, Trash2 } fro
 import { calculateTotalNutrition } from "@/utils/nutrientCalculations";
 import { Ingredient as ImageAnalyzeIngredient, NutritionData } from "@/types/imageAnalyizeTypes";
 import { Ingredient as MealIngredient } from "@/types/meals/mealTypes";
-import { CustomeToastPromise } from "@/components/CustomeToastPromise";
+import { CustomToastPromise } from "@/components/CustomToastPromise.tsx";
 import { deleteMeal } from "@/services/mealService";
 
 interface MealDetailsModalProps {
@@ -71,7 +71,7 @@ export const MealDetailsModal: React.FC<MealDetailsModalProps> = ({ meal, isOpen
       return response;
     });
 
-    CustomeToastPromise(
+    CustomToastPromise(
       apiPromise,
       {
         loadingMessage: "Deleting meal...",
