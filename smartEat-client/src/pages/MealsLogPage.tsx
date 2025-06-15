@@ -62,7 +62,8 @@ const MealsLogPage: React.FC = () => {
     const {
         meals = [],
         isLoading,
-        error
+        error,
+        fetchMeals
     } = useMealsByDate(selectedDate);
 
     const formatTime = (date: string) => {
@@ -215,6 +216,7 @@ const MealsLogPage: React.FC = () => {
                     meal={selectedMeal}
                     isOpen={!!selectedMeal}
                     onClose={() => setSelectedMeal(null)}
+                    onMealDeleted={fetchMeals}
                 />
             </div>
         </Layout>

@@ -5,7 +5,7 @@ interface NutrientProgress {
   current: number;
   target: number;
   label: string;
-  icon: React.ReactNode;
+  icon: React.ComponentType<{ className?: string }>;
   color: string;
 }
 
@@ -16,28 +16,28 @@ const DailyIntakeProgress: React.FC = () => {
       current: 1850,
       target: 2500,
       label: "Calories",
-      icon: <Flame className="w-5 h-5" />,
+      icon: Flame,
       color: "from-orange-500 to-red-500"
     },
     {
       current: 65,
       target: 80,
       label: "Protein",
-      icon: <Dumbbell className="w-5 h-5" />,
+      icon: Dumbbell,
       color: "from-rose-500 to-red-500"
     },
     {
       current: 45,
       target: 65,
       label: "Fat",
-      icon: <Cookie className="w-5 h-5" />,
+      icon: Cookie,
       color: "from-blue-500 to-indigo-500"
     },
     {
       current: 220,
       target: 300,
       label: "Carbs",
-      icon: <Wheat className="w-5 h-5" />,
+      icon: Wheat,
       color: "from-amber-500 to-yellow-600"
     }
   ];
@@ -68,9 +68,7 @@ const DailyIntakeProgress: React.FC = () => {
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <div className={`p-1.5 rounded-lg bg-gradient-to-r ${nutrient.color} bg-opacity-10`}>
-                    {React.cloneElement(nutrient.icon as React.ReactElement, {
-                      className: "w-4 h-4 text-white"
-                    })}
+                    <nutrient.icon className="w-4 h-4 text-white" />
                   </div>
                   <span className="font-medium text-gray-700">{nutrient.label}</span>
                 </div>
