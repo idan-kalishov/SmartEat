@@ -21,40 +21,63 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
+# Food Recognition Service
+
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+This service provides food recognition and meal management capabilities using gRPC.
 
-## Project setup
+## Installation
 
 ```bash
-$ npm install
+npm install
 ```
 
-## Compile and run the project
+## Environment Variables
+
+Create a `.env` file in the root directory with the following variables:
+
+```env
+# Cloudinary Configuration (for image storage)
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
+# MongoDB Configuration
+MONGODB_URI=mongodb://localhost:27017/smart-eat
+```
+
+### Setting up Cloudinary
+
+1. Go to [Cloudinary](https://cloudinary.com/) and create a free account
+2. After signing up, go to your Dashboard
+3. Copy your Cloud Name, API Key, and API Secret
+4. Add these values to your `.env` file
+
+## Running the app
 
 ```bash
 # development
-$ npm run start
+npm run start
 
 # watch mode
-$ npm run start:dev
+npm run start:dev
 
 # production mode
-$ npm run start:prod
+npm run start:prod
 ```
 
-## Run tests
+## Test
 
 ```bash
 # unit tests
-$ npm run test
+npm run test
 
 # e2e tests
-$ npm run test:e2e
+npm run test:e2e
 
 # test coverage
-$ npm run test:cov
+npm run test:cov
 ```
 
 ## Deployment

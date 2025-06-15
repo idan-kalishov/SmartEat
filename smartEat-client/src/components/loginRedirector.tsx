@@ -1,64 +1,80 @@
-import {useEffect} from "react";
-import {useNavigate, useLocation} from "react-router-dom";
+import { useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import queryString from "query-string";
-import {useDispatch} from "react-redux";
-import {setUser} from "../store/appState";
-import apiClient from "@/services/authService.ts";
+import { useDispatch } from "react-redux";
+import { setUser } from "../store/appState";
+import { fetchUserProfile } from "@/store/userSlice";
+import api from "@/services/api";
+import type { AppDispatch } from "@/store/appState";
 
 const LoginRedirector = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch<AppDispatch>();
 
-    useEffect(() => {
-        const verifyAuth = async () => {
-            try {
-                const queryParams = queryString.parse(location.search);
+  useEffect(() => {
+    const verifyAuth = async () => {
+      try {
+        const queryParams = queryString.parse(location.search);
 
-                if (Object.keys(queryParams).length > 0) {
-                    const userId = queryParams.userId as string;
-                    const userName = queryParams.userName as string;
-                    const email = queryParams.email as string;
-                    const profilePicture = queryParams.profilePicture as string;
-
-                    if (userId && userName && email) {
-                        dispatch(
-                            setUser({
-                                _id: userId,
-                                userName,
-                                email,
-                                profilePicture: profilePicture || undefined,
-                            })
-                        );
-                    }
-                }
-
-                const verifyResponse = await apiClient.get("/auth/verify");
-                if (verifyResponse.status === 200) {
-                    try {
-                        const response = await apiClient.get("/auth/me");
-                        dispatch(setUser(response.data.user));
-                    } catch (error) {
-                        console.error("Failed to fetch user data:", error);
-                    } finally {
-                        navigate("/home", {replace: true});
-                    }
-                } else {
-                    navigate("/login", {replace: true});
-                }
-            } catch (error) {
-                navigate("/login");
-            }
-        };
-
-        if (location.pathname === "/verify-auth") {
-            verifyAuth();
-        } else {
-            navigate("/login", {replace: true});
+        // Step 1: Handle OAuth login via query params (e.g., Google)
+        if (queryParams.userId && queryParams.userName && queryParams.email) {
+          dispatch(
+            setUser({
+              _id: queryParams.userId as string,
+              userName: queryParams.userName as string,
+              email: queryParams.email as string,
+              profilePicture:
+                (queryParams.profilePicture as string) || undefined,
+            })
+          );
         }
-    }, [location, navigate]);
 
-    return <div>Processing authentication...</div>;
+        // Step 2: Verify auth status via `/auth/verify`
+        const verifyResponse = await api.get("/auth/verify").catch((err) => {
+          console.error("Auth verification failed:", err);
+          return null;
+        });
+
+        if (!verifyResponse || verifyResponse.status !== 200) {
+          navigate("/login", { replace: true });
+          return;
+        }
+
+        // Step 3: Fetch full user data including userProfile
+        const meResponse = await api.get("/auth/me");
+        const user = meResponse.data.user;
+
+        // Update Redux store with full user data
+        dispatch(
+          setUser({
+            _id: user._id,
+            email: user.email,
+            userName: user.userName,
+            profilePicture: user.profilePicture || undefined,
+            userProfile: user.userProfile || undefined,
+          })
+        );
+
+        // Step 4: Dispatch fetchUserProfile (optional, already set above)
+        await dispatch(fetchUserProfile()).unwrap();
+
+        // Step 5: Redirect based on whether user has set preferences
+        if (!user.userProfile?.age) {
+          navigate("/preferences", { replace: true });
+        } else {
+          navigate("/home", { replace: true });
+        }
+      } catch (error) {
+        console.error("Auth verification failed:", error);
+        navigate("/login", { replace: true });
+      }
+    };
+
+    verifyAuth();
+  }, [location, navigate, dispatch]);
+
+  return null;
 };
 
 export default LoginRedirector;

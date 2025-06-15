@@ -1,72 +1,109 @@
-import React, { useRef, useEffect } from "react";
+import React from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface HorizontalDatePickerProps {
   selectedDate: Date;
   onDateChange: (date: Date) => void;
-  daysBefore?: number;
-  daysAfter?: number;
 }
 
-function getDatesArray(centerDate: Date, daysBefore = 10, daysAfter = 10) {
-  const base = new Date(centerDate);
-  base.setHours(0, 0, 0, 0);
-  const dates = [];
-  for (let i = -daysBefore; i <= daysAfter; i++) {
-    const d = new Date(base);
-    d.setDate(base.getDate() + i);
-    dates.push(d);
+function getWeekDates(centerDate: Date): Date[] {
+  const startOfWeek = new Date(centerDate);
+  const day = centerDate.getDay();
+  startOfWeek.setDate(centerDate.getDate() - day); // Start from Sunday
+  startOfWeek.setHours(0, 0, 0, 0);
+  
+  const weekDates = [];
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(startOfWeek);
+    date.setDate(startOfWeek.getDate() + i);
+    weekDates.push(date);
   }
-  return dates;
+  return weekDates;
+}
+
+function isSameDay(date1: Date, date2: Date): boolean {
+  return (
+    date1.getFullYear() === date2.getFullYear() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getDate() === date2.getDate()
+  );
 }
 
 const HorizontalDatePicker: React.FC<HorizontalDatePickerProps> = ({
   selectedDate,
   onDateChange,
-  daysBefore = 10,
-  daysAfter = 10,
 }) => {
-  const dates = getDatesArray(selectedDate, daysBefore, daysAfter);
-  const dateRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const weekDates = getWeekDates(selectedDate);
 
-  useEffect(() => {
-    const idx = dates.findIndex(
-      (d) => d.toDateString() === selectedDate.toDateString()
-    );
-    if (idx !== -1 && dateRefs.current[idx]) {
-      dateRefs.current[idx]?.scrollIntoView({
-        behavior: "smooth",
-        inline: "center",
-        block: "nearest",
-      });
-    }
-  }, [selectedDate, dates]);
+  const goToPreviousWeek = () => {
+    const newDate = new Date(selectedDate);
+    newDate.setDate(selectedDate.getDate() - 7);
+    onDateChange(newDate);
+  };
+
+  const goToNextWeek = () => {
+    const newDate = new Date(selectedDate);
+    newDate.setDate(selectedDate.getDate() + 7);
+    onDateChange(newDate);
+  };
 
   return (
-    <div className="w-full flex overflow-x-auto no-scrollbar space-x-2 py-2 bg-white rounded-lg shadow">
-      {dates.map((date, i) => {
-        const isSelected = date.toDateString() === selectedDate.toDateString();
-        return (
-          <button
-            key={date.toISOString()}
-            ref={(el) => {
-              dateRefs.current[i] = el;
-            }}
-            onClick={() => onDateChange(date)}
-            className={`flex flex-col items-center px-3 py-2 rounded-lg min-w-[56px] border-2
-              ${
-                isSelected
-                  ? "bg-green-500 text-white border-green-700 shadow-md"
-                  : "bg-white text-green-800 border-green-200 hover:bg-green-100"
-              }
-            `}
-          >
-            <span className="text-xs font-medium">
-              {date.toLocaleDateString("en-US", { weekday: "short" })}
-            </span>
-            <span className="text-lg font-bold">{date.getDate()}</span>
-          </button>
-        );
-      })}
+    <div className="w-full max-w-md mx-auto">
+      {/* Week Navigation */}
+      <div className="flex items-center justify-between mb-4">
+        <button 
+          onClick={goToPreviousWeek}
+          className="p-2 rounded-full bg-white/80 backdrop-blur-sm shadow-sm hover:bg-white transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4 text-gray-600" />
+        </button>
+        
+        <div className="text-center">
+          <span className="text-lg font-semibold text-gray-800">
+            {weekDates[0].toLocaleDateString("en-US", { month: "short", day: "numeric" })} - {weekDates[6].toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+          </span>
+        </div>
+        
+        <button 
+          onClick={goToNextWeek}
+          className="p-2 rounded-full bg-white/80 backdrop-blur-sm shadow-sm hover:bg-white transition-colors"
+        >
+          <ChevronRight className="w-4 h-4 text-gray-600" />
+        </button>
+      </div>
+      
+      {/* Week Days */}
+      <div className="grid grid-cols-7 gap-1 bg-white/80 backdrop-blur-sm rounded-xl p-2 shadow-sm">
+        {weekDates.map((date) => {
+          const isSelected = isSameDay(date, selectedDate);
+          const isToday = isSameDay(date, new Date());
+          
+          return (
+            <button
+              key={date.toISOString()}
+              onClick={() => onDateChange(date)}
+              className={`
+                flex flex-col items-center py-2 px-1 rounded-lg
+                transition-all duration-200 ease-in-out
+                ${isSelected 
+                  ? "bg-green-500 text-white shadow-md" 
+                  : "bg-white hover:bg-green-50 border border-gray-100"}
+                ${isToday && !isSelected ? "border-green-300" : ""}
+              `}
+            >
+              <span className={`text-xs font-medium ${isSelected ? "text-green-100" : "text-gray-500"}`}>
+                {date.toLocaleDateString("en-US", { weekday: "short" })}
+              </span>
+              <span className={`text-base font-bold ${isSelected ? "text-white" : "text-gray-800"}`}>
+                {date.getDate()}
+              </span>
+              {isToday && !isSelected && (
+                <div className="w-1 h-1 bg-green-500 rounded-full mt-1" />
+              )}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 };

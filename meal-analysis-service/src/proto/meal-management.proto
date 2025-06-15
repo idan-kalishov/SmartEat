@@ -33,14 +33,31 @@ message GetMealsByDateRequest {
 }
 
 message GetMealsByDateResponse {
-  repeated Meal meals = 1;
+  repeated MealResponse meals = 1;
+}
+
+message ImageData {
+  string data = 1; // Base64 encoded image data
+  string mimeType = 2; // MIME type of the image
+  string name = 3; // Original filename
 }
 
 message Meal {
   string id = 1;
   string userId = 2;
   string createdAt = 3; // ISO date string
-  repeated Ingredient ingredients = 4;
+  string name = 4; // Name of the meal
+  repeated Ingredient ingredients = 5;
+  optional ImageData imageData = 6; // Image data for upload
+}
+
+message MealResponse {
+  string id = 1;
+  string userId = 2;
+  string createdAt = 3; // ISO date string
+  string name = 4; // Name of the meal
+  repeated Ingredient ingredients = 5;
+  optional string imageUrl = 6; // URL to the meal image (for responses)
 }
 
 message Ingredient {

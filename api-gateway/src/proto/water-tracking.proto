@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package watertmgmt;
+
+service WaterTrackingService {
+  rpc SaveWaterIntake(SaveWaterIntakeRequest) returns (SaveWaterIntakeResponse);
+  rpc GetWaterIntakeByDate(GetWaterIntakeByDateRequest) returns (GetWaterIntakeByDateResponse);
+}
+
+message SaveWaterIntakeRequest {
+  string userId = 1;
+  double amountLiters = 2;
+  string date = 3; // ISO date string
+}
+
+message SaveWaterIntakeResponse {
+  bool success = 1;
+  string waterId = 2;
+}
+
+message GetWaterIntakeByDateRequest {
+  string userId = 1;
+  string date = 2; // ISO date string
+}
+
+message GetWaterIntakeByDateResponse {
+  double amountLiters = 1;
+  string date = 2;
+}
+

@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build && copyfiles -u 1 src/proto/**/*.proto dist/",
+    "build": "nest build && copyfiles -u 1 src/proto/**/*.proto dist/  && copyfiles -u 1 src/proto/**/*.proto dist/grpc",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -18,7 +18,8 @@
     "generate:nutrition-proto": "protoc --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=src/generated --ts_proto_opt=nestJs=true,outputServices=grpc-js,returnObservable=false --proto_path=src/proto src/proto/nutrition.proto",
     "generate:food-recognition-proto": "protoc --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=src/generated --ts_proto_opt=nestJs=true,outputServices=grpc-js,returnObservable=false --proto_path=src/proto src/proto/food-recognition.proto",
     "generate:meal-management-proto": "protoc --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=src/generated --ts_proto_opt=nestJs=true,outputServices=grpc-js,returnObservable=false --proto_path=src/proto src/proto/meal-management.proto",
-    "generate:proto": "npm run generate:nutrition-proto && npm run generate:food-recognition-proto && npm run generate:meal-management-proto",
+    "generate:water-tracker-proto": "protoc --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=src/generated --ts_proto_opt=nestJs=true,outputServices=grpc-js,returnObservable=false --proto_path=src/proto src/proto/water-tracking.proto",
+    "generate:proto": "npm run generate:nutrition-proto && npm run generate:food-recognition-proto && npm run generate:meal-management-proto && npm run generate:water-tracker-proto",
     "prebuild": "npm run generate:proto",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
@@ -34,6 +35,7 @@
     "@nestjs/platform-express": "^11.0.1",
     "@types/multer": "^1.4.12",
     "copyfiles": "^2.4.1",
+    "multer": "^2.0.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },

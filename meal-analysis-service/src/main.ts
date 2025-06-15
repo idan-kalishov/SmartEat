@@ -36,8 +36,18 @@ async function bootstrap() {
     },
   };
 
+  const waterTrackerGrpcOptions: MicroserviceOptions = {
+    transport: Transport.GRPC,
+    options: {
+      package: 'watertmgmt',
+      protoPath: join(__dirname, '../src/proto/water-tracking.proto'),
+      url: `0.0.0.0:${process.env.MEAL_MANAGEMENT_GRPC_PORT || 50054}`,
+    },
+  };
+
   app.connectMicroservice<MicroserviceOptions>(foodRecognitionGrpcOptions);
   app.connectMicroservice<MicroserviceOptions>(mealManagementGrpcOptions);
+  app.connectMicroservice<MicroserviceOptions>(waterTrackerGrpcOptions);
 
   await app.startAllMicroservices();
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');

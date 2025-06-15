@@ -1,12 +1,12 @@
+import { PreferenceOption, PreferencePage } from "@/types/preferencesTypes";
 import {
-  Gender,
   ActivityLevel,
-  WeightGoal,
-  GoalIntensity,
-  DietaryPreference,
   Allergy,
+  DietaryPreference,
+  Gender,
+  GoalIntensity,
+  WeightGoal,
 } from "../../types/userTypes";
-import { PreferencePage, PreferenceOption } from "../../types/preferencesTypes";
 
 export const PAGES: PreferencePage[] = [
   "age", // New fun page! 🎂
