@@ -5,6 +5,7 @@ package exercise;
 service ExerciseService {
   rpc SaveExercise(SaveExerciseRequest) returns (SaveExerciseResponse);
   rpc GetExercisesByDate(GetExercisesByDateRequest) returns (GetExercisesByDateResponse);
+  rpc DeleteMeal(DeleteExerciseRequest) returns (DeleteExerciseResponse);
 }
 
 message SaveExerciseRequest {
@@ -24,6 +25,15 @@ message GetExercisesByDateResponse {
 message GetExercisesByDateRequest {
   string userId = 1;
   string date = 2; // ISO date string
+}
+
+message DeleteExerciseRequest {
+  string userId = 1;
+  string mealId = 2;
+}
+
+message DeleteExerciseResponse {
+  bool success = 1;
 }
 
 message Exercise {

@@ -43,4 +43,21 @@ export class ExerciseService {
     const savedMeal = await meal.save();
     return savedMeal.id;
   }
+
+  async deleteExercise(userId: string, exerciseId: string): Promise<boolean> {
+    const exercise = await this.exerciseModel.findOne({
+      _id: exerciseId,
+      userId,
+    });
+    if (!exercise) {
+      return false;
+    }
+
+    const result = await this.exerciseModel.deleteOne({
+      _id: exerciseId,
+      userId,
+    });
+
+    return result.deletedCount > 0;
+  }
 }
