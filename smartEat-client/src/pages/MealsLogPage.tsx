@@ -1,6 +1,6 @@
 import ExercisesCard from "@/components/exercise/ExercisesCard";
 import { useMealsByDate } from "@/hooks/meals/useMealsByDate";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import HorizontalDatePicker from "../components/HorizontalDatePicker";
 import {
   BarChart3,
