@@ -1,19 +1,26 @@
+import { ROUTES } from '@/Routing/routes';
+import { RootState } from '@/store/appState';
 import React from 'react';
+import { useSelector } from 'react-redux';
+import { Outlet, useLocation } from 'react-router-dom';
 import BottomNavbar from './BottomNavbar';
 
-interface LayoutProps {
-    children: React.ReactNode;
-}
+const Layout: React.FC = () => {
+    const { pathname } = useLocation();
+    const { userProfile } = useSelector((state: RootState) => state.user);
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+    const hideOnRoutes = [ROUTES.SIGNIN, ROUTES.SIGNUP, "/verify-auth"];
+    const shouldShowNavbar = !hideOnRoutes.includes(pathname) &&
+        !(pathname === ROUTES.PREFERENCES && !userProfile?.age);
+
     return (
         <div className="min-h-screen flex flex-col bg-gray-50">
             <main className="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="h-[calc(100vh-4rem)] flex flex-col">
-                    {children}
+                    <Outlet />
                 </div>
             </main>
-            <BottomNavbar />
+            {shouldShowNavbar && <BottomNavbar />}
         </div>
     );
 };

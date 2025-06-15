@@ -3,17 +3,9 @@ import React from "react";
 import {BsArrowUpCircle, BsArrowUpCircleFill, BsHouse, BsHouseFill, BsPerson, BsPersonFill,} from "react-icons/bs";
 import {MdNoFood, MdOutlineNoFood} from "react-icons/md";
 import {Link, useLocation} from "react-router-dom";
-import {useSelector} from "react-redux";
-import {RootState} from "@/store/appState";
 
 const BottomNavbar: React.FC = () => {
     const {pathname} = useLocation();
-    const {userProfile} = useSelector((state: RootState) => state.user);
-
-    const hideOnRoutes = [ROUTES.SIGNIN, ROUTES.SIGNUP, "/verify-auth"];
-    if (hideOnRoutes.includes(pathname)) return null;
-
-    if (pathname === ROUTES.PREFERENCES && !userProfile?.age) return null;
 
     const navItems = [
         {
