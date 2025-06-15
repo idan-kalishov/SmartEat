@@ -1070,54 +1070,6 @@ export const NutrientRecommendation: MessageFns<NutrientRecommendation> = {
   },
 };
 
-<<<<<<< HEAD
-function createBaseGetDailyExerciseGoalResponse(): GetDailyExerciseGoalResponse {
-  return { calories: 0 };
-}
-
-export const GetDailyExerciseGoalResponse: MessageFns<GetDailyExerciseGoalResponse> =
-  {
-    encode(
-      message: GetDailyExerciseGoalResponse,
-      writer: BinaryWriter = new BinaryWriter(),
-    ): BinaryWriter {
-      if (message.calories !== 0) {
-        writer.uint32(9).double(message.calories);
-      }
-      return writer;
-    },
-
-    decode(
-      input: BinaryReader | Uint8Array,
-      length?: number,
-    ): GetDailyExerciseGoalResponse {
-      const reader =
-        input instanceof BinaryReader ? input : new BinaryReader(input);
-      let end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseGetDailyExerciseGoalResponse();
-      while (reader.pos < end) {
-        const tag = reader.uint32();
-        switch (tag >>> 3) {
-          case 1: {
-            if (tag !== 9) {
-              break;
-            }
-
-            message.calories = reader.double();
-            continue;
-          }
-        }
-        if ((tag & 7) === 4 || tag === 0) {
-          break;
-        }
-        reader.skip(tag & 7);
-      }
-      return message;
-    },
-  };
-
-=======
->>>>>>> 261bd0da99e8581535b06d8aa471a4eb07375d6b
 function createBaseCompleteMealAnalysisResponse(): CompleteMealAnalysisResponse {
   return {
     rating: undefined,
@@ -1212,17 +1164,9 @@ export interface NutritionsRatingServiceClient {
     request: MealAnalysisRequest,
   ): Observable<CompleteMealAnalysisResponse>;
 
-<<<<<<< HEAD
   getDailyRecommendations(
     request: UserProfile,
   ): Observable<NutrientRecommendation>;
-
-  getDailyExerciseGoal(
-    request: UserProfile,
-  ): Observable<GetDailyExerciseGoalResponse>;
-=======
-  getDailyRecommendations(request: UserProfile): Observable<NutrientRecommendation>;
->>>>>>> 261bd0da99e8581535b06d8aa471a4eb07375d6b
 }
 
 export interface NutritionsRatingServiceController {
@@ -1235,34 +1179,15 @@ export interface NutritionsRatingServiceController {
 
   getDailyRecommendations(
     request: UserProfile,
-<<<<<<< HEAD
   ):
     | Promise<NutrientRecommendation>
     | Observable<NutrientRecommendation>
     | NutrientRecommendation;
-
-  getDailyExerciseGoal(
-    request: UserProfile,
-  ):
-    | Promise<GetDailyExerciseGoalResponse>
-    | Observable<GetDailyExerciseGoalResponse>
-    | GetDailyExerciseGoalResponse;
-=======
-  ): Promise<NutrientRecommendation> | Observable<NutrientRecommendation> | NutrientRecommendation;
->>>>>>> 261bd0da99e8581535b06d8aa471a4eb07375d6b
 }
 
 export function NutritionsRatingServiceControllerMethods() {
   return function (constructor: Function) {
-<<<<<<< HEAD
-    const grpcMethods: string[] = [
-      'analyzeMeal',
-      'getDailyRecommendations',
-      'getDailyExerciseGoal',
-    ];
-=======
-    const grpcMethods: string[] = ["analyzeMeal", "getDailyRecommendations"];
->>>>>>> 261bd0da99e8581535b06d8aa471a4eb07375d6b
+    const grpcMethods: string[] = ['analyzeMeal', 'getDailyRecommendations'];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(
         constructor.prototype,
@@ -1318,21 +1243,6 @@ export const NutritionsRatingServiceService = {
     responseDeserialize: (value: Buffer) =>
       NutrientRecommendation.decode(value),
   },
-<<<<<<< HEAD
-  getDailyExerciseGoal: {
-    path: '/nutrition.NutritionsRatingService/GetDailyExerciseGoal',
-    requestStream: false,
-    responseStream: false,
-    requestSerialize: (value: UserProfile) =>
-      Buffer.from(UserProfile.encode(value).finish()),
-    requestDeserialize: (value: Buffer) => UserProfile.decode(value),
-    responseSerialize: (value: GetDailyExerciseGoalResponse) =>
-      Buffer.from(GetDailyExerciseGoalResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer) =>
-      GetDailyExerciseGoalResponse.decode(value),
-  },
-=======
->>>>>>> 261bd0da99e8581535b06d8aa471a4eb07375d6b
 } as const;
 
 export interface NutritionsRatingServiceServer
@@ -1342,13 +1252,6 @@ export interface NutritionsRatingServiceServer
     CompleteMealAnalysisResponse
   >;
   getDailyRecommendations: handleUnaryCall<UserProfile, NutrientRecommendation>;
-<<<<<<< HEAD
-  getDailyExerciseGoal: handleUnaryCall<
-    UserProfile,
-    GetDailyExerciseGoalResponse
-  >;
-=======
->>>>>>> 261bd0da99e8581535b06d8aa471a4eb07375d6b
 }
 
 export interface MessageFns<T> {
