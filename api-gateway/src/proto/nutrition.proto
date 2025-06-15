@@ -5,6 +5,7 @@ package nutrition;
 service NutritionsRatingService {
   rpc AnalyzeMeal (MealAnalysisRequest) returns (CompleteMealAnalysisResponse);
   rpc GetDailyRecommendations (UserProfile) returns (NutrientRecommendation);
+  rpc GetDailyExerciseGoal (UserProfile) returns (GetDailyExerciseGoalResponse);
 }
 
 message Nutrient {
@@ -135,6 +136,10 @@ message NutrientRecommendation {
   double carbs = 4;        // g
   double fiber = 5;        // g
   optional Micronutrients micronutrients = 6;
+}
+
+message GetDailyExerciseGoalResponse {
+  double calories = 1;
 }
 
 message CompleteMealAnalysisResponse {

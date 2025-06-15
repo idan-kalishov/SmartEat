@@ -19,4 +19,9 @@ export class NutritionController {
   async getDailyRecommendations(@Body() request: UserProfile) {
     return this.recommendationsClient.getDailyRecommendations(request);
   }
+
+  @Post('daily-exercise')
+  async getDailyExerciseGoal(@Body() request: UserProfile) {
+    return this.recommendationsClient.getDailyExerciseGoal(request);
+  }
 }
