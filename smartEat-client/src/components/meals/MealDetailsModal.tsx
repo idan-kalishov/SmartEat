@@ -1,6 +1,7 @@
 import { CustomToastPromise } from "@/components/CustomToastPromise.tsx";
 import { deleteMeal } from "@/services/mealService";
 import { Meal } from "@/types/meals/meal";
+import { transformIngredientsForResults } from "@/utils/mealAnalysisApi";
 import { calculateTotalNutrition } from "@/utils/nutrientCalculations";
 import { Dialog, DialogContent } from "@mui/material";
 import { ChevronDown, ChevronUp, Cookie, Dumbbell, Flame, Trash2, Wheat, X } from "lucide-react";
@@ -17,6 +18,8 @@ export const MealDetailsModal: React.FC<MealDetailsModalProps> = ({ meal, isOpen
   const [expandedIngredients, setExpandedIngredients] = useState<{ [key: string]: boolean }>({});
 
   if (!meal) return null;
+
+  const transformedIngredients = transformIngredientsForResults(meal.ingredients);
 
   const totalNutrition = calculateTotalNutrition(meal.ingredients);
 
@@ -133,7 +136,7 @@ export const MealDetailsModal: React.FC<MealDetailsModalProps> = ({ meal, isOpen
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-gray-800 mb-3">Ingredients</h3>
           <div className="space-y-2">
-            {meal.ingredients.map((ingredient, index) => (
+            {transformedIngredients.map((ingredient, index) => (
               <div
                 key={index}
                 className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
@@ -156,30 +159,30 @@ export const MealDetailsModal: React.FC<MealDetailsModalProps> = ({ meal, isOpen
                 </div>
 
                 {/* Per 100g Nutrition */}
-                {expandedIngredients[index] && ingredient.nutrition?.per100g && (
+                {expandedIngredients[index] && ingredient.nutrition?.scaled && (
                   <div className="grid grid-cols-4 gap-2 p-3 pt-0 text-sm border-t border-gray-100">
                     <div className="bg-white rounded p-2">
                       <div className="text-gray-500">Calories</div>
                       <div className="font-medium text-orange-600">
-                        {Math.round((ingredient.nutrition.per100g.calories?.value || 0))} kcal
+                        {Math.round((ingredient.nutrition.scaled.calories?.value || 0))} kcal
                       </div>
                     </div>
                     <div className="bg-white rounded p-2">
                       <div className="text-gray-500">Protein</div>
                       <div className="font-medium text-rose-600">
-                        {ingredient.nutrition.per100g.protein?.value?.toFixed(1)}g
+                        {ingredient.nutrition.scaled.protein?.value?.toFixed(1)}g
                       </div>
                     </div>
                     <div className="bg-white rounded p-2">
                       <div className="text-gray-500">Carbs</div>
                       <div className="font-medium text-amber-600">
-                        {ingredient.nutrition.per100g.totalCarbohydrates?.value?.toFixed(1)}g
+                        {ingredient.nutrition.scaled.totalCarbohydrates?.value?.toFixed(1)}g
                       </div>
                     </div>
                     <div className="bg-white rounded p-2">
                       <div className="text-gray-500">Fat</div>
                       <div className="font-medium text-blue-600">
-                        {ingredient.nutrition.per100g.totalFat?.value?.toFixed(1)}g
+                        {ingredient.nutrition.scaled.totalFat?.value?.toFixed(1)}g
                       </div>
                     </div>
                   </div>
