@@ -1,5 +1,5 @@
 import { getMealsByDate } from "@/services/mealService";
-import { Meal } from "@/types/meals/mealTypes";
+import { Meal } from "@/types/meals/meal";
 import { useCallback, useEffect, useState } from "react";
 
 export function useMealsByDate(date: Date) {

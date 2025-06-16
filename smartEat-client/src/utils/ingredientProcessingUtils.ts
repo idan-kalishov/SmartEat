@@ -1,6 +1,6 @@
-import {fetchNutritionalDataForIngredients, transformIngredientsForResults,} from "../utils/mealAnalysisApi";
-import {mergeNutritionData} from "../utils/ingredientUtils";
-import {Ingredient} from "../types/imageAnalyizeTypes";
+import { Ingredient } from "../types/common";
+import { mergeNutritionData } from "../utils/ingredientUtils";
+import { fetchNutritionalDataForIngredients, transformIngredientsForResults, } from "../utils/mealAnalysisApi";
 
 interface ProcessResult {
     transformedIngredients: any[];
@@ -45,13 +45,13 @@ export const processAndSaveIngredients = async (
         const transformedIngredients =
             transformIngredientsForResults(updatedIngredients);
 
-        return {transformedIngredients};
+        return { transformedIngredients };
     } else {
         // No missing nutritional data, so directly transform
         const transformedIngredients = transformIngredientsForResults(
-            ingredients.map(({isNew, ...rest}) => rest as Ingredient)
+            ingredients.map(({ isNew, ...rest }) => rest as Ingredient)
         );
 
-        return {transformedIngredients};
+        return { transformedIngredients };
     }
 };

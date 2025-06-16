@@ -1,12 +1,11 @@
-import React, { useState } from "react";
-import { Meal } from "@/types/meals/mealTypes";
-import { Dialog, DialogContent } from "@mui/material";
-import { X, Flame, Dumbbell, Cookie, Wheat, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
-import { calculateTotalNutrition } from "@/utils/nutrientCalculations";
-import { Ingredient as ImageAnalyzeIngredient, NutritionData } from "@/types/imageAnalyizeTypes";
-import { Ingredient as MealIngredient } from "@/types/meals/mealTypes";
 import { CustomToastPromise } from "@/components/CustomToastPromise.tsx";
 import { deleteMeal } from "@/services/mealService";
+import { Meal } from "@/types/meals/meal";
+import { transformIngredientsForResults } from "@/utils/mealAnalysisApi";
+import { calculateTotalNutrition } from "@/utils/nutrientCalculations";
+import { Dialog, DialogContent } from "@mui/material";
+import { ChevronDown, ChevronUp, Cookie, Dumbbell, Flame, Trash2, Wheat, X } from "lucide-react";
+import React, { useState } from "react";
 
 interface MealDetailsModalProps {
   meal: Meal | null;
@@ -15,52 +14,14 @@ interface MealDetailsModalProps {
   onMealDeleted?: () => void;
 }
 
-const createEmptyNutritionData = (): NutritionData => ({
-  calories: { value: 0, unit: "KCAL" },
-  totalFat: { value: 0, unit: "G" },
-  totalCarbohydrates: { value: 0, unit: "G" },
-  sugars: { value: 0, unit: "G" },
-  protein: { value: 0, unit: "G" },
-  iron: { value: 0, unit: "MG" },
-  fiber: { value: 0, unit: "G" },
-  vitaminA: { value: 0, unit: "MCG" },
-  vitaminC: { value: 0, unit: "MG" },
-  vitaminD: { value: 0, unit: "MCG" },
-  vitaminB12: { value: 0, unit: "MCG" },
-  calcium: { value: 0, unit: "MG" },
-  magnesium: { value: 0, unit: "MG" }
-});
-
-const convertToImageAnalyzeIngredient = (ingredient: MealIngredient): ImageAnalyzeIngredient => {
-  const nutritionData = createEmptyNutritionData();
-  
-  // Map the per100g nutrition data to the required structure
-  if (ingredient.nutrition?.per100g) {
-    Object.entries(ingredient.nutrition.per100g).forEach(([key, nutrient]) => {
-      const normalizedKey = key.toLowerCase();
-      if (normalizedKey in nutritionData) {
-        nutritionData[normalizedKey as keyof NutritionData] = {
-          value: nutrient.value || 0,
-          unit: nutrient.unit
-        };
-      }
-    });
-  }
-
-  return {
-    name: ingredient.name,
-    weight: ingredient.weight.toString(),
-    nutrition: { per100g: nutritionData }
-  };
-};
-
 export const MealDetailsModal: React.FC<MealDetailsModalProps> = ({ meal, isOpen, onClose, onMealDeleted }) => {
-  const [expandedIngredients, setExpandedIngredients] = useState<{ [key: string]: boolean }>({});
+  const [expandedIngredients, setExpandedIngredients] = useState<Set<number>>(new Set());
 
   if (!meal) return null;
 
-  const convertedIngredients = meal.ingredients.map(convertToImageAnalyzeIngredient);
-  const totalNutrition = calculateTotalNutrition(convertedIngredients);
+  const transformedIngredients = transformIngredientsForResults(meal.ingredients);
+
+  const totalNutrition = calculateTotalNutrition(meal.ingredients);
 
   const handleDeleteMeal = async () => {
     const apiPromise = deleteMeal(meal.id).then(response => {
@@ -82,10 +43,15 @@ export const MealDetailsModal: React.FC<MealDetailsModalProps> = ({ meal, isOpen
   };
 
   const toggleIngredient = (index: number) => {
-    setExpandedIngredients(prev => ({
-      ...prev,
-      [index]: !prev[index]
-    }));
+    setExpandedIngredients(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(index)) {
+        newSet.delete(index);
+      } else {
+        newSet.add(index);
+      }
+      return newSet;
+    });
   };
 
   return (
@@ -115,7 +81,7 @@ export const MealDetailsModal: React.FC<MealDetailsModalProps> = ({ meal, isOpen
             <img
               src={meal.imageUrl}
               alt={meal.name}
-              className="w-full h-48 object-cover rounded-lg shadow-md"
+              className="w-full h-64 object-contain rounded-lg shadow-md bg-gray-50"
             />
           </div>
         )}
@@ -129,7 +95,7 @@ export const MealDetailsModal: React.FC<MealDetailsModalProps> = ({ meal, isOpen
                 <span className="font-medium text-gray-700">Calories</span>
               </div>
               <div className="text-sm font-semibold text-gray-900">
-                {Math.round(totalNutrition.calories)} kcal
+                {totalNutrition.calories.toFixed(2)}kcal
               </div>
             </div>
           </div>
@@ -141,7 +107,7 @@ export const MealDetailsModal: React.FC<MealDetailsModalProps> = ({ meal, isOpen
                 <span className="font-medium text-gray-700">Protein</span>
               </div>
               <div className="text-sm font-semibold text-gray-900">
-                {Math.round(totalNutrition.protein)}g
+                {totalNutrition.protein.toFixed(2)}g
               </div>
             </div>
           </div>
@@ -153,7 +119,7 @@ export const MealDetailsModal: React.FC<MealDetailsModalProps> = ({ meal, isOpen
                 <span className="font-medium text-gray-700">Fat</span>
               </div>
               <div className="text-sm font-semibold text-gray-900">
-                {Math.round(totalNutrition.totalFat)}g
+                {totalNutrition.totalFat.toFixed(2)}g
               </div>
             </div>
           </div>
@@ -165,7 +131,7 @@ export const MealDetailsModal: React.FC<MealDetailsModalProps> = ({ meal, isOpen
                 <span className="font-medium text-gray-700">Carbs</span>
               </div>
               <div className="text-sm font-semibold text-gray-900">
-                {Math.round(totalNutrition.totalCarbohydrates)}g
+                {totalNutrition.totalCarbohydrates.toFixed(2)}g
               </div>
             </div>
           </div>
@@ -175,59 +141,64 @@ export const MealDetailsModal: React.FC<MealDetailsModalProps> = ({ meal, isOpen
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-gray-800 mb-3">Ingredients</h3>
           <div className="space-y-2">
-            {meal.ingredients.map((ingredient, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
-              >
-                <div 
-                  className="p-3 cursor-pointer hover:bg-gray-50 transition-colors"
-                  onClick={() => toggleIngredient(index)}
+            {transformedIngredients.map((ingredient, index) => {
+              const isExpanded = expandedIngredients.has(index);
+              const nutrition = ingredient.nutrition?.scaled;
+
+              return (
+                <div
+                  key={index}
+                  className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
                 >
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <div className="font-medium text-gray-800">{ingredient.name}</div>
-                      <div className="text-sm text-gray-500">{ingredient.weight}g</div>
+                  <div
+                    className="p-3 cursor-pointer hover:bg-gray-50 transition-colors"
+                    onClick={() => toggleIngredient(index)}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <div className="font-medium text-gray-800">{ingredient.name}</div>
+                        <div className="text-sm text-gray-500">{ingredient.weight}g</div>
+                      </div>
+                      {isExpanded ? (
+                        <ChevronUp className="w-5 h-5 text-gray-400" />
+                      ) : (
+                        <ChevronDown className="w-5 h-5 text-gray-400" />
+                      )}
                     </div>
-                    {expandedIngredients[index] ? (
-                      <ChevronUp className="w-5 h-5 text-gray-400" />
-                    ) : (
-                      <ChevronDown className="w-5 h-5 text-gray-400" />
-                    )}
                   </div>
+
+                  {/* Per 100g Nutrition */}
+                  {isExpanded && nutrition && (
+                    <div className="grid grid-cols-4 gap-2 p-3 pt-0 text-sm border-t border-gray-100">
+                      <div className="bg-white rounded p-2">
+                        <div className="text-gray-500">Calories</div>
+                        <div className="font-medium text-orange-600">
+                          {(nutrition.calories?.value || 0).toFixed(2)}kcal
+                        </div>
+                      </div>
+                      <div className="bg-white rounded p-2">
+                        <div className="text-gray-500">Protein</div>
+                        <div className="font-medium text-rose-600">
+                          {(nutrition.protein?.value || 0).toFixed(2)}g
+                        </div>
+                      </div>
+                      <div className="bg-white rounded p-2">
+                        <div className="text-gray-500">Carbs</div>
+                        <div className="font-medium text-amber-600">
+                          {(nutrition.totalCarbohydrates?.value || 0).toFixed(2)}g
+                        </div>
+                      </div>
+                      <div className="bg-white rounded p-2">
+                        <div className="text-gray-500">Fat</div>
+                        <div className="font-medium text-blue-600">
+                          {(nutrition.totalFat?.value || 0).toFixed(2)}g
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                
-                {/* Per 100g Nutrition */}
-                {expandedIngredients[index] && ingredient.nutrition?.per100g && (
-                  <div className="grid grid-cols-4 gap-2 p-3 pt-0 text-sm border-t border-gray-100">
-                    <div className="bg-white rounded p-2">
-                      <div className="text-gray-500">Calories</div>
-                      <div className="font-medium text-orange-600">
-                        {Math.round((ingredient.nutrition.per100g.calories?.value || 0))} kcal
-                      </div>
-                    </div>
-                    <div className="bg-white rounded p-2">
-                      <div className="text-gray-500">Protein</div>
-                      <div className="font-medium text-rose-600">
-                        {ingredient.nutrition.per100g.protein?.value?.toFixed(1)}g
-                      </div>
-                    </div>
-                    <div className="bg-white rounded p-2">
-                      <div className="text-gray-500">Carbs</div>
-                      <div className="font-medium text-amber-600">
-                        {ingredient.nutrition.per100g.totalCarbohydrates?.value?.toFixed(1)}g
-                      </div>
-                    </div>
-                    <div className="bg-white rounded p-2">
-                      <div className="text-gray-500">Fat</div>
-                      <div className="font-medium text-blue-600">
-                        {ingredient.nutrition.per100g.totalFat?.value?.toFixed(1)}g
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </DialogContent>

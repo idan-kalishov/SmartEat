@@ -1,6 +1,6 @@
 // ingredientUtils.ts
 
-import {Ingredient} from "../types/imageAnalyizeTypes";
+import { Ingredient } from "../types/common";
 
 /**
  * Merges fetched nutritional data with existing ingredients.
@@ -9,7 +9,7 @@ import {Ingredient} from "../types/imageAnalyizeTypes";
  * @returns - Updated ingredients array with merged nutritional data.
  */
 export const mergeNutritionData = (
-    ingredients: { name: string; weight: string; nutrition?: any }[],
+    ingredients: { name: string; weight: number; nutrition?: any }[],
     fetchedNutritionData: any[]
 ): Ingredient[] => {
     return ingredients.map((ingredient) => {
@@ -20,7 +20,7 @@ export const mergeNutritionData = (
             console.log(`matched nutrition ${matchedNutrition}`);
             return {
                 ...ingredient,
-                nutrition: {per100g: matchedNutrition?.nutrition.per100g || null},
+                nutrition: { per100g: matchedNutrition?.nutrition.per100g || null },
             };
         }
         return ingredient;
