@@ -15,7 +15,7 @@ interface MealDetailsModalProps {
 }
 
 export const MealDetailsModal: React.FC<MealDetailsModalProps> = ({ meal, isOpen, onClose, onMealDeleted }) => {
-  const [expandedIngredients, setExpandedIngredients] = useState<{ [key: string]: boolean }>({});
+  const [expandedIngredients, setExpandedIngredients] = useState<Set<number>>(new Set());
 
   if (!meal) return null;
 
@@ -43,10 +43,15 @@ export const MealDetailsModal: React.FC<MealDetailsModalProps> = ({ meal, isOpen
   };
 
   const toggleIngredient = (index: number) => {
-    setExpandedIngredients(prev => ({
-      ...prev,
-      [index]: !prev[index]
-    }));
+    setExpandedIngredients(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(index)) {
+        newSet.delete(index);
+      } else {
+        newSet.add(index);
+      }
+      return newSet;
+    });
   };
 
   return (
@@ -76,7 +81,7 @@ export const MealDetailsModal: React.FC<MealDetailsModalProps> = ({ meal, isOpen
             <img
               src={meal.imageUrl}
               alt={meal.name}
-              className="w-full h-48 object-cover rounded-lg shadow-md"
+              className="w-full h-64 object-contain rounded-lg shadow-md bg-gray-50"
             />
           </div>
         )}
@@ -90,7 +95,7 @@ export const MealDetailsModal: React.FC<MealDetailsModalProps> = ({ meal, isOpen
                 <span className="font-medium text-gray-700">Calories</span>
               </div>
               <div className="text-sm font-semibold text-gray-900">
-                {Math.round(totalNutrition.calories)} kcal
+                {totalNutrition.calories.toFixed(2)}kcal
               </div>
             </div>
           </div>
@@ -102,7 +107,7 @@ export const MealDetailsModal: React.FC<MealDetailsModalProps> = ({ meal, isOpen
                 <span className="font-medium text-gray-700">Protein</span>
               </div>
               <div className="text-sm font-semibold text-gray-900">
-                {Math.round(totalNutrition.protein)}g
+                {totalNutrition.protein.toFixed(2)}g
               </div>
             </div>
           </div>
@@ -114,7 +119,7 @@ export const MealDetailsModal: React.FC<MealDetailsModalProps> = ({ meal, isOpen
                 <span className="font-medium text-gray-700">Fat</span>
               </div>
               <div className="text-sm font-semibold text-gray-900">
-                {Math.round(totalNutrition.totalFat)}g
+                {totalNutrition.totalFat.toFixed(2)}g
               </div>
             </div>
           </div>
@@ -126,7 +131,7 @@ export const MealDetailsModal: React.FC<MealDetailsModalProps> = ({ meal, isOpen
                 <span className="font-medium text-gray-700">Carbs</span>
               </div>
               <div className="text-sm font-semibold text-gray-900">
-                {Math.round(totalNutrition.totalCarbohydrates)}g
+                {totalNutrition.totalCarbohydrates.toFixed(2)}g
               </div>
             </div>
           </div>
@@ -136,59 +141,64 @@ export const MealDetailsModal: React.FC<MealDetailsModalProps> = ({ meal, isOpen
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-gray-800 mb-3">Ingredients</h3>
           <div className="space-y-2">
-            {transformedIngredients.map((ingredient, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
-              >
-                <div
-                  className="p-3 cursor-pointer hover:bg-gray-50 transition-colors"
-                  onClick={() => toggleIngredient(index)}
-                >
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <div className="font-medium text-gray-800">{ingredient.name}</div>
-                      <div className="text-sm text-gray-500">{ingredient.weight}g</div>
-                    </div>
-                    {expandedIngredients[index] ? (
-                      <ChevronUp className="w-5 h-5 text-gray-400" />
-                    ) : (
-                      <ChevronDown className="w-5 h-5 text-gray-400" />
-                    )}
-                  </div>
-                </div>
+            {transformedIngredients.map((ingredient, index) => {
+              const isExpanded = expandedIngredients.has(index);
+              const nutrition = ingredient.nutrition?.scaled;
 
-                {/* Per 100g Nutrition */}
-                {expandedIngredients[index] && ingredient.nutrition?.scaled && (
-                  <div className="grid grid-cols-4 gap-2 p-3 pt-0 text-sm border-t border-gray-100">
-                    <div className="bg-white rounded p-2">
-                      <div className="text-gray-500">Calories</div>
-                      <div className="font-medium text-orange-600">
-                        {Math.round((ingredient.nutrition.scaled.calories?.value || 0))} kcal
+              return (
+                <div
+                  key={index}
+                  className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
+                >
+                  <div
+                    className="p-3 cursor-pointer hover:bg-gray-50 transition-colors"
+                    onClick={() => toggleIngredient(index)}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <div className="font-medium text-gray-800">{ingredient.name}</div>
+                        <div className="text-sm text-gray-500">{ingredient.weight}g</div>
                       </div>
-                    </div>
-                    <div className="bg-white rounded p-2">
-                      <div className="text-gray-500">Protein</div>
-                      <div className="font-medium text-rose-600">
-                        {ingredient.nutrition.scaled.protein?.value?.toFixed(1)}g
-                      </div>
-                    </div>
-                    <div className="bg-white rounded p-2">
-                      <div className="text-gray-500">Carbs</div>
-                      <div className="font-medium text-amber-600">
-                        {ingredient.nutrition.scaled.totalCarbohydrates?.value?.toFixed(1)}g
-                      </div>
-                    </div>
-                    <div className="bg-white rounded p-2">
-                      <div className="text-gray-500">Fat</div>
-                      <div className="font-medium text-blue-600">
-                        {ingredient.nutrition.scaled.totalFat?.value?.toFixed(1)}g
-                      </div>
+                      {isExpanded ? (
+                        <ChevronUp className="w-5 h-5 text-gray-400" />
+                      ) : (
+                        <ChevronDown className="w-5 h-5 text-gray-400" />
+                      )}
                     </div>
                   </div>
-                )}
-              </div>
-            ))}
+
+                  {/* Per 100g Nutrition */}
+                  {isExpanded && nutrition && (
+                    <div className="grid grid-cols-4 gap-2 p-3 pt-0 text-sm border-t border-gray-100">
+                      <div className="bg-white rounded p-2">
+                        <div className="text-gray-500">Calories</div>
+                        <div className="font-medium text-orange-600">
+                          {(nutrition.calories?.value || 0).toFixed(2)}kcal
+                        </div>
+                      </div>
+                      <div className="bg-white rounded p-2">
+                        <div className="text-gray-500">Protein</div>
+                        <div className="font-medium text-rose-600">
+                          {(nutrition.protein?.value || 0).toFixed(2)}g
+                        </div>
+                      </div>
+                      <div className="bg-white rounded p-2">
+                        <div className="text-gray-500">Carbs</div>
+                        <div className="font-medium text-amber-600">
+                          {(nutrition.totalCarbohydrates?.value || 0).toFixed(2)}g
+                        </div>
+                      </div>
+                      <div className="bg-white rounded p-2">
+                        <div className="text-gray-500">Fat</div>
+                        <div className="font-medium text-blue-600">
+                          {(nutrition.totalFat?.value || 0).toFixed(2)}g
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </DialogContent>
