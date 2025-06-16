@@ -1,12 +1,10 @@
-import React, { useState } from "react";
-import { Meal } from "@/types/meals/mealTypes";
-import { Dialog, DialogContent } from "@mui/material";
-import { X, Flame, Dumbbell, Cookie, Wheat, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
-import { calculateTotalNutrition } from "@/utils/nutrientCalculations";
-import { Ingredient as ImageAnalyzeIngredient, NutritionData } from "@/types/imageAnalyizeTypes";
-import { Ingredient as MealIngredient } from "@/types/meals/mealTypes";
 import { CustomToastPromise } from "@/components/CustomToastPromise.tsx";
 import { deleteMeal } from "@/services/mealService";
+import { Meal } from "@/types/meals/meal";
+import { calculateTotalNutrition } from "@/utils/nutrientCalculations";
+import { Dialog, DialogContent } from "@mui/material";
+import { ChevronDown, ChevronUp, Cookie, Dumbbell, Flame, Trash2, Wheat, X } from "lucide-react";
+import React, { useState } from "react";
 
 interface MealDetailsModalProps {
   meal: Meal | null;
@@ -15,52 +13,12 @@ interface MealDetailsModalProps {
   onMealDeleted?: () => void;
 }
 
-const createEmptyNutritionData = (): NutritionData => ({
-  calories: { value: 0, unit: "KCAL" },
-  totalFat: { value: 0, unit: "G" },
-  totalCarbohydrates: { value: 0, unit: "G" },
-  sugars: { value: 0, unit: "G" },
-  protein: { value: 0, unit: "G" },
-  iron: { value: 0, unit: "MG" },
-  fiber: { value: 0, unit: "G" },
-  vitaminA: { value: 0, unit: "MCG" },
-  vitaminC: { value: 0, unit: "MG" },
-  vitaminD: { value: 0, unit: "MCG" },
-  vitaminB12: { value: 0, unit: "MCG" },
-  calcium: { value: 0, unit: "MG" },
-  magnesium: { value: 0, unit: "MG" }
-});
-
-const convertToImageAnalyzeIngredient = (ingredient: MealIngredient): ImageAnalyzeIngredient => {
-  const nutritionData = createEmptyNutritionData();
-  
-  // Map the per100g nutrition data to the required structure
-  if (ingredient.nutrition?.per100g) {
-    Object.entries(ingredient.nutrition.per100g).forEach(([key, nutrient]) => {
-      const normalizedKey = key.toLowerCase();
-      if (normalizedKey in nutritionData) {
-        nutritionData[normalizedKey as keyof NutritionData] = {
-          value: nutrient.value || 0,
-          unit: nutrient.unit
-        };
-      }
-    });
-  }
-
-  return {
-    name: ingredient.name,
-    weight: ingredient.weight.toString(),
-    nutrition: { per100g: nutritionData }
-  };
-};
-
 export const MealDetailsModal: React.FC<MealDetailsModalProps> = ({ meal, isOpen, onClose, onMealDeleted }) => {
   const [expandedIngredients, setExpandedIngredients] = useState<{ [key: string]: boolean }>({});
 
   if (!meal) return null;
 
-  const convertedIngredients = meal.ingredients.map(convertToImageAnalyzeIngredient);
-  const totalNutrition = calculateTotalNutrition(convertedIngredients);
+  const totalNutrition = calculateTotalNutrition(meal.ingredients);
 
   const handleDeleteMeal = async () => {
     const apiPromise = deleteMeal(meal.id).then(response => {
@@ -180,7 +138,7 @@ export const MealDetailsModal: React.FC<MealDetailsModalProps> = ({ meal, isOpen
                 key={index}
                 className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
               >
-                <div 
+                <div
                   className="p-3 cursor-pointer hover:bg-gray-50 transition-colors"
                   onClick={() => toggleIngredient(index)}
                 >
@@ -196,7 +154,7 @@ export const MealDetailsModal: React.FC<MealDetailsModalProps> = ({ meal, isOpen
                     )}
                   </div>
                 </div>
-                
+
                 {/* Per 100g Nutrition */}
                 {expandedIngredients[index] && ingredient.nutrition?.per100g && (
                   <div className="grid grid-cols-4 gap-2 p-3 pt-0 text-sm border-t border-gray-100">

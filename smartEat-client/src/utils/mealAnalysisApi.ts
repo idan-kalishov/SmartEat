@@ -1,7 +1,8 @@
-import {AxiosError} from "axios";
 import api from "@/services/api";
-import {Ingredient, Nutrient, NutritionData, TransformedIngredient,} from "../types/imageAnalyizeTypes";
-import {IngredientsRecognitionResult, MealRecognitionResult,} from "@/types/protoServicesTypes";
+import { IngredientsRecognitionResult, MealRecognitionResult, } from "@/types/protoServicesTypes";
+import { AxiosError } from "axios";
+import { Ingredient, Nutrient, NutritionData } from "../types/common";
+import { TransformedIngredient } from "../types/scaled-ingredient";
 
 // Define the shape of the food recognition response
 export interface FoodRecognitionResponse {
@@ -107,12 +108,12 @@ export const transformIngredientsForResults = (
             };
         }
 
-        const weight = parseFloat(ingredient.weight) || 100;
+        const weight = ingredient.weight || 100;
         const per100g = ingredient.nutrition.per100g;
 
         const scale = (nutrient: Nutrient): Nutrient => {
             if (!nutrient || nutrient.value == null) {
-                return {value: null, unit: nutrient?.unit || "unknown"};
+                return { value: null, unit: nutrient?.unit || "unknown" };
             }
             return {
                 value: +(nutrient.value * (weight / 100)).toFixed(2),

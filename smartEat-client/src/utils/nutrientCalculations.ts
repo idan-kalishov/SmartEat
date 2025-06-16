@@ -1,5 +1,5 @@
 // utils/nutrientCalculations.ts
-import {Ingredient} from "@/types/imageAnalyizeTypes";
+import { Ingredient } from "@/types/common";
 
 const nutrientKeys = [
     "calories",
@@ -25,13 +25,13 @@ export const calculateTotalNutrition = (ingredients: Ingredient[]) => {
             acc[key] = 0;
             return acc;
         },
-        {totalWeight: 0} as Record<NutrientKey, number> & {
+        { totalWeight: 0 } as Record<NutrientKey, number> & {
             totalWeight: number;
         }
     );
 
     return ingredients.reduce((acc, ingredient) => {
-        const weight = parseFloat(ingredient.weight) || 0;
+        const weight = ingredient.weight || 0;
         const factor = weight / 100;
         const data = ingredient.nutrition.per100g;
 
