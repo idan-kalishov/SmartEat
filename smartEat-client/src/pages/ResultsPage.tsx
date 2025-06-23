@@ -85,36 +85,21 @@ export default function ResultsPage() {
       weight: ing.weight * servingSize, // Adjust weight by serving size
       nutrition: {
         per100g: {
-          calories:
-            (adjustedNutrition.calories /
-              (adjustedNutrition.totalWeight * servingSize)) *
-            100,
-          protein:
-            (adjustedNutrition.protein /
-              (adjustedNutrition.totalWeight * servingSize)) *
-            100,
-          totalFat:
-            (adjustedNutrition.totalFat /
-              (adjustedNutrition.totalWeight * servingSize)) *
-            100,
-          totalCarbohydrates:
-            (adjustedNutrition.totalCarbohydrates /
-              (adjustedNutrition.totalWeight * servingSize)) *
-            100,
-          fiber:
-            (adjustedNutrition.fiber /
-              (adjustedNutrition.totalWeight * servingSize)) *
-            100,
-          ...Object.entries(vitaminAndMinerals).reduce(
-            (acc, [key, value]) => ({
-              ...acc,
-              [key]:
-                (value / (adjustedNutrition.totalWeight * servingSize)) * 100,
-            }),
-            {}
-          ),
-        },
-      },
+          calories: ing.nutrition.per100g.calories?.value ?? 0,
+          protein: ing.nutrition.per100g.protein?.value ?? 0,
+          totalFat: ing.nutrition.per100g.totalFat?.value ?? 0,
+          totalCarbohydrates: ing.nutrition.per100g.totalCarbohydrates?.value ?? 0,
+          fiber: ing.nutrition.per100g.fiber?.value ?? 0,
+          sugars: ing.nutrition.per100g.sugars?.value ?? 0,
+          iron: ing.nutrition.per100g.iron?.value ?? 0,
+          vitaminA: ing.nutrition.per100g.vitaminA?.value ?? 0,
+          vitaminC: ing.nutrition.per100g.vitaminC?.value ?? 0,
+          vitaminD: ing.nutrition.per100g.vitaminD?.value ?? 0,
+          vitaminB12: ing.nutrition.per100g.vitaminB12?.value ?? 0,
+          calcium: ing.nutrition.per100g.calcium?.value ?? 0,
+          magnesium: ing.nutrition.per100g.magnesium?.value ?? 0,
+        }
+      }
     }));
 
     await logMealToBackend(name, ingredients, image);
