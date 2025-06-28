@@ -1,9 +1,7 @@
 // src/services/mealAnalysisService.ts
+import { NutritionData } from "../types/common";
+import { TransformedIngredient } from "../types/scaled-ingredient";
 import { UserProfile } from "../types/userTypes";
-import {
-  TransformedIngredient,
-  NutritionData,
-} from "../types/imageAnalyizeTypes";
 import api from "./api";
 
 export interface MealAnalysisResponse {
