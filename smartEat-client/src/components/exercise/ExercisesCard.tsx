@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Dumbbell, Plus, Flame } from "lucide-react";
 import { ExcerciseSelect, Exercise, IntensityType } from "@/types/exercise";
 import AddExerciseModal from "./AddExerciseModal";
+import { saveExcercise } from "@/services/excerciseService";
 
 const ExercisesCard: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,6 +25,8 @@ const ExercisesCard: React.FC = () => {
         intensity: intensity.value,
         type: excerciseData.value,
       };
+
+      saveExcercise(newExercise);
 
       setExercises((prev) => [...prev, newExercise]);
     }
