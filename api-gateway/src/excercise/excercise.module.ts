@@ -1,9 +1,12 @@
 import { Module } from '@nestjs/common';
-import { RecommendationsClient } from 'src/grpc/clients/recommendations.client';
 import { ExcerciseController } from './controller/excercise.controller';
+import { ExcerciseClient } from 'src/grpc/clients/excercise.client';
+import { AuthGatewayService } from 'src/authGateway/auth.gateway.service';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  providers: [RecommendationsClient],
+  imports: [HttpModule],
+  providers: [ExcerciseClient, AuthGatewayService],
   controllers: [ExcerciseController],
 })
-export class RecommendationsModule {}
+export class ExcerciseModule {}

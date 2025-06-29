@@ -27,6 +27,7 @@ export class ExerciseController {
 
   @GrpcMethod('ExerciseService', 'SaveExercise')
   async saveExercise(data: SaveExerciseRequest): Promise<SaveExerciseResponse> {
+    debugger;
     try {
       if (!data.exercise) {
         throw new BadRequestException('Exercise data is required');

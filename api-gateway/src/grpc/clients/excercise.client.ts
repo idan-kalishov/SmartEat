@@ -19,7 +19,7 @@ export class ExcerciseClient implements OnModuleInit {
 
   onModuleInit() {
     this.excerciseService =
-      this.client.getService<ExerciseServiceClient>('ExcerciseService');
+      this.client.getService<ExerciseServiceClient>('ExerciseService');
   }
 
   async saveExcercise(

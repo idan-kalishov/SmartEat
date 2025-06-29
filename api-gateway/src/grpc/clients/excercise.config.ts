@@ -4,8 +4,8 @@ import { join } from 'path';
 export const ExcerciseGrpcOptions: ClientOptions = {
   transport: Transport.GRPC,
   options: {
-    package: 'watertmgmt',
-    protoPath: join(__dirname, '../proto/excercise.proto'),
-    url: process.env.WATER_TRACKING_SERVICE_URL || 'localhost:50055',
+    package: 'exercise',
+    protoPath: join(__dirname, '../proto/exercise.proto'),
+    url: process.env.EXERCISE_SERVICE_URL || 'localhost:50055',
   },
 };
