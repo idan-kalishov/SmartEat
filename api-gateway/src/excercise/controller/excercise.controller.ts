@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { ExcerciseClient } from 'src/grpc/clients/excercise.client';
 import {
+  Exercise,
   GetExercisesByDateRequest,
   SaveExerciseRequest,
 } from '@generated/exercise';
@@ -21,7 +22,10 @@ export class ExcerciseController {
   ) {}
 
   @Post('save')
-  async save(@Request() req, @Body() saveExerciseRequest: SaveExerciseRequest) {
+  async save(
+    @Request() req,
+    @Body() saveExerciseRequest: { excercise: Exercise },
+  ) {
     debugger;
     const userDetails = await this.authService.getUserDetails(req);
     if (!userDetails?.user?._id) {
@@ -30,10 +34,12 @@ export class ExcerciseController {
 
     const userId = userDetails.user._id;
 
-    return this.excerciseClient.saveExcercise({
-      ...saveExerciseRequest,
+    const a: SaveExerciseRequest = {
+      exercise: { ...saveExerciseRequest.excercise },
       userId,
-    });
+    };
+
+    return this.excerciseClient.saveExcercise(a);
   }
 
   @Get('by-date')

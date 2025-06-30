@@ -37,10 +37,6 @@ export class ExerciseController {
         throw new BadRequestException('User ID is required');
       }
 
-      if (data.userId !== data.exercise.userId) {
-        throw new BadRequestException('User ID mismatch');
-      }
-
       const exerciseId = await this.exerciseService.saveExercise(data.exercise);
 
       return {
