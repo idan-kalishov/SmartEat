@@ -20,9 +20,9 @@ export type IntensityType = {
 
 export interface Exercise {
   id: string;
-  type: ExerciseType;
-  intensity: IntensityLevel;
-  duration: number; // in minutes
-  caloriesBurned: number;
+  userId: string;
+  name: string;
+  calories: string;
+  minutes: number;
   createdAt: string;
 }

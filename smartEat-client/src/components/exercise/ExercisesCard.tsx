@@ -16,14 +16,14 @@ const ExercisesCard: React.FC = () => {
     if (intensity.value && excerciseData.value) {
       const newExercise: Exercise = {
         id: Math.random().toString(),
-        ...excerciseData,
-        caloriesBurned:
+        calories: (
           (excerciseData.caloriesPerHour * intensity.multiplier * duration) /
-          60,
+          60
+        ).toFixed(0),
         createdAt: new Date().toISOString(),
-        duration: duration,
-        intensity: intensity.value,
-        type: excerciseData.value,
+        minutes: duration,
+        name: excerciseData.label,
+        userId: "685fb77dd5caf69158c99981",
       };
 
       saveExcercise(newExercise);
@@ -34,7 +34,7 @@ const ExercisesCard: React.FC = () => {
 
   const getTotalCalories = () => {
     return exercises.reduce(
-      (total, exercise) => total + exercise.caloriesBurned,
+      (total, exercise) => total + Number(exercise.calories),
       0
     );
   };
@@ -79,11 +79,11 @@ const ExercisesCard: React.FC = () => {
                 className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100"
               >
                 <span className="font-medium text-gray-800 capitalize">
-                  {exercise.type}
+                  {exercise.name}
                 </span>
                 <div className="flex items-center gap-1.5 text-emerald-600">
                   <Flame className="w-4 h-4" />
-                  <span className="font-medium">{exercise.caloriesBurned}</span>
+                  <span className="font-medium">{exercise.calories}</span>
                   <span className="text-sm text-gray-500">cal</span>
                 </div>
               </div>

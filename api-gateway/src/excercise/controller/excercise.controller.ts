@@ -22,11 +22,7 @@ export class ExcerciseController {
   ) {}
 
   @Post('save')
-  async save(
-    @Request() req,
-    @Body() saveExerciseRequest: { excercise: Exercise },
-  ) {
-    debugger;
+  async save(@Request() req, @Body() saveExerciseRequest: SaveExerciseRequest) {
     const userDetails = await this.authService.getUserDetails(req);
     if (!userDetails?.user?._id) {
       throw new BadRequestException('User not authenticated');
@@ -34,12 +30,11 @@ export class ExcerciseController {
 
     const userId = userDetails.user._id;
 
-    const a: SaveExerciseRequest = {
-      exercise: { ...saveExerciseRequest.excercise },
-      userId,
-    };
+    if (userId !== saveExerciseRequest.userId) {
+      throw new BadRequestException('User missmatch');
+    }
 
-    return this.excerciseClient.saveExcercise(a);
+    return this.excerciseClient.saveExcercise(saveExerciseRequest);
   }
 
   @Get('by-date')
