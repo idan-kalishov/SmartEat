@@ -118,7 +118,7 @@ export default function ResultsPage() {
     }));
 
     await logMealToBackend(name, ingredients, image);
-    navigate("/");
+    navigate("/home");
   };
 
   const adjustServingSize = (change: number) => {
@@ -197,10 +197,7 @@ export default function ResultsPage() {
 
             {/* Display daily recommendations if available */}
 
-            <Button
-              onClick={handleLogAndNavigate}
-              className="w-full mt-4 mb-4"
-            >
+            <Button onClick={handleLogAndNavigate} className="w-full mt-4 mb-4">
               Log Meal
             </Button>
           </CardContent>

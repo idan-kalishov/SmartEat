@@ -35,7 +35,7 @@ export const ResultsHeader = ({
           <Bookmark size={22} />
         </button>
         <button
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/home")}
           className="p-2 text-gray-600 hover:text-red-500"
         >
           <Trash2 size={22} />

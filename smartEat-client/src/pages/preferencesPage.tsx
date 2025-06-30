@@ -195,7 +195,7 @@ const UserPreferences: React.FC = () => {
       updateUserProfile(userProfileData)
         .then(() => {
           console.log("Profile updated successfully");
-          navigate("/");
+          navigate("/home");
         })
         .catch((err) => {
           console.error("Error updating profile:", err);
