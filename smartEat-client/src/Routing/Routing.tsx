@@ -11,10 +11,12 @@ import MealsLogPage from "@/pages/MealsLogPage";
 import ProfilePage from "@/pages/Profile";
 import FastingTimer from "@/pages/fasting-page/FastingTimer.tsx";
 import UserPreferences from "@/pages/preferencesPage";
+import LandingPage from "@/pages/LandingPage";
 
 const Routing = () => {
   return (
     <Routes>
+      <Route path={ROUTES.LANDING} element={<LandingPage />} />
       <Route path={ROUTES.SIGNIN} element={<SignIn />} />
       <Route path={ROUTES.SIGNUP} element={<SignUp />} />
       <Route path="/verify-auth" element={<LoginRedirector />} />

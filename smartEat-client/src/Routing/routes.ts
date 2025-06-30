@@ -10,4 +10,5 @@ export const ROUTES = {
   FASTING: "/fasting",
   PROFILE: "/profile",
   PREFERENCES: "/preferences",
+  LANDING: "/",
 };

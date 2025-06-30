@@ -19,7 +19,7 @@ const BottomNavbar: React.FC = () => {
   const { pathname } = useLocation();
   const { userProfile } = useSelector((state: RootState) => state.user);
 
-  const hideOnRoutes = [ROUTES.SIGNIN, ROUTES.SIGNUP, "/verify-auth"];
+  const hideOnRoutes = [ROUTES.SIGNIN, ROUTES.SIGNUP, "/verify-auth", "/"];
   if (hideOnRoutes.includes(pathname)) return null;
 
   if (pathname === ROUTES.PREFERENCES && !userProfile?.age) return null;
