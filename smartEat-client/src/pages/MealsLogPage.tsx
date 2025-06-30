@@ -1,65 +1,18 @@
-import ExercisesCard from "@/components/exercise/ExercisesCard";
-import { useMealsByDate } from "@/hooks/meals/useMealsByDate";
-import React, { useState } from "react";
-import HorizontalDatePicker from "../components/HorizontalDatePicker";
-import {
-  UtensilsCrossed,
-  Loader2,
-  Plus,
-  Clock,
-  Utensils,
-  BarChart3,
-} from "lucide-react";
-import Layout from "../components/Layout";
-import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/Routing/routes";
+import { NutritionBadge } from "@/components/common/NutritionBadge";
+import ExercisesCard from "@/components/exercise/ExercisesCard";
 import DailyIntakeProgress from "@/components/insights/DailyIntakeProgress";
-import WaterTracker from "@/components/water-tracker/WaterTracker";
-import { calculateTotalNutrition } from "@/utils/nutrientCalculations";
-import { Ingredient as ImageAnalyzeIngredient, NutritionData } from "@/types/imageAnalyizeTypes";
-import { Meal, Ingredient as MealIngredient } from "@/types/meals/mealTypes";
 import { MealDetailsModal } from "@/components/meals/MealDetailsModal";
+import WaterTracker from "@/components/water-tracker/WaterTracker";
+import { useMealsByDate } from "@/hooks/meals/useMealsByDate";
+import { Meal } from "@/types/meals/meal";
+import { calculateTotalNutrition } from "@/utils/nutrientCalculations";
+import { BarChart3, Clock, Loader2, Plus, Utensils, UtensilsCrossed, } from "lucide-react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import HorizontalDatePicker from "../components/HorizontalDatePicker";
 
 type Tab = "overview" | "statistics";
-
-const createEmptyNutritionData = (): NutritionData => ({
-  calories: { value: 0, unit: "KCAL" },
-  totalFat: { value: 0, unit: "G" },
-  totalCarbohydrates: { value: 0, unit: "G" },
-  sugars: { value: 0, unit: "G" },
-  protein: { value: 0, unit: "G" },
-  iron: { value: 0, unit: "MG" },
-  fiber: { value: 0, unit: "G" },
-  vitaminA: { value: 0, unit: "MCG" },
-  vitaminC: { value: 0, unit: "MG" },
-  vitaminD: { value: 0, unit: "MCG" },
-  vitaminB12: { value: 0, unit: "MCG" },
-  calcium: { value: 0, unit: "MG" },
-  magnesium: { value: 0, unit: "MG" }
-});
-
-const convertToImageAnalyzeIngredient = (ingredient: MealIngredient): ImageAnalyzeIngredient => {
-  const nutritionData = createEmptyNutritionData();
-  
-  // Map the per100g nutrition data to the required structure
-  if (ingredient.nutrition?.per100g) {
-    Object.entries(ingredient.nutrition.per100g).forEach(([key, nutrient]) => {
-      const normalizedKey = key.toLowerCase();
-      if (normalizedKey in nutritionData) {
-        nutritionData[normalizedKey as keyof NutritionData] = {
-          value: nutrient.value || 0,
-          unit: nutrient.unit
-        };
-      }
-    });
-  }
-
-  return {
-    name: ingredient.name,
-    weight: ingredient.weight.toString(),
-    nutrition: { per100g: nutritionData }
-  };
-};
 
 const MealsLogPage: React.FC = () => {
   const navigate = useNavigate();
@@ -73,10 +26,6 @@ const MealsLogPage: React.FC = () => {
     fetchMeals,
   } = useMealsByDate(selectedDate);
 
-  const handleMealDeleted = () => {
-    fetchMeals();
-  };
-
   const formatTime = (date: string) => {
     return new Date(date).toLocaleTimeString("en-US", {
       hour: "numeric",
@@ -86,76 +35,73 @@ const MealsLogPage: React.FC = () => {
   };
 
   return (
-    <Layout>
-      <div className="flex flex-col items-center bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 py-4 px-2 sm:py-6 h-full overflow-y-auto">
-        <div className="w-full max-w-md flex flex-col items-center mb-4">
-          <h1 className="text-2xl sm:text-3xl font-bold text-green-800 mb-4">
-            Daily Overview
-          </h1>
-          <HorizontalDatePicker
-            selectedDate={selectedDate}
-            onDateChange={setSelectedDate}
-            daysBefore={10}
-            daysAfter={10}
-          />
-        </div>
+    <div className="flex flex-col items-center bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 py-4 px-2 sm:py-6 h-full overflow-y-auto">
+      <div className="w-full max-w-md flex flex-col items-center mb-4">
+        <h1 className="text-2xl sm:text-3xl font-bold text-green-800 mb-4">
+          Daily Overview
+        </h1>
+        <HorizontalDatePicker
+          selectedDate={selectedDate}
+          onDateChange={setSelectedDate}
+        />
+      </div>
 
-        <div className="w-full max-w-md flex gap-1 p-1 bg-gray-100 rounded-lg mb-4">
-          <button
-            onClick={() => setActiveTab("overview")}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
-              activeTab === "overview"
-                ? "bg-white text-gray-800 shadow-sm"
-                : "text-gray-600 hover:text-gray-800"
+      <div className="w-full max-w-md flex gap-1 p-1 bg-gray-100 rounded-lg mb-4">
+        <button
+          onClick={() => setActiveTab("overview")}
+          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === "overview"
+            ? "bg-white text-gray-800 shadow-sm"
+            : "text-gray-600 hover:text-gray-800"
             }`}
-          >
-            <Utensils className="w-4 h-4" />
-            Overview
-          </button>
-          <button
-            onClick={() => setActiveTab("statistics")}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
-              activeTab === "statistics"
-                ? "bg-white text-gray-800 shadow-sm"
-                : "text-gray-600 hover:text-gray-800"
+        >
+          <Utensils className="w-4 h-4" />
+          Overview
+        </button>
+        <button
+          onClick={() => setActiveTab("statistics")}
+          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === "statistics"
+            ? "bg-white text-gray-800 shadow-sm"
+            : "text-gray-600 hover:text-gray-800"
             }`}
-          >
-            <BarChart3 className="w-4 h-4" />
-            Insights
-          </button>
-        </div>
+        >
+          <BarChart3 className="w-4 h-4" />
+          Insights
+        </button>
+      </div>
 
-        {activeTab === "overview" ? (
-          <>
-            <div className="w-full max-w-md bg-white/90 backdrop-blur-sm rounded-xl shadow-lg p-4 mb-4">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <Utensils className="w-5 h-5 text-emerald-600" />
-                  <h2 className="text-lg font-semibold text-gray-800">
-                    Today's Meals
-                  </h2>
-                </div>
-                <button
-                  onClick={() => navigate(ROUTES.UPLOAD)}
-                  className="flex items-center gap-1 px-2.5 py-1 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-all text-sm font-medium"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  Add Meal
-                </button>
+      {activeTab === "overview" ? (
+        <>
+          <div className="w-full max-w-md bg-white/90 backdrop-blur-sm rounded-xl shadow-lg p-4 mb-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Utensils className="w-5 h-5 text-emerald-600" />
+                <h2 className="text-lg font-semibold text-gray-800">
+                  Today's Meals
+                </h2>
               </div>
+              <button
+                onClick={() => navigate(ROUTES.UPLOAD)}
+                className="flex items-center gap-1 px-2.5 py-1 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-all text-sm font-medium"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Add Meal
+              </button>
+            </div>
 
-              {isLoading ? (
-                <div className="flex justify-center items-center py-4">
-                  <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
-                </div>
-              ) : error ? (
-                <span className="text-red-500">{error}</span>
-              ) : meals.length > 0 ? (
-                <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 -mr-2">
-                  {meals.map((meal, index) => (
+            {isLoading ? (
+              <div className="flex justify-center items-center py-4">
+                <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+              </div>
+            ) : error ? (
+              <span className="text-red-500">{error}</span>
+            ) : meals.length > 0 ? (
+              <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 -mr-2">
+                {meals.map((meal, index) => {
+                  const nutrition = calculateTotalNutrition(meal.ingredients);
+                  return (
                     <div
                       key={index}
-                      className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all cursor-pointer border border-gray-100"
+                      className="flex items-start gap-1 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all cursor-pointer border border-gray-100"
                       onClick={() => setSelectedMeal(meal)}
                     >
                       {meal.imageUrl ? (
@@ -165,7 +111,8 @@ const MealsLogPage: React.FC = () => {
                           className="w-16 h-16 rounded-lg object-cover"
                         />
                       ) : (
-                        <div className="w-16 h-16 rounded-lg bg-gray-200 flex items-center justify-center">
+                        <div
+                          className="w-16 h-16 rounded-lg bg-gray-200 flex items-center justify-center">
                           <Utensils className="w-6 h-6 text-gray-400" />
                         </div>
                       )}
@@ -177,55 +124,46 @@ const MealsLogPage: React.FC = () => {
                           <Clock className="w-4 h-4" />
                           <span>{formatTime(meal.createdAt)}</span>
                         </div>
-                        <div className="flex items-center gap-2 mt-1.5">
-                          {(() => {
-                            const convertedIngredients = meal.ingredients.map(convertToImageAnalyzeIngredient);
-                            const nutrition = calculateTotalNutrition(convertedIngredients);
-                            return (
-                              <>
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800">
-                                  {Math.round(nutrition.calories)} cal
-                                </span>
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                  {Math.round(nutrition.protein)}g protein
-                                </span>
-                              </>
-                            );
-                          })()}
+                        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                          <NutritionBadge type="calories" value={Math.round(nutrition.calories)} />
+                          <NutritionBadge type="protein" value={Math.round(nutrition.protein)} />
+                          <NutritionBadge type="fat" value={Math.round(nutrition.totalFat)} />
+                          <NutritionBadge type="carbs" value={Math.round(nutrition.totalCarbohydrates)} />
                         </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center py-8 text-gray-400">
-                  <UtensilsCrossed className="w-8 h-8 mb-2 opacity-50" />
-                  <span>No meals added for this date</span>
-                </div>
-              )}
-            </div>
-
-            <ExercisesCard />
-          </>
-        ) : (
-          <div className="w-full max-w-md bg-white/90 backdrop-blur-sm rounded-xl shadow-lg p-4 mb-4">
-            <div className="flex items-center gap-2 mb-4">
-              <BarChart3 className="w-5 h-5 text-emerald-600" />
-              <h2 className="text-lg font-semibold text-gray-800">Insights</h2>
-            </div>
-            <DailyIntakeProgress />
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center py-8 text-gray-400">
+                <UtensilsCrossed className="w-8 h-8 mb-2 opacity-50" />
+                <span>No meals added for this date</span>
+              </div>
+            )}
           </div>
-        )}
 
-        <WaterTracker selectedDate={selectedDate}></WaterTracker>
+          <ExercisesCard />
+        </>
+      ) : (
+        <div className="w-full max-w-md bg-white/90 backdrop-blur-sm rounded-xl shadow-lg p-4 mb-4">
+          <div className="flex items-center gap-2 mb-4">
+            <BarChart3 className="w-5 h-5 text-emerald-600" />
+            <h2 className="text-lg font-semibold text-gray-800">Insights</h2>
+          </div>
+          <DailyIntakeProgress />
+        </div>
+      )}
 
-        <MealDetailsModal
-          meal={selectedMeal}
-          isOpen={!!selectedMeal}
-          onClose={() => setSelectedMeal(null)}
-        />
-      </div>
-    </Layout>
+      <WaterTracker selectedDate={selectedDate}></WaterTracker>
+
+      <MealDetailsModal
+        meal={selectedMeal}
+        isOpen={!!selectedMeal}
+        onClose={() => setSelectedMeal(null)}
+        onMealDeleted={fetchMeals}
+      />
+    </div>
   );
 };
 

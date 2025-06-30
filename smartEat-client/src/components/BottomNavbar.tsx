@@ -3,8 +3,6 @@ import React from "react";
 import {
   BsArrowUpCircle,
   BsArrowUpCircleFill,
-  BsGear,
-  BsGearFill,
   BsHouse,
   BsHouseFill,
   BsPerson,
@@ -12,17 +10,9 @@ import {
 } from "react-icons/bs";
 import { MdNoFood, MdOutlineNoFood } from "react-icons/md";
 import { Link, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store/appState";
 
 const BottomNavbar: React.FC = () => {
   const { pathname } = useLocation();
-  const { userProfile } = useSelector((state: RootState) => state.user);
-
-  const hideOnRoutes = [ROUTES.SIGNIN, ROUTES.SIGNUP, "/verify-auth", "/"];
-  if (hideOnRoutes.includes(pathname)) return null;
-
-  if (pathname === ROUTES.PREFERENCES && !userProfile?.age) return null;
 
   const navItems = [
     {
@@ -33,7 +23,6 @@ const BottomNavbar: React.FC = () => {
     },
     {
       to: "/fasting",
-      isActive: pathname === "/fasting",
       activeIcon: <MdNoFood size={24} />,
       inactiveIcon: <MdOutlineNoFood size={24} />,
       label: "Fasting",
@@ -57,6 +46,7 @@ const BottomNavbar: React.FC = () => {
       <div className="max-w-lg mx-auto flex justify-around items-center py-1">
         {navItems.map((item) => {
           const isActive = pathname === item.to;
+
           return (
             <Link
               key={item.to}

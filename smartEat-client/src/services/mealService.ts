@@ -1,4 +1,4 @@
-import { Meal } from "@/types/meals/mealTypes";
+import { Meal } from "@/types/meals/meal";
 import api from "./api";
 
 function formatDateLocal(date: Date): string {
