@@ -19,7 +19,7 @@ const IngredientVerificationPage: React.FC = () => {
 
   if (!transferObject) {
     alert("No meal data found. Please try again.");
-    navigate("/");
+    navigate("/home");
     return null;
   }
 

@@ -10,26 +10,32 @@ export default defineConfig({
     react(),
     ...tailwindcss(),
     VitePWA({
-      registerType: "autoUpdate",
+      registerType: "autoUpdate", // handles registration for you
+      includeAssets: ["favicon.svg", "favicon.ico", "robots.txt"],
       manifest: {
-        name: "My PWA App",
-        short_name: "PWA",
-        description: "A simple PWA with camera upload functionality",
-        theme_color: "#ffffff",
+        name: "smartEat",
+        short_name: "smartEat",
+        description: "AI-powered nutrition tracking",
+        start_url: "/",
+        display: "standalone",
+        background_color: "#ffffff",
+        theme_color: "#34d399",
         icons: [
           {
-            src: "icon-192x192.png",
+            src: "/assets/icons/icon-192x192.png",
             sizes: "192x192",
             type: "image/png",
+            purpose: "any maskable",
           },
           {
-            src: "icon-512x512.png",
+            src: "/assets/icons/icon-512x512.png",
             sizes: "512x512",
             type: "image/png",
           },
         ],
       },
     }),
+    ,
   ],
   server: {
     https: {
