@@ -8,21 +8,21 @@ import {
   SaveExerciseRequest,
   SaveExerciseResponse,
 } from '@generated/exercise';
-import { ExcerciseGrpcOptions } from './excercise.config';
+import { ExerciseGrpcOptions } from './exercise.config';
 
 @Injectable()
-export class ExcerciseClient implements OnModuleInit {
-  @Client(ExcerciseGrpcOptions)
+export class ExerciseClient implements OnModuleInit {
+  @Client(ExerciseGrpcOptions)
   private readonly client: ClientGrpc;
 
-  private excerciseService: ExerciseServiceClient;
+  private exerciseService: ExerciseServiceClient;
 
   onModuleInit() {
-    this.excerciseService =
+    this.exerciseService =
       this.client.getService<ExerciseServiceClient>('ExerciseService');
   }
 
-  async saveExcercise(
+  async saveExercise(
     saveExerciseRequest: SaveExerciseRequest,
   ): Promise<SaveExerciseResponse> {
     try {
@@ -31,20 +31,20 @@ export class ExcerciseClient implements OnModuleInit {
       }
 
       return await firstValueFrom(
-        this.excerciseService.saveExercise(saveExerciseRequest),
+        this.exerciseService.saveExercise(saveExerciseRequest),
       );
     } catch (error) {
-      console.error('Error in client saveExcercise:', error);
+      console.error('Error in client saveExercise:', error);
       if (error instanceof BadRequestException) {
         throw error;
       }
       throw new BadRequestException(
-        'Failed to save excercise: ' + error.message,
+        'Failed to save exercise: ' + error.message,
       );
     }
   }
 
-  async getExcercisesByDate(
+  async getExercisesByDate(
     getExercisesByDateRequest: GetExercisesByDateRequest,
   ): Promise<GetExercisesByDateResponse> {
     try {
@@ -56,15 +56,15 @@ export class ExcerciseClient implements OnModuleInit {
       }
 
       return await firstValueFrom(
-        this.excerciseService.getExercisesByDate(getExercisesByDateRequest),
+        this.exerciseService.getExercisesByDate(getExercisesByDateRequest),
       );
     } catch (error) {
-      console.error('Error getting excercises by date:', error);
+      console.error('Error getting exercises by date:', error);
       if (error instanceof BadRequestException) {
         throw error;
       }
       throw new BadRequestException(
-        'Failed to get excercises by date: ' + error.message,
+        'Failed to get exercises by date: ' + error.message,
       );
     }
   }

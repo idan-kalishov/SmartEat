@@ -1,7 +1,7 @@
 import { ClientOptions, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 
-export const ExcerciseGrpcOptions: ClientOptions = {
+export const ExerciseGrpcOptions: ClientOptions = {
   transport: Transport.GRPC,
   options: {
     package: 'exercise',

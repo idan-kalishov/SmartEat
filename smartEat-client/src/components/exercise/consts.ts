@@ -1,6 +1,6 @@
-import { ExcerciseSelect, IntensityType } from "@/types/exercise";
+import { ExerciseSelect, IntensityType } from "@/types/exercise";
 
-export const exerciseTypes: ExcerciseSelect[] = [
+export const exerciseTypes: ExerciseSelect[] = [
   { value: "", label: "Select type", caloriesPerHour: 0 },
   { value: "weight lifting", label: "weight lifting", caloriesPerHour: 400 },
   { value: "basketball", label: "basketball", caloriesPerHour: 600 },

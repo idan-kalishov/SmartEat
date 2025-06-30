@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { X, Clock } from "lucide-react";
 import { Select } from "../ui/select";
 import {
-  ExcerciseSelect,
+  ExerciseSelect,
   ExerciseType,
   IntensityLevel,
   IntensityType,
@@ -13,7 +13,7 @@ interface AddExerciseModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAdd: (
-    exercise: ExcerciseSelect,
+    exercise: ExerciseSelect,
     intensity: IntensityType,
     duration: number
   ) => void;
@@ -32,7 +32,7 @@ const AddExerciseModal: React.FC<AddExerciseModalProps> = ({
     e.preventDefault();
     if (!exerciseType || !intensityLevel || !duration) return;
 
-    const excercise = exerciseTypes.find(
+    const exercise = exerciseTypes.find(
       (exercise) => exercise.value === exerciseType
     );
 
@@ -40,7 +40,7 @@ const AddExerciseModal: React.FC<AddExerciseModalProps> = ({
       (intensityType) => intensityType.value === intensityLevel
     );
 
-    onAdd(excercise, intensity, Number(duration));
+    onAdd(exercise, intensity, Number(duration));
 
     // Reset form
     setExerciseType("");

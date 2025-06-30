@@ -6,7 +6,7 @@ import {
   Request,
   BadRequestException,
 } from '@nestjs/common';
-import { ExcerciseClient } from 'src/grpc/clients/excercise.client';
+import { ExerciseClient } from 'src/grpc/clients/exercise.client';
 import {
   Exercise,
   GetExercisesByDateRequest,
@@ -14,10 +14,10 @@ import {
 } from '@generated/exercise';
 import { AuthGatewayService } from 'src/authGateway/auth.gateway.service';
 
-@Controller('excercise')
-export class ExcerciseController {
+@Controller('exercise')
+export class ExerciseController {
   constructor(
-    private readonly excerciseClient: ExcerciseClient,
+    private readonly exerciseClient: ExerciseClient,
     private readonly authService: AuthGatewayService,
   ) {}
 
@@ -34,13 +34,13 @@ export class ExcerciseController {
       throw new BadRequestException('User missmatch');
     }
 
-    return this.excerciseClient.saveExcercise(saveExerciseRequest);
+    return this.exerciseClient.saveExercise(saveExerciseRequest);
   }
 
   @Get('by-date')
   async getByDate(
     @Body() getExercisesByDateRequest: GetExercisesByDateRequest,
   ) {
-    return this.excerciseClient.getExcercisesByDate(getExercisesByDateRequest);
+    return this.exerciseClient.getExercisesByDate(getExercisesByDateRequest);
   }
 }

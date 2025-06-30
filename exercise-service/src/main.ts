@@ -16,16 +16,16 @@ async function bootstrap() {
 
   dotenv.config();
 
-  const excerciseGrpcOptions: MicroserviceOptions = {
+  const exerciseGrpcOptions: MicroserviceOptions = {
     transport: Transport.GRPC,
     options: {
       package: 'exercise',
       protoPath: join(__dirname, './proto/exercise.proto'),
-      url: `0.0.0.0:${process.env.EXCERCISE_GRPC_PORT || 50055}`,
+      url: `0.0.0.0:${process.env.EXERCISE_GRPC_PORT || 50055}`,
     },
   };
 
-  app.connectMicroservice<MicroserviceOptions>(excerciseGrpcOptions);
+  app.connectMicroservice<MicroserviceOptions>(exerciseGrpcOptions);
 
   await app.startAllMicroservices();
   await app.listen(process.env.PORT ?? 3003, '0.0.0.0');

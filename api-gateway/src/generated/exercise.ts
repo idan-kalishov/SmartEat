@@ -416,7 +416,7 @@ export interface ExerciseServiceClient {
 
   getExercisesByDate(request: GetExercisesByDateRequest): Observable<GetExercisesByDateResponse>;
 
-  deleteExcersise(request: DeleteExerciseRequest): Observable<DeleteExerciseResponse>;
+  deleteExercise(request: DeleteExerciseRequest): Observable<DeleteExerciseResponse>;
 }
 
 export interface ExerciseServiceController {
@@ -428,14 +428,14 @@ export interface ExerciseServiceController {
     request: GetExercisesByDateRequest,
   ): Promise<GetExercisesByDateResponse> | Observable<GetExercisesByDateResponse> | GetExercisesByDateResponse;
 
-  deleteExcersise(
+  deleteExercise(
     request: DeleteExerciseRequest,
   ): Promise<DeleteExerciseResponse> | Observable<DeleteExerciseResponse> | DeleteExerciseResponse;
 }
 
 export function ExerciseServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["saveExercise", "getExercisesByDate", "deleteExcersise"];
+    const grpcMethods: string[] = ["saveExercise", "getExercisesByDate", "deleteExercise"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("ExerciseService", method)(constructor.prototype[method], method, descriptor);
@@ -472,8 +472,8 @@ export const ExerciseServiceService = {
       Buffer.from(GetExercisesByDateResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer) => GetExercisesByDateResponse.decode(value),
   },
-  deleteExcersise: {
-    path: "/exercise.ExerciseService/DeleteExcersise",
+  deleteExercise: {
+    path: "/exercise.ExerciseService/DeleteExercise",
     requestStream: false,
     responseStream: false,
     requestSerialize: (value: DeleteExerciseRequest) => Buffer.from(DeleteExerciseRequest.encode(value).finish()),
@@ -486,7 +486,7 @@ export const ExerciseServiceService = {
 export interface ExerciseServiceServer extends UntypedServiceImplementation {
   saveExercise: handleUnaryCall<SaveExerciseRequest, SaveExerciseResponse>;
   getExercisesByDate: handleUnaryCall<GetExercisesByDateRequest, GetExercisesByDateResponse>;
-  deleteExcersise: handleUnaryCall<DeleteExerciseRequest, DeleteExerciseResponse>;
+  deleteExercise: handleUnaryCall<DeleteExerciseRequest, DeleteExerciseResponse>;
 }
 
 export interface MessageFns<T> {

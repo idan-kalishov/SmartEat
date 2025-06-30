@@ -1,32 +1,32 @@
 import React, { useState } from "react";
 import { Dumbbell, Plus, Flame } from "lucide-react";
-import { ExcerciseSelect, Exercise, IntensityType } from "@/types/exercise";
+import { ExerciseSelect, Exercise, IntensityType } from "@/types/exercise";
 import AddExerciseModal from "./AddExerciseModal";
-import { saveExcercise } from "@/services/excerciseService";
+import { saveExercise } from "@/services/exerciseService";
 
 const ExercisesCard: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [exercises, setExercises] = useState<Exercise[]>([]);
 
   const handleAddExercise = (
-    excerciseData: ExcerciseSelect,
+    exerciseData: ExerciseSelect,
     intensity: IntensityType,
     duration: number
   ) => {
-    if (intensity.value && excerciseData.value) {
+    if (intensity.value && exerciseData.value) {
       const newExercise: Exercise = {
         id: Math.random().toString(),
         calories: (
-          (excerciseData.caloriesPerHour * intensity.multiplier * duration) /
+          (exerciseData.caloriesPerHour * intensity.multiplier * duration) /
           60
         ).toFixed(0),
         createdAt: new Date().toISOString(),
         minutes: duration,
-        name: excerciseData.label,
+        name: exerciseData.label,
         userId: "685fb77dd5caf69158c99981",
       };
 
-      saveExcercise(newExercise);
+      saveExercise(newExercise);
 
       setExercises((prev) => [...prev, newExercise]);
     }

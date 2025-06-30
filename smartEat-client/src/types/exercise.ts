@@ -6,7 +6,7 @@ export type ExerciseType =
   | "cardio";
 export type IntensityLevel = "Low" | "Medium" | "High";
 
-export type ExcerciseSelect = {
+export type ExerciseSelect = {
   value: ExerciseType | "";
   label: ExerciseType | "Select type";
   caloriesPerHour: number;

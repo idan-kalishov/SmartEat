@@ -25,7 +25,7 @@
 
 ## Description
 
-This service provides excersise management capabilities using gRPC.
+This service provides exercise management capabilities using gRPC.
 
 ## Installation
 
