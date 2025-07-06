@@ -35,7 +35,9 @@ const ProfilePage: React.FC = () => {
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState(false);
     const [activeSection, setActiveSection] = useState<string | null>(null);
-    const {userProfile} = useSelector((state: RootState) => state.user);
+    const appState = useSelector((state: RootState) => state.appState);
+    const userProfile = appState.userProfile;
+    const user = appState.user;
 
     const sections: ProfileSection[] = [
         {
@@ -43,11 +45,11 @@ const ProfilePage: React.FC = () => {
             label: "Personal Information",
             icon: <User className="w-5 h-5"/>,
             fields: [
-                {id: "name", label: "Full Name", value: "Idan Janach", type: "text"},
+                {id: "name", label: "Full Name", value: user.userName, type: "text"},
                 {
                     id: "email",
                     label: "Email",
-                    value: "idanjanach4455@gmail.com",
+                    value: user.email,
                     type: "text",
                 },
                 {
@@ -212,10 +214,10 @@ const ProfilePage: React.FC = () => {
                         </div>
 
                         <h1 className="text-xl font-semibold text-gray-800">
-                            Idan Janach
+                            {user?.userName}
                         </h1>
                         <p className="text-gray-500 text-sm mt-1">
-                            idanjanach4455@gmail.com
+                            {user?.email}
                         </p>
                     </div>
                 </div>
