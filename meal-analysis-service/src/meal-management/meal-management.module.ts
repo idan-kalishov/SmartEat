@@ -15,4 +15,4 @@ import { Meal, MealSchema } from './schemas/meal.schema';
   providers: [MealManagementService, ImageUploadService],
   exports: [MealManagementService],
 })
-export class MealManagementModule {} 
+export class MealManagementModule {}

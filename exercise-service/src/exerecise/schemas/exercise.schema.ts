@@ -19,4 +19,4 @@ export class Exercise extends Document {
   createdAt: Date;
 }
 
-export const MealSchema = SchemaFactory.createForClass(Exercise);
+export const ExerciseSchema = SchemaFactory.createForClass(Exercise);

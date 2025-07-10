@@ -5,7 +5,7 @@ package exercise;
 service ExerciseService {
   rpc SaveExercise(SaveExerciseRequest) returns (SaveExerciseResponse);
   rpc GetExercisesByDate(GetExercisesByDateRequest) returns (GetExercisesByDateResponse);
-  rpc DeleteMeal(DeleteExerciseRequest) returns (DeleteExerciseResponse);
+  rpc DeleteExercise(DeleteExerciseRequest) returns (DeleteExerciseResponse);
 }
 
 message SaveExerciseRequest {

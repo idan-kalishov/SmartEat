@@ -1,32 +1,42 @@
 import React, { useState } from "react";
 import { Dumbbell, Plus, Flame } from "lucide-react";
-import { Exercise } from "@/types/exercise";
+import { ExerciseSelect, Exercise, IntensityType } from "@/types/exercise";
 import AddExerciseModal from "./AddExerciseModal";
+import { saveExercise } from "@/services/exerciseService";
 
 const ExercisesCard: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [exercises, setExercises] = useState<Exercise[]>([]);
 
-  const handleAddExercise = (exerciseData: Omit<Exercise, 'id' | 'caloriesBurned' | 'createdAt'>) => {
-    // Calculate calories based on exercise type, intensity and duration
-    const caloriesPerMinute = {
-      low: { cardio: 5, strength: 6 },
-      medium: { cardio: 7, strength: 8 },
-      high: { cardio: 10, strength: 11 }
-    };
+  const handleAddExercise = (
+    exerciseData: ExerciseSelect,
+    intensity: IntensityType,
+    duration: number
+  ) => {
+    if (intensity.value && exerciseData.value) {
+      const newExercise: Exercise = {
+        id: Math.random().toString(),
+        calories: (
+          (exerciseData.caloriesPerHour * intensity.multiplier * duration) /
+          60
+        ).toFixed(0),
+        createdAt: new Date().toISOString(),
+        minutes: duration,
+        name: exerciseData.label,
+        userId: "685fb77dd5caf69158c99981",
+      };
 
-    const newExercise: Exercise = {
-      id: Math.random().toString(),
-      ...exerciseData,
-      caloriesBurned: caloriesPerMinute[exerciseData.intensity][exerciseData.type] * exerciseData.duration,
-      createdAt: new Date().toISOString()
-    };
+      saveExercise(newExercise);
 
-    setExercises(prev => [...prev, newExercise]);
+      setExercises((prev) => [...prev, newExercise]);
+    }
   };
 
   const getTotalCalories = () => {
-    return exercises.reduce((total, exercise) => total + exercise.caloriesBurned, 0);
+    return exercises.reduce(
+      (total, exercise) => total + Number(exercise.calories),
+      0
+    );
   };
 
   return (
@@ -34,9 +44,11 @@ const ExercisesCard: React.FC = () => {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Dumbbell className="w-5 h-5 text-emerald-600" />
-          <h2 className="text-lg font-semibold text-gray-800">Today's Exercises</h2>
+          <h2 className="text-lg font-semibold text-gray-800">
+            Today's Exercises
+          </h2>
         </div>
-        <button 
+        <button
           onClick={() => setIsModalOpen(true)}
           className="flex items-center gap-1 px-2.5 py-1 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-all text-sm font-medium"
           title="Add Exercise"
@@ -50,7 +62,9 @@ const ExercisesCard: React.FC = () => {
         <div className="space-y-3">
           {/* Total calories summary */}
           <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg">
-            <span className="text-sm font-medium text-gray-700">Total Calories Burned</span>
+            <span className="text-sm font-medium text-gray-700">
+              Total Calories Burned
+            </span>
             <div className="flex items-center gap-1.5 text-emerald-600 font-semibold">
               <Flame className="w-4 h-4" />
               {getTotalCalories()} cal
@@ -60,16 +74,16 @@ const ExercisesCard: React.FC = () => {
           {/* Exercise list */}
           <div className="space-y-2">
             {exercises.map((exercise) => (
-              <div 
+              <div
                 key={exercise.id}
                 className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100"
               >
                 <span className="font-medium text-gray-800 capitalize">
-                  {exercise.type}
+                  {exercise.name}
                 </span>
                 <div className="flex items-center gap-1.5 text-emerald-600">
                   <Flame className="w-4 h-4" />
-                  <span className="font-medium">{exercise.caloriesBurned}</span>
+                  <span className="font-medium">{exercise.calories}</span>
                   <span className="text-sm text-gray-500">cal</span>
                 </div>
               </div>
@@ -92,4 +106,4 @@ const ExercisesCard: React.FC = () => {
   );
 };
 
-export default ExercisesCard; 
+export default ExercisesCard;

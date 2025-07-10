@@ -1,46 +1,51 @@
 import React, { useState } from "react";
 import { X, Clock } from "lucide-react";
 import { Select } from "../ui/select";
-import { Exercise, ExerciseType, IntensityLevel } from "@/types/exercise";
+import {
+  ExerciseSelect,
+  ExerciseType,
+  IntensityLevel,
+  IntensityType,
+} from "@/types/exercise";
+import { exerciseTypes, intensityTypes } from "./consts";
 
 interface AddExerciseModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (exercise: Omit<Exercise, 'id' | 'caloriesBurned' | 'createdAt'>) => void;
+  onAdd: (
+    exercise: ExerciseSelect,
+    intensity: IntensityType,
+    duration: number
+  ) => void;
 }
 
-const AddExerciseModal: React.FC<AddExerciseModalProps> = ({ isOpen, onClose, onAdd }) => {
-  const [exerciseType, setExerciseType] = useState<ExerciseType | ''>('');
-  const [intensityLevel, setIntensityLevel] = useState<IntensityLevel | ''>('');
-  const [duration, setDuration] = useState('');
-
-  const exerciseTypes = [
-    { value: "", label: "Select type" },
-    { value: "cardio", label: "Cardio" },
-    { value: "strength", label: "Strength" }
-  ];
-
-  const intensityLevels = [
-    { value: "", label: "Select intensity" },
-    { value: "low", label: "Low" },
-    { value: "medium", label: "Medium" },
-    { value: "high", label: "High" }
-  ];
+const AddExerciseModal: React.FC<AddExerciseModalProps> = ({
+  isOpen,
+  onClose,
+  onAdd,
+}) => {
+  const [exerciseType, setExerciseType] = useState<ExerciseType | "">("");
+  const [intensityLevel, setIntensityLevel] = useState<IntensityLevel | "">("");
+  const [duration, setDuration] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!exerciseType || !intensityLevel || !duration) return;
 
-    onAdd({
-      type: exerciseType as ExerciseType,
-      intensity: intensityLevel as IntensityLevel,
-      duration: Number(duration),
-    });
+    const exercise = exerciseTypes.find(
+      (exercise) => exercise.value === exerciseType
+    );
+
+    const intensity = intensityTypes.find(
+      (intensityType) => intensityType.value === intensityLevel
+    );
+
+    onAdd(exercise, intensity, Number(duration));
 
     // Reset form
-    setExerciseType('');
-    setIntensityLevel('');
-    setDuration('');
+    setExerciseType("");
+    setIntensityLevel("");
+    setDuration("");
     onClose();
   };
 
@@ -49,7 +54,10 @@ const AddExerciseModal: React.FC<AddExerciseModalProps> = ({ isOpen, onClose, on
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-black/20 backdrop-blur-[2px]" onClick={onClose} />
+      <div
+        className="fixed inset-0 bg-black/20 backdrop-blur-[2px]"
+        onClick={onClose}
+      />
 
       {/* Modal */}
       <div className="relative z-50 w-full max-w-md bg-white/95 backdrop-blur-xl rounded-xl shadow-xl p-6 m-4">
@@ -73,9 +81,11 @@ const AddExerciseModal: React.FC<AddExerciseModalProps> = ({ isOpen, onClose, on
 
           <Select
             label="Intensity Level"
-            options={intensityLevels}
+            options={intensityTypes}
             value={intensityLevel}
-            onChange={(e) => setIntensityLevel(e.target.value as IntensityLevel)}
+            onChange={(e) =>
+              setIntensityLevel(e.target.value as IntensityLevel)
+            }
           />
 
           <div className="space-y-1.5">
@@ -87,7 +97,10 @@ const AddExerciseModal: React.FC<AddExerciseModalProps> = ({ isOpen, onClose, on
                 type="number"
                 value={duration}
                 onChange={(e) => {
-                  const value = Math.max(0, Math.min(1440, Number(e.target.value)));
+                  const value = Math.max(
+                    0,
+                    Math.min(1440, Number(e.target.value))
+                  );
                   setDuration(value.toString());
                 }}
                 min="0"
@@ -96,7 +109,9 @@ const AddExerciseModal: React.FC<AddExerciseModalProps> = ({ isOpen, onClose, on
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
               />
               <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">min</span>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">
+                min
+              </span>
             </div>
           </div>
 
@@ -113,4 +128,4 @@ const AddExerciseModal: React.FC<AddExerciseModalProps> = ({ isOpen, onClose, on
   );
 };
 
-export default AddExerciseModal; 
+export default AddExerciseModal;

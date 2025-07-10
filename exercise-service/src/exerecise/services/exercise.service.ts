@@ -32,13 +32,13 @@ export class ExerciseService {
       .exec();
   }
 
-  async saveExercise(mealData: GrpcExercise): Promise<string> {
+  async saveExercise(exerciseData: GrpcExercise): Promise<string> {
     const meal = new this.exerciseModel({
-      userId: mealData.userId,
-      name: mealData.name,
-      calories: mealData.calories,
-      minutes: mealData.minutes,
-      createdAt: new Date(mealData.createdAt),
+      userId: exerciseData.userId,
+      name: exerciseData.name,
+      calories: exerciseData.calories,
+      minutes: exerciseData.minutes,
+      createdAt: new Date(exerciseData.createdAt),
     });
     const savedMeal = await meal.save();
     return savedMeal.id;

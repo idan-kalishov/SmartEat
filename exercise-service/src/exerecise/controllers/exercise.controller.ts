@@ -9,10 +9,6 @@ import {
   SaveExerciseRequest,
   SaveExerciseResponse,
 } from 'src/generated/exercise';
-import {
-  DeleteMealRequest,
-  DeleteMealResponse,
-} from 'src/generated/meal-management';
 
 @Controller()
 export class ExerciseController {
@@ -38,10 +34,6 @@ export class ExerciseController {
 
       if (!data.userId) {
         throw new BadRequestException('User ID is required');
-      }
-
-      if (data.userId !== data.exercise.userId) {
-        throw new BadRequestException('User ID mismatch');
       }
 
       const exerciseId = await this.exerciseService.saveExercise(data.exercise);
@@ -77,17 +69,17 @@ export class ExerciseController {
     }
   }
 
-  @GrpcMethod('ExerciseService', 'DeleteExercise')
-  async deleteMeal(data: DeleteMealRequest): Promise<DeleteMealResponse> {
-    try {
-      const success = await this.exerciseService.deleteExercise(
-        data.userId,
-        data.mealId,
-      );
-      return { success };
-    } catch (error) {
-      console.error('Error deleting meal:', error);
-      throw error;
-    }
-  }
+  // @GrpcMethod('ExerciseService', 'DeleteExercise')
+  // async deleteMeal(data: DeleteMealRequest): Promise<DeleteMealResponse> {
+  //   try {
+  //     const success = await this.exerciseService.deleteExercise(
+  //       data.userId,
+  //       data.mealId,
+  //     );
+  //     return { success };
+  //   } catch (error) {
+  //     console.error('Error deleting meal:', error);
+  //     throw error;
+  //   }
+  // }
 }
