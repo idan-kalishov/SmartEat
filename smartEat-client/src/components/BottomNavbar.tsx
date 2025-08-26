@@ -1,5 +1,5 @@
 import { ROUTES } from "@/Routing/routes";
-import React from "react";
+import React, { useState } from "react";
 import {
   BsArrowUpCircle,
   BsArrowUpCircleFill,
@@ -10,9 +10,11 @@ import {
 } from "react-icons/bs";
 import { MdNoFood, MdOutlineNoFood } from "react-icons/md";
 import { Link, useLocation } from "react-router-dom";
+import AddMealModal from "./add-meal/AddMealModal";
 
 const BottomNavbar: React.FC = () => {
   const { pathname } = useLocation();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const navItems = [
     {
@@ -20,52 +22,82 @@ const BottomNavbar: React.FC = () => {
       activeIcon: <BsHouseFill size={24} />,
       inactiveIcon: <BsHouse size={24} />,
       label: "Home",
+      type: "link",
     },
     {
-      to: "/fasting",
+      to: ROUTES.FASTING,
       activeIcon: <MdNoFood size={24} />,
       inactiveIcon: <MdOutlineNoFood size={24} />,
       label: "Fasting",
+      type: "link",
     },
     {
       to: ROUTES.UPLOAD,
       activeIcon: <BsArrowUpCircleFill size={24} />,
       inactiveIcon: <BsArrowUpCircle size={24} />,
       label: "Add",
+      type: "add", // special
     },
     {
       to: ROUTES.PROFILE,
       activeIcon: <BsPersonFill size={24} />,
       inactiveIcon: <BsPerson size={24} />,
       label: "Profile",
+      type: "link",
     },
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm border-t border-gray-200 shadow-lg">
-      <div className="max-w-lg mx-auto flex justify-around items-center py-1">
-        {navItems.map((item) => {
-          const isActive = pathname === item.to;
+    <>
+      <nav className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm border-t border-gray-200 shadow-lg">
+        <div className="max-w-lg mx-auto flex justify-around items-center py-1">
+          {navItems.map((item) => {
+            const isActive = pathname === item.to;
 
-          return (
-            <Link
-              key={item.to}
-              to={item.to}
-              className={`flex flex-col items-center py-1.5 px-2 rounded-lg transition-all ${
-                isActive
-                  ? "text-green-600"
-                  : "text-gray-500 hover:text-gray-800"
-              }`}
-            >
-              {isActive ? item.activeIcon : item.inactiveIcon}
-              <span className="text-[10px] mt-0.5 font-medium">
-                {item.label}
-              </span>
-            </Link>
-          );
-        })}
-      </div>
-    </nav>
+            if (item.type === "add") {
+              return (
+                <button
+                  key={item.to}
+                  onClick={() => setIsModalOpen(true)}
+                  className={`flex flex-col items-center py-1.5 px-2 rounded-lg transition-all ${
+                    isActive
+                      ? "text-green-600"
+                      : "text-gray-500 hover:text-gray-800"
+                  }`}
+                >
+                  {isActive ? item.activeIcon : item.inactiveIcon}
+                  <span className="text-[10px] mt-0.5 font-medium">
+                    {item.label}
+                  </span>
+                </button>
+              );
+            }
+
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={`flex flex-col items-center py-1.5 px-2 rounded-lg transition-all ${
+                  isActive
+                    ? "text-green-600"
+                    : "text-gray-500 hover:text-gray-800"
+                }`}
+              >
+                {isActive ? item.activeIcon : item.inactiveIcon}
+                <span className="text-[10px] mt-0.5 font-medium">
+                  {item.label}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+
+      <AddMealModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
+    </>
   );
 };
 
