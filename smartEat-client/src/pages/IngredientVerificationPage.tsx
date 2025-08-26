@@ -15,7 +15,9 @@ const IngredientVerificationPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const transferObject: FoodVerifyTransferObject = location.state;
+  const transferObject = location.state as FoodVerifyTransferObject & {
+    isManual?: boolean;
+  };
 
   if (!transferObject) {
     alert("No meal data found. Please try again.");
@@ -23,19 +25,30 @@ const IngredientVerificationPage: React.FC = () => {
     return null;
   }
 
-  // State management
+  // Manual mode → start empty
+  const isManual = transferObject.isManual;
+
+  // Add state for the meal image
+  const [mealImage, setMealImage] = useState(
+    isManual ? null : transferObject.image ?? null
+  );
+
   const [mealName, setMealName] = useState(
-    transferObject.foodRecognitionResponse[0]?.foodName || "Unknown Meal"
+    isManual
+      ? ""
+      : transferObject.foodRecognitionResponse?.[0]?.foodName || "Unknown Meal"
   );
   const [ingredients, setIngredients] = useState(
-    transferObject.foodRecognitionResponse.map((item) => ({
-      name: item.foodName,
-      weight: item.weight,
-      isNew: false,
-      nutrition: {
-        per100g: item.nutrition.per100g,
-      },
-    }))
+    isManual
+      ? []
+      : transferObject.foodRecognitionResponse.map((item) => ({
+          name: item.foodName,
+          weight: item.weight,
+          isNew: false,
+          nutrition: {
+            per100g: item.nutrition.per100g,
+          },
+        }))
   );
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("Saving...");
@@ -57,7 +70,7 @@ const IngredientVerificationPage: React.FC = () => {
       navigate("/results", {
         state: {
           name: mealName,
-          image: transferObject.image,
+          image: mealImage, // Use the state variable here
           ingredients: result.transformedIngredients,
           analysis: {
             grade: analysisResult.rating.letter_grade,
@@ -84,8 +97,10 @@ const IngredientVerificationPage: React.FC = () => {
         <IngredientVerificationHeader />
 
         <MealImageDisplay
-          mealImage={transferObject.image}
+          mealImage={mealImage} // Pass the state variable
           mealName={mealName}
+          isManual={isManual}
+          onImageChange={setMealImage} // Pass the setter function
         />
 
         <MealNameInput mealName={mealName} setMealName={setMealName} />
