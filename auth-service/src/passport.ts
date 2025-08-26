@@ -10,7 +10,7 @@ const initializePassport = () => {
         clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
         callbackURL: process.env.REDIRECT_URI_LOCAL!,
       },
-      async (accessToken, refreshToken, profile, done) => {
+      async (accessToken, refreshToken, profile, done) => {                    
         try {
           let user = await userModel.findOne({ googleId: profile.id });
           if (!user) {
