@@ -40,8 +40,6 @@ export class WaterTrackingController {
         throw new BadRequestException('Invalid water amount');
       }
 
-      console.log('Received:', amountLiters, date);
-
       return await this.waterClient.saveWaterIntake(
         userId,
         amountLiters,

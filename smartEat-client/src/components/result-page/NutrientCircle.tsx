@@ -16,7 +16,6 @@ export const NutrientCircle = ({
   color: string;
   totalWeight: number;
 }) => {
-  console.log(totalWeight);
   const percentage =
     value && totalWeight ? Math.min((value / totalWeight) * 100, 100) : 0;
 
