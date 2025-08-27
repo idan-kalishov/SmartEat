@@ -116,7 +116,7 @@ export class GeminiRecommendService {
       }
 
       MEAL DETAILS:
-      - Ingredients: ${ingredients.join(', ') || 'None listed'}
+      - Ingredients: ${ingredients?.join(', ') || 'None listed'}
       ${
         nutrition
           ? `
