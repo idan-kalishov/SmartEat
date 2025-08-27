@@ -15,7 +15,7 @@ async function bootstrap() {
     options: {
       package: 'nutrition',
       protoPath: join(__dirname, 'proto/nutrition.proto'),
-      url: '0.0.0.0:50051',
+      url: `0.0.0.0:${process.env.RECOMMENDATIONS_GRPC_PORT || 50051}`,
       credentials: ServerCredentials.createInsecure(),
     },
   });
