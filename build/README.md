@@ -21,13 +21,19 @@ This directory contains all the files needed to deploy SmartEat on your Linux VM
 **Option A: VM Shell Profile (Recommended)**
 Add these to your VM's `~/.bashrc` or `~/.zshrc`:
 ```bash
+# API Keys
 export GEMINI_API_KEY="your_actual_key_here"
 export USDA_API_KEY="your_actual_key_here"
 export GROQ_API_KEY="your_actual_key_here"
+
+# Auth Service
 export TOKEN_SECRET="your_secret_here"
 export GOOGLE_CLIENT_ID="your_client_id"
 export GOOGLE_CLIENT_SECRET="your_client_secret"
 export HOSTNAME="your.domain.com"
+
+# MongoDB Connection (centralized)
+export MONGO_URI="mongodb://username:password@host.docker.internal:27017/smarteat"
 
 # Reload shell
 source ~/.bashrc
