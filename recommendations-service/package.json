@@ -18,7 +18,7 @@
     "protoc": "protoc --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=.\\src\\generated --ts_proto_opt=nestJs=true --proto_path=.\\src\\proto .\\src\\proto\\nutrition.proto",
     "generate:proto": "protoc --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=src/generated --ts_proto_opt=nestJs=true,outputServices=grpc-js,returnObservable=false --proto_path=src/proto src/proto/nutrition.proto",
     "generate:proto:linux": "mkdir -p src/generated && protoc --plugin=protoc-gen-ts_proto=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=src/generated --ts_proto_opt=nestJs=true,outputServices=grpc-js,returnObservable=false --proto_path=src/proto src/proto/nutrition.proto",
-    "build:linux": "npm run generate:proto:linux && nest build && copyfiles -u 1 src/proto/**/*.proto dist/",
+    "build:linux": "npm run generate:proto:linux && npx nest build && copyfiles -u 1 src/proto/**/*.proto dist/",
     "prebuild": "npm run generate:proto",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
