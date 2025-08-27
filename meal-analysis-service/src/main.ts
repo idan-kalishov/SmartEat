@@ -3,15 +3,10 @@ import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import * as dotenv from 'dotenv';
-import * as fs from 'fs';
 
 async function bootstrap() {
   // HTTP Server
-  const httpsOptions = {
-    key: fs.readFileSync('key.pem'),
-    cert: fs.readFileSync('cert.pem'),
-  };
-  const app = await NestFactory.create(AppModule, { httpsOptions });
+  const app = await NestFactory.create(AppModule);
   app.enableCors();
 
   dotenv.config();
@@ -41,7 +36,7 @@ async function bootstrap() {
     options: {
       package: 'watertmgmt',
       protoPath: join(__dirname, '../src/proto/water-tracking.proto'),
-      url: `0.0.0.0:${process.env.MEAL_MANAGEMENT_GRPC_PORT || 50054}`,
+      url: `0.0.0.0:${process.env.WATER_TRACKING_GRPC_PORT || 50054}`,
     },
   };
 
