@@ -1,6 +1,9 @@
 FROM node:20-alpine AS base
 WORKDIR /app
 
+# Install protoc and other build dependencies
+RUN apk add --no-cache protobuf
+
 COPY package*.json ./
 RUN npm ci
 
