@@ -11,9 +11,7 @@ services:
       - "3002:3002"
     environment:
       - PORT=3002
-    depends_on:
-      - meal-analysis-service
-      - exercise-service
+    restart: unless-stopped
 
   auth-service:
     build:
@@ -32,6 +30,7 @@ services:
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - REDIRECT_URI_LOCAL=${REDIRECT_URI_LOCAL}
+    restart: unless-stopped
     # MongoDB connection will be to host machine
 
   exercise-service:
@@ -46,6 +45,7 @@ services:
     environment:
       - PORT=3003
       - MONGO_URI=${MONGO_URI}
+    restart: unless-stopped
     # MongoDB connection will be to host machine
 
   meal-analysis-service:
@@ -64,6 +64,7 @@ services:
       - MONGO_URI=${MONGO_URI}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - USDA_API_KEY=${USDA_API_KEY}
+    restart: unless-stopped
     # MongoDB connection will be to host machine
 
   recommendations-service:
@@ -79,6 +80,7 @@ services:
       - PORT=3001
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - GROQ_API_KEY=${GROQ_API_KEY}
+    restart: unless-stopped
     # MongoDB connection will be to host machine
 
   client:
@@ -91,6 +93,7 @@ services:
     container_name: smart-eat-client
     ports:
       - "8080:80"
+    restart: unless-stopped
 
 # MongoDB is already installed on the VM, so we don't need a container
 
