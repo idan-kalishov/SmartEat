@@ -90,7 +90,7 @@ services:
     image: smart-eat-client
     container_name: smart-eat-client
     ports:
-      - "3000:80"
+      - "8080:80"
 
 # MongoDB is already installed on the VM, so we don't need a container
 
