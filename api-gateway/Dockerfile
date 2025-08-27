@@ -9,7 +9,7 @@ RUN npm ci
 COPY . .
 
 # Build (generate protos then compile)
-RUN npm run build
+RUN npm run build:linux
 
 # Production image
 FROM node:20-alpine AS prod

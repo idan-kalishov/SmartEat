@@ -6,7 +6,7 @@ RUN npm ci
 
 COPY . .
 
-RUN npm run build
+RUN npm run build:linux
 
 FROM node:20-alpine AS prod
 ENV NODE_ENV=production
