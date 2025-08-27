@@ -134,7 +134,6 @@ export class MealAnalysisService {
   }
 
   private async fetchNutritionData(foodName: string): Promise<any> {
-
     // 1. Clean and prepare the search term
     const cleanedName = foodName
       .replace(/[^a-zA-Z0-9 ]/g, '')
@@ -212,7 +211,10 @@ export class MealAnalysisService {
         actualUnit = 'kcal';
       }
 
-      result[key] = { value, unit: actualUnit };
+      value = typeof value === 'number' ? value : 0;
+      value = value < 0 ? 0 : value;
+
+      result[key] = { value: +value.toFixed(3), unit: actualUnit };
     });
 
     return result;
