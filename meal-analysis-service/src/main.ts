@@ -16,7 +16,7 @@ async function bootstrap() {
     transport: Transport.GRPC,
     options: {
       package: 'foodrecognition',
-      protoPath: join(__dirname, '../src/proto/food-recognition.proto'),
+      protoPath: join(__dirname, './proto/food-recognition.proto'),
       url: `0.0.0.0:${process.env.FOOD_RECOGNITION_GRPC_PORT || 50052}`,
     },
   };
@@ -26,7 +26,7 @@ async function bootstrap() {
     transport: Transport.GRPC,
     options: {
       package: 'mealmgmt',
-      protoPath: join(__dirname, '../src/proto/meal-management.proto'),
+      protoPath: join(__dirname, './proto/meal-management.proto'),
       url: `0.0.0.0:${process.env.MEAL_MANAGEMENT_GRPC_PORT || 50053}`,
     },
   };
@@ -35,7 +35,7 @@ async function bootstrap() {
     transport: Transport.GRPC,
     options: {
       package: 'watertmgmt',
-      protoPath: join(__dirname, '../src/proto/water-tracking.proto'),
+      protoPath: join(__dirname, './proto/water-tracking.proto'),
       url: `0.0.0.0:${process.env.WATER_TRACKING_GRPC_PORT || 50054}`,
     },
   };
