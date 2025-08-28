@@ -36,7 +36,7 @@ const register = async (req: Request, res: Response): Promise<void> => {
 
     const user = await userModel.create({
       email,
-      name,
+      userName: name,
       password: hashedPassword,
     });
 
@@ -69,7 +69,7 @@ export const generateToken = (userId: string): tTokens | null => {
   }
 
   const random = Math.random().toString();
-  // @ts-ignore
+  // @ts-ignore - process.env.TOKEN_SECRET is validated above
   const accessToken = jwt.sign(
     {
       _id: userId,
@@ -79,7 +79,7 @@ export const generateToken = (userId: string): tTokens | null => {
     { expiresIn: process.env.TOKEN_EXPIRES }
   );
 
-  // @ts-ignore
+  // @ts-ignore - process.env.TOKEN_SECRET is validated above
   const refreshToken = jwt.sign(
     {
       _id: userId,
@@ -128,8 +128,16 @@ const login = async (req: Request, res: Response) => {
 
     user.refreshToken.push(tokens.refreshToken);
     await user.save();
-    res.cookie("accessToken", tokens.accessToken, { httpOnly: true });
-    res.cookie("refreshToken", tokens.refreshToken, { httpOnly: true });
+    res.cookie("accessToken", tokens.accessToken, { 
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax'
+    });
+    res.cookie("refreshToken", tokens.refreshToken, { 
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax'
+    });
     res.status(200).json({
       user: {
         _id: user._id,
@@ -177,8 +185,14 @@ const verifyRefreshToken = async (refreshToken: string): Promise<tIUser> => {
 
 const logout = async (req: Request, res: Response) => {
   try {
-    res.clearCookie("accessToken", { httpOnly: true, secure: true });
-    res.clearCookie("refreshToken", { httpOnly: true, secure: true });
+    res.clearCookie("accessToken", { 
+      httpOnly: true, 
+      secure: process.env.NODE_ENV === 'production' 
+    });
+    res.clearCookie("refreshToken", { 
+      httpOnly: true, 
+      secure: process.env.NODE_ENV === 'production' 
+    });
     res.status(200).json({ message: "Logged out successfully." });
   } catch (error) {
     console.error("Error logging out:", error);
@@ -223,8 +237,16 @@ const refresh = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    res.cookie("accessToken", tokens.accessToken, { httpOnly: true });
-    res.cookie("refreshToken", tokens.refreshToken, { httpOnly: true });
+    res.cookie("accessToken", tokens.accessToken, { 
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax'
+    });
+    res.cookie("refreshToken", tokens.refreshToken, { 
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax'
+    });
     res.status(200).send("Tokens refreshed successfully");
   } catch (err) {
     console.error("Error refreshing token:", err);
@@ -234,7 +256,7 @@ const refresh = async (req: Request, res: Response): Promise<void> => {
 
 const userDetails = async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = (req.user as IUser)._id;
+    const userId = (req as any).user._id;
 
     if (!userId) {
       res.status(401).json({ message: "User not authenticated" });
@@ -245,7 +267,7 @@ const userDetails = async (req: Request, res: Response): Promise<void> => {
       email: 1,
       userName: 1,
       profilePicture: 1,
-      userProfile: 1, // 👈 Include userProfile
+      userProfile: 1,
     });
 
     if (!user) {
@@ -259,7 +281,7 @@ const userDetails = async (req: Request, res: Response): Promise<void> => {
         email: user.email,
         userName: user.userName,
         profilePicture: user.profilePicture ?? null,
-        userProfile: user.userProfile ?? null, // 👈 Send it in response
+        userProfile: user.userProfile ?? null,
       },
     });
   } catch (error) {
@@ -270,7 +292,7 @@ const userDetails = async (req: Request, res: Response): Promise<void> => {
 
 const updateUser = async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = (req.user as IUser)._id;
+    const userId = (req as any).user._id;
 
     if (!userId) {
       res.status(401).json({ message: "User not authenticated" });
@@ -307,7 +329,7 @@ const updateUserProfile = async (
   res: Response
 ): Promise<void> => {
   try {
-    const userId = (req.user as IUser)._id;
+    const userId = (req as any).user._id;
 
     if (!userId) {
       res.status(401).json({ message: "User not authenticated" });

@@ -34,8 +34,6 @@ services:
       - TOKEN_EXPIRES=${TOKEN_EXPIRES:-15m}
       - REFRESH_TOKEN_EXPIRES=${REFRESH_TOKEN_EXPIRES:-7d}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - REDIRECT_URI_LOCAL=${REDIRECT_URI_LOCAL}
     restart: unless-stopped
     # MongoDB connection will be to host machine
 
@@ -98,6 +96,7 @@ services:
       dockerfile: Dockerfile
       args:
         - VITE_API_GW_URL=https://${HOSTNAME}/api
+        - VITE_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
     image: smart-eat-client
     container_name: smart-eat-client
     ports:

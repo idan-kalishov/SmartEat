@@ -9,18 +9,15 @@ import {
   Put,
 } from '@nestjs/common';
 import { AuthGatewayService } from './auth.gateway.service';
-import { Response as ExpressResponse } from 'express';
+import { Request, Response as ExpressResponse } from 'express';
 
 @Controller('auth')
 export class AuthGatewayController {
-  private authServiceBaseUrl = 'http://localhost:3000/auth';
-
   constructor(private readonly authGatewayService: AuthGatewayService) {}
 
   @Post('login')
   async login(
     @Body() body: any,
-    @Req() req: Request,
     @Res() res: ExpressResponse,
   ) {
     try {
@@ -60,8 +57,6 @@ export class AuthGatewayController {
 
   @Post('logout')
   async logout(
-    @Body() body: any,
-    @Req() req: Request,
     @Res() res: ExpressResponse,
   ) {
     try {
@@ -74,11 +69,10 @@ export class AuthGatewayController {
     }
   }
 
-  @Get('google')
-  async google(@Res() res: ExpressResponse) {
+  @Post('google')
+  async google(@Body() body: any, @Res() res: ExpressResponse) {
     try {
-      const target = `${this.authServiceBaseUrl}/google`;
-      return res.redirect(target);
+      return await this.authGatewayService.forwardGoogleAuth(body, res);
     } catch (err) {
       throw new HttpException(
         err.response?.data || 'Google auth error',
