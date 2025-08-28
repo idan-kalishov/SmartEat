@@ -100,8 +100,7 @@ const CameraWithFrameAndLoading = () => {
         <div
           style={{
             position: "relative",
-            width: "100vw",
-            height: "100vh",
+            height: "94vh",
             overflow: "hidden",
             display: "flex",
             justifyContent: "center",
@@ -114,7 +113,7 @@ const CameraWithFrameAndLoading = () => {
           <button
             onClick={() => navigate(-1)}
             className="absolute top-4 right-4 z-50 p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
-            style={{ backdropFilter: 'blur(4px)' }}
+            style={{ backdropFilter: "blur(4px)" }}
           >
             <X className="w-6 h-6 text-white" />
           </button>

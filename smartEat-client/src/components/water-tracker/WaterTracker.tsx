@@ -1,6 +1,7 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState,} from "react";
 import api from "@/services/api";
 import {DropletIcon} from "lucide-react";
+import LoadingSpinner from "@/components/common/LoadingSpinner.tsx";
 
 interface WaterTrackerProps {
     selectedDate: Date;
@@ -126,7 +127,7 @@ const WaterTracker: React.FC<WaterTrackerProps> = ({selectedDate}) => {
     }, [rows, filledCups]);
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return <LoadingSpinner />;
     }
 
     return (

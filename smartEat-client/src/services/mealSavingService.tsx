@@ -62,7 +62,8 @@ export const logMealToBackend = async (
     headers: {
       'Content-Type': 'multipart/form-data', // Let browser set the boundary
     },
-  }).then(response => response.data);
+  }).then(response => response.data)
+      .catch(error => console.error(error));
 
   CustomToastPromise(
     apiPromise,

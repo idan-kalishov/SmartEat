@@ -99,7 +99,7 @@ const login = async (req: Request, res: Response) => {
   try {
     const user = await userModel.findOne({ email: req.body.email });
     if (!user || !user.password) {
-      res.status(400).send("wrong username or password");
+      res.status(400).send("wrong email or password");
       return;
     }
 
@@ -109,7 +109,7 @@ const login = async (req: Request, res: Response) => {
     );
 
     if (!validPassword) {
-      res.status(400).send("wrong username or password");
+      res.status(400).send("wrong email or password");
       return;
     }
     if (!process.env.TOKEN_SECRET) {
