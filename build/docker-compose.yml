@@ -20,7 +20,7 @@ services:
     image: auth-service
     container_name: auth-service
     ports:
-      - "4001:3000"
+      - "3000:3000"
     environment:
       - PORT=3000
       - DB_CONNECT=${MONGO_URI}
@@ -55,12 +55,12 @@ services:
     image: meal-analysis-service
     container_name: meal-analysis-service
     ports:
-      - "3000:3000"
+      - "3004:3004"
       - "50052:50052"
       - "50053:50053"
       - "50054:50054"
     environment:
-      - PORT=3000
+      - PORT=3004
       - MONGO_URI=${MONGO_URI}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - USDA_API_KEY=${USDA_API_KEY}
