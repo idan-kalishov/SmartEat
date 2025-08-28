@@ -1,12 +1,14 @@
 import { Transport } from '@nestjs/microservices';
 import { join } from 'path';
 
-export const grpcOptions = {
+export const recommendationsGrpcOptions = {
   transport: Transport.GRPC,
   options: {
-    package: 'nutrition', // Matches the protobuf package name
-    protoPath: join(__dirname, '../proto/nutrition.proto'), // Corrected file name
-    url: 'localhost:50051',
+    package: 'nutrition',
+    protoPath: join(__dirname, '../proto/nutrition.proto'),
+    url:
+      process.env.RECOMMENDATIONS_SERVICE_URL ||
+      'localhost:50051',
     loader: {
       keepCase: true,
       longs: String,
