@@ -77,7 +77,6 @@ export interface IUser extends Document {
   userName?: string;
   refreshToken?: string[];
   profilePicture?: string;
-  googleId?: string;
   userProfile?: UserProfile;
 }
 
@@ -101,15 +100,9 @@ const userProfileSchema = new Schema({
 const userSchema = new Schema({
   email: { type: String, required: true, unique: true },
   userName: { type: String },
-  password: {
-    type: String,
-    required: function (this: { googleId?: string }) {
-      return !this.googleId;
-    },
-  },
+  password: { type: String },
   refreshToken: { type: [String], default: [] },
   profilePicture: { type: String },
-  googleId: { type: String, unique: true, sparse: true },
   userProfile: { type: userProfileSchema, default: {} },
 });
 
