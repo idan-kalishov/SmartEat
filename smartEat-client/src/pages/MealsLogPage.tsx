@@ -1,3 +1,5 @@
+// src/pages/MealsLogPage.tsx
+
 import { ROUTES } from "@/Routing/routes";
 import { NutritionBadge } from "@/components/common/NutritionBadge";
 import ExercisesCard from "@/components/exercise/ExercisesCard";
@@ -7,10 +9,20 @@ import WaterTracker from "@/components/water-tracker/WaterTracker";
 import { useMealsByDate } from "@/hooks/meals/useMealsByDate";
 import { Meal } from "@/types/meals/meal";
 import { calculateTotalNutrition } from "@/utils/nutrientCalculations";
-import { BarChart3, Clock, Loader2, Plus, Utensils, UtensilsCrossed, } from "lucide-react";
+import {
+  BarChart3,
+  Clock,
+  Loader2,
+  Plus,
+  Utensils,
+  UtensilsCrossed,
+} from "lucide-react";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import HorizontalDatePicker from "../components/HorizontalDatePicker";
+import AddMealModal from "@/components/add-meal/AddMealModal";
+
+// 👇 Import your modal
 
 type Tab = "overview" | "statistics";
 
@@ -19,6 +31,8 @@ const MealsLogPage: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false); // Modal state
+
   const {
     meals = [],
     isLoading,
@@ -49,20 +63,22 @@ const MealsLogPage: React.FC = () => {
       <div className="w-full max-w-md flex gap-1 p-1 bg-gray-100 rounded-lg mb-4">
         <button
           onClick={() => setActiveTab("overview")}
-          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === "overview"
-            ? "bg-white text-gray-800 shadow-sm"
-            : "text-gray-600 hover:text-gray-800"
-            }`}
+          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+            activeTab === "overview"
+              ? "bg-white text-gray-800 shadow-sm"
+              : "text-gray-600 hover:text-gray-800"
+          }`}
         >
           <Utensils className="w-4 h-4" />
           Overview
         </button>
         <button
           onClick={() => setActiveTab("statistics")}
-          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === "statistics"
-            ? "bg-white text-gray-800 shadow-sm"
-            : "text-gray-600 hover:text-gray-800"
-            }`}
+          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+            activeTab === "statistics"
+              ? "bg-white text-gray-800 shadow-sm"
+              : "text-gray-600 hover:text-gray-800"
+          }`}
         >
           <BarChart3 className="w-4 h-4" />
           Insights
@@ -80,7 +96,7 @@ const MealsLogPage: React.FC = () => {
                 </h2>
               </div>
               <button
-                onClick={() => navigate(ROUTES.UPLOAD)}
+                onClick={() => setIsModalOpen(true)}
                 className="flex items-center gap-1 px-2.5 py-1 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-all text-sm font-medium"
               >
                 <Plus className="w-3.5 h-3.5" />
@@ -111,8 +127,7 @@ const MealsLogPage: React.FC = () => {
                           className="w-16 h-16 rounded-lg object-cover"
                         />
                       ) : (
-                        <div
-                          className="w-16 h-16 rounded-lg bg-gray-200 flex items-center justify-center">
+                        <div className="w-16 h-16 rounded-lg bg-gray-200 flex items-center justify-center">
                           <Utensils className="w-6 h-6 text-gray-400" />
                         </div>
                       )}
@@ -125,10 +140,22 @@ const MealsLogPage: React.FC = () => {
                           <span>{formatTime(meal.createdAt)}</span>
                         </div>
                         <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                          <NutritionBadge type="calories" value={Math.round(nutrition.calories)} />
-                          <NutritionBadge type="protein" value={Math.round(nutrition.protein)} />
-                          <NutritionBadge type="fat" value={Math.round(nutrition.totalFat)} />
-                          <NutritionBadge type="carbs" value={Math.round(nutrition.totalCarbohydrates)} />
+                          <NutritionBadge
+                            type="calories"
+                            value={Math.round(nutrition.calories)}
+                          />
+                          <NutritionBadge
+                            type="protein"
+                            value={Math.round(nutrition.protein)}
+                          />
+                          <NutritionBadge
+                            type="fat"
+                            value={Math.round(nutrition.totalFat)}
+                          />
+                          <NutritionBadge
+                            type="carbs"
+                            value={Math.round(nutrition.totalCarbohydrates)}
+                          />
                         </div>
                       </div>
                     </div>
@@ -155,13 +182,18 @@ const MealsLogPage: React.FC = () => {
         </div>
       )}
 
-      <WaterTracker selectedDate={selectedDate}></WaterTracker>
+      <WaterTracker selectedDate={selectedDate} />
 
       <MealDetailsModal
         meal={selectedMeal}
         isOpen={!!selectedMeal}
         onClose={() => setSelectedMeal(null)}
         onMealDeleted={fetchMeals}
+      />
+
+      <AddMealModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
       />
     </div>
   );

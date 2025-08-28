@@ -39,7 +39,7 @@ services:
     restart: unless-stopped
     # MongoDB connection will be to host machine
 
-  exercise-service:
+    exercise-service:
     build:
       context: ../exercise-service
       dockerfile: Dockerfile
@@ -98,6 +98,7 @@ services:
       dockerfile: Dockerfile
       args:
         - VITE_API_GW_URL=https://${HOSTNAME}/api
+        - VITE_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
     image: smart-eat-client
     container_name: smart-eat-client
     ports:

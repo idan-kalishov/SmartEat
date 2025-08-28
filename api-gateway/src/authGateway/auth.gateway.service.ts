@@ -1,7 +1,7 @@
-import { Injectable, Req, Request } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
-import { Response as ExpressResponse } from 'express';
+import { Request, Response as ExpressResponse } from 'express';
 
 @Injectable()
 export class AuthGatewayService {
@@ -52,6 +52,31 @@ export class AuthGatewayService {
     return response.data;
   }
 
+  async forwardGoogleAuth(googleAuthData: { idToken: string }, res: ExpressResponse) {
+    try {
+      const response = await firstValueFrom(
+        this.httpService.post(`${this.authServiceBaseUrl}/google`, googleAuthData, {
+          withCredentials: true,
+        }),
+      );
+
+      // Forward cookies from auth service to client
+      const setCookieHeader = response.headers['set-cookie'];
+      if (setCookieHeader) {
+        res.setHeader('Set-Cookie', setCookieHeader);
+      }
+
+      return res.send(response.data);
+    } catch (error) {
+      console.error('Google auth error:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+      });
+      throw error;
+    }
+  }
+
   async refreshToken(refreshToken: string) {
     const a = this.httpService.post(`${this.authServiceBaseUrl}/refresh`, {
       refreshToken,
@@ -75,31 +100,21 @@ export class AuthGatewayService {
     return res.send(response.data);
   }
 
-  async verifyToken(@Req() req: Request) {
-    const sanitizedHeaders = this.getSanitizedHeaders(req);
+  async verifyToken(req: Request) {
+    const headers = this.getEssentialHeaders(req);
 
     const response = await this.httpService.axiosRef.get(
       `${this.authServiceBaseUrl}/verify`,
       {
-        headers: sanitizedHeaders,
+        headers,
+        withCredentials: true,
       },
     );
 
     return response.data;
   }
 
-  private getSanitizedHeaders(req: Request) {
-    const sanitizedHeaders: Record<string, string> = {};
 
-    for (const [key, value] of Object.entries(req.headers)) {
-      if (typeof value === 'string') {
-        sanitizedHeaders[key] = value;
-      } else if (Array.isArray(value)) {
-        sanitizedHeaders[key] = value.join(', ');
-      }
-    }
-    return sanitizedHeaders;
-  }
 
   private getEssentialHeaders(req: Request) {
     const essentialHeaders: Record<string, string> = {};
