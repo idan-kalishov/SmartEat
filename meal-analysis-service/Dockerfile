@@ -21,7 +21,7 @@ COPY --from=base /app/dist ./dist
 # Install only production deps
 RUN npm ci --omit=dev
 
-EXPOSE 3000 50052 50053 50054
+EXPOSE 3004 50052 50053 50054
 
 CMD ["npm", "run", "start:prod"]
 
