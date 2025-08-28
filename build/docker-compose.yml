@@ -88,7 +88,7 @@ services:
       context: ../smartEat-client
       dockerfile: Dockerfile
       args:
-        - VITE_API_GW_URL=https://$${HOSTNAME}
+        - VITE_API_GW_URL=https://${HOSTNAME}/api
     image: smart-eat-client
     container_name: smart-eat-client
     ports:
