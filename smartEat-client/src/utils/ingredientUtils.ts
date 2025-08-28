@@ -1,6 +1,6 @@
 // src/utils/ingredientUtils.ts
 
-import { Ingredient, NutritionData } from "../types/common";
+import { Ingredient } from "../types/common";
 
 /**
  * Merges fetched nutritional data with existing ingredients.

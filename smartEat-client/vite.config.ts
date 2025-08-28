@@ -2,7 +2,6 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 import tailwindcss from "@tailwindcss/vite";
-import fs from "fs";
 import path from "path";
 
 export default defineConfig({
@@ -38,10 +37,6 @@ export default defineConfig({
     ,
   ],
   server: {
-    https: {
-      key: fs.readFileSync("./ssl/key.pem"),
-      cert: fs.readFileSync("./ssl/cert.pem"),
-    },
     host: true,
     port: 5173,
   },

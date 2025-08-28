@@ -8,7 +8,8 @@ export class AuthGatewayService {
   private readonly authServiceBaseUrl: string;
 
   constructor(private readonly httpService: HttpService) {
-    this.authServiceBaseUrl = 'http://localhost:3000/auth';
+    this.authServiceBaseUrl =
+      `${process.env.AUTH_SERVICE_URL || 'http://localhost:3000'}/auth`;
   }
 
   async forwardLogin(

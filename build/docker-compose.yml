@@ -1,0 +1,109 @@
+version: "3.9"
+
+services:
+  api-gateway:
+    build:
+      context: ../api-gateway
+      dockerfile: Dockerfile
+    image: api-gateway
+    container_name: api-gateway
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - AUTH_SERVICE_URL=http://auth-service:3000
+      - RECOMMENDATIONS_SERVICE_URL=recommendations-service:50051
+      - FOOD_RECOGNITION_SERVICE_URL=meal-analysis-service:50052
+      - MEAL_MANAGEMENT_SERVICE_URL=meal-analysis-service:50053
+      - WATER_TRACKING_SERVICE_URL=meal-analysis-service:50054
+      - EXERCISE_SERVICE_URL=exercise-service:50055
+    restart: unless-stopped
+
+  auth-service:
+    build:
+      context: ../auth-service
+      dockerfile: Dockerfile
+    image: auth-service
+    container_name: auth-service
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - DB_CONNECT=${MONGO_URI}
+      - TOKEN_SECRET=${TOKEN_SECRET}
+      - TOKEN_EXPIRES=${TOKEN_EXPIRES:-15m}
+      - REFRESH_TOKEN_EXPIRES=${REFRESH_TOKEN_EXPIRES:-7d}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - REDIRECT_URI_LOCAL=${REDIRECT_URI_LOCAL}
+    restart: unless-stopped
+    # MongoDB connection will be to host machine
+
+  exercise-service:
+    build:
+      context: ../exercise-service
+      dockerfile: Dockerfile
+    image: exercise-service
+    container_name: exercise-service
+    ports:
+      - "3003:3003"
+      - "50055:50055"
+    environment:
+      - PORT=3003
+      - MONGO_URI=${MONGO_URI}
+    restart: unless-stopped
+    # MongoDB connection will be to host machine
+
+  meal-analysis-service:
+    build:
+      context: ../meal-analysis-service
+      dockerfile: Dockerfile
+    image: meal-analysis-service
+    container_name: meal-analysis-service
+    ports:
+      - "3004:3004"
+      - "50052:50052"
+      - "50053:50053"
+      - "50054:50054"
+    environment:
+      - PORT=3004
+      - MONGO_URI=${MONGO_URI}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - USDA_API_KEY=${USDA_API_KEY}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+    restart: unless-stopped
+    # MongoDB connection will be to host machine
+
+  recommendations-service:
+    build:
+      context: ../recommendations-service
+      dockerfile: Dockerfile
+    image: recommendations-service
+    container_name: recommendations-service
+    ports:
+      - "3001:3001"
+      - "50051:50051"
+    environment:
+      - PORT=3001
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+    restart: unless-stopped
+    # MongoDB connection will be to host machine
+
+  client:
+    build:
+      context: ../smartEat-client
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_GW_URL=https://${HOSTNAME}/api
+    image: smart-eat-client
+    container_name: smart-eat-client
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
+# MongoDB is already installed on the VM, so we don't need a container
+
+

@@ -14,6 +14,8 @@
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "generate:proto": "if not exist src\\generated md src\\generated && npm run generate:proto:food-recognition && npm run generate:proto:meal-management && npm run generate:proto:water-tracking",
+    "generate:proto:linux": "mkdir -p src/generated && protoc --plugin=protoc-gen-ts_proto=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=src/generated --ts_proto_opt=nestJs=true,outputServices=grpc-js,returnObservable=false --proto_path=src/proto src/proto/food-recognition.proto && protoc --plugin=protoc-gen-ts_proto=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=src/generated --ts_proto_opt=nestJs=true,outputServices=grpc-js,returnObservable=false --proto_path=src/proto src/proto/meal-management.proto && protoc --plugin=protoc-gen-ts_proto=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=src/generated --ts_proto_opt=nestJs=true,outputServices=grpc-js,returnObservable=false --proto_path=src/proto src/proto/water-tracking.proto",
+    "build:linux": "npm run generate:proto:linux && npx nest build && copyfiles -u 1 src/proto/**/*.proto dist/",
     "generate:proto:food-recognition": "protoc --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=src/generated --ts_proto_opt=nestJs=true,outputServices=grpc-js,returnObservable=false --proto_path=src/proto src/proto/food-recognition.proto",
     "generate:proto:meal-management": "protoc --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=src/generated --ts_proto_opt=nestJs=true,outputServices=grpc-js,returnObservable=false --proto_path=src/proto src/proto/meal-management.proto",
     "generate:proto:water-tracking": "protoc --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=src/generated --ts_proto_opt=nestJs=true,outputServices=grpc-js,returnObservable=false --proto_path=src/proto src/proto/water-tracking.proto",
@@ -25,6 +27,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.772.0",
+    "@bufbuild/protobuf": "^2.7.0",
     "@google/generative-ai": "^0.24.0",
     "@grpc/grpc-js": "^1.13.3",
     "@grpc/proto-loader": "^0.7.13",
