@@ -96,29 +96,54 @@ export const transformIngredientsForResults = (
   ingredients: Ingredient[]
 ): TransformedIngredient[] => {
   return ingredients.map((ingredient) => {
+    const weight = ingredient.weight || 100;
+
+    // If no nutrition data, return empty scaled values
     if (!ingredient.nutrition?.per100g) {
       console.warn(
-        `No nutritional data found for "${ingredient.name}". Skipping scaling.`
+        `No nutritional data for "${ingredient.name}". Using zero values.`
       );
+
+      const emptyNutrient = (unit: string): Nutrient => ({ value: 0, unit });
+
+      const emptyNutrition: NutritionData = {
+        calories: emptyNutrient("kcal"),
+        totalFat: emptyNutrient("g"),
+        totalCarbohydrates: emptyNutrient("g"),
+        sugars: emptyNutrient("g"),
+        protein: emptyNutrient("g"),
+        iron: emptyNutrient("mg"),
+        fiber: emptyNutrient("g"),
+        vitaminA: emptyNutrient("µg"),
+        vitaminC: emptyNutrient("mg"),
+        vitaminD: emptyNutrient("µg"),
+        vitaminB12: emptyNutrient("µg"),
+        calcium: emptyNutrient("mg"),
+        magnesium: emptyNutrient("mg"),
+      };
+
       return {
         ...ingredient,
         nutrition: {
-          per100g: null as unknown as NutritionData,
-          scaled: null as unknown as NutritionData,
+          per100g: emptyNutrition,
+          scaled: emptyNutrition,
         },
       };
     }
 
-    const weight = ingredient.weight || 100;
     const per100g = ingredient.nutrition.per100g;
 
     const scale = (nutrient: Nutrient): Nutrient => {
-      if (!nutrient || nutrient.value == null) {
-        return { value: null, unit: nutrient?.unit || "unknown" };
+      if (
+        !nutrient ||
+        nutrient.value == null ||
+        typeof nutrient.value !== "number"
+      ) {
+        return { ...nutrient, value: 0 }; // Default to 0 if invalid
       }
       return {
         value: +(nutrient.value * (weight / 100)).toFixed(2),
-        unit: nutrient.unit,
+        unit: nutrient.unit || "unknown",
       };
     };
 

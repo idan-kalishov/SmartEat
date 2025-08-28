@@ -1,57 +1,68 @@
-import { Ingredient } from "../types/common";
-import { mergeNutritionData } from "../utils/ingredientUtils";
-import { fetchNutritionalDataForIngredients, transformIngredientsForResults, } from "../utils/mealAnalysisApi";
+// src/utils/ingredientProcessingUtils.ts
 
-interface ProcessResult {
-    transformedIngredients: any[];
+import { Ingredient } from "../types/common";
+import { mergeNutritionData } from "./ingredientUtils";
+import {
+  fetchNutritionalDataForIngredients,
+  transformIngredientsForResults,
+} from "./mealAnalysisApi";
+
+export interface ProcessResult {
+  transformedIngredients: any[];
+  failedIngredients: string[];
 }
 
 export const processAndSaveIngredients = async (
-    ingredients: any[],
-    setLoadingMessage: (message: string) => void
+  ingredients: any[],
+  setLoadingMessage: (message: string) => void
 ): Promise<ProcessResult> => {
-    setLoadingMessage("Processing ingredients...");
+  setLoadingMessage("Processing ingredients...");
 
-    // Separate ingredients that need nutritional data
-    const ingredientsWithoutNutrition = ingredients.filter(
-        (ingredient) => !ingredient.nutrition
+  const ingredientsWithoutNutrition = ingredients.filter(
+    (ingredient) => !ingredient.nutrition
+  );
+
+  if (ingredientsWithoutNutrition.length > 0) {
+    const invalidIngredients = ingredientsWithoutNutrition.filter(
+      (ingredient) => !ingredient.name?.trim()
     );
 
-    // Check if there are any ingredients without nutritional data
-    if (ingredientsWithoutNutrition.length > 0) {
-        // Validate that all ingredients have names
-        const hasInvalidIngredients = ingredientsWithoutNutrition.some(
-            (ingredient) => !ingredient.name.trim()
-        );
-        if (hasInvalidIngredients) {
-            throw new Error("Please provide valid names for all ingredients.");
-        }
-
-        // Fetch nutritional data for ingredients without it
-        const ingredientNames = ingredientsWithoutNutrition.map(
-            (ingredient) => ingredient.name
-        );
-        const fetchedNutritionData = await fetchNutritionalDataForIngredients(
-            ingredientNames
-        );
-
-        // Merge fetched nutritional data with existing ingredients
-        const updatedIngredients = mergeNutritionData(
-            ingredients,
-            fetchedNutritionData
-        );
-
-        // Transform ingredients data for the result page
-        const transformedIngredients =
-            transformIngredientsForResults(updatedIngredients);
-
-        return { transformedIngredients };
-    } else {
-        // No missing nutritional data, so directly transform
-        const transformedIngredients = transformIngredientsForResults(
-            ingredients.map(({ isNew, ...rest }) => rest as Ingredient)
-        );
-
-        return { transformedIngredients };
+    if (invalidIngredients.length > 0) {
+      const invalidNames = invalidIngredients
+        .map((i) => i.name || "(unnamed)")
+        .join(", ");
+      throw new Error(`Invalid ingredient names: ${invalidNames}`);
     }
+
+    const ingredientNames = ingredientsWithoutNutrition.map(
+      (ingredient) => ingredient.name
+    );
+    const fetchedNutritionData = await fetchNutritionalDataForIngredients(
+      ingredientNames
+    );
+
+    const failedIngredients = fetchedNutritionData
+      .filter((item: any) => !item.nutrition)
+      .map((item: any) => item.name);
+
+    const updatedIngredients = mergeNutritionData(
+      ingredients,
+      fetchedNutritionData
+    );
+    const transformedIngredients =
+      transformIngredientsForResults(updatedIngredients);
+
+    return {
+      transformedIngredients,
+      failedIngredients,
+    };
+  } else {
+    const transformedIngredients = transformIngredientsForResults(
+      ingredients.map(({ isNew, ...rest }) => rest as Ingredient)
+    );
+    return {
+      transformedIngredients,
+      failedIngredients: [],
+    };
+  }
 };
