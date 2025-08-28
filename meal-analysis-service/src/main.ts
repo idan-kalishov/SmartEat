@@ -3,15 +3,10 @@ import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import * as dotenv from 'dotenv';
-import * as fs from 'fs';
 
 async function bootstrap() {
   // HTTP Server
-  const httpsOptions = {
-    key: fs.readFileSync('key.pem'),
-    cert: fs.readFileSync('cert.pem'),
-  };
-  const app = await NestFactory.create(AppModule, { httpsOptions });
+  const app = await NestFactory.create(AppModule);
   app.enableCors();
 
   dotenv.config();
@@ -21,7 +16,7 @@ async function bootstrap() {
     transport: Transport.GRPC,
     options: {
       package: 'foodrecognition',
-      protoPath: join(__dirname, '../src/proto/food-recognition.proto'),
+      protoPath: join(__dirname, './proto/food-recognition.proto'),
       url: `0.0.0.0:${process.env.FOOD_RECOGNITION_GRPC_PORT || 50052}`,
     },
   };
@@ -31,7 +26,7 @@ async function bootstrap() {
     transport: Transport.GRPC,
     options: {
       package: 'mealmgmt',
-      protoPath: join(__dirname, '../src/proto/meal-management.proto'),
+      protoPath: join(__dirname, './proto/meal-management.proto'),
       url: `0.0.0.0:${process.env.MEAL_MANAGEMENT_GRPC_PORT || 50053}`,
     },
   };
@@ -40,8 +35,8 @@ async function bootstrap() {
     transport: Transport.GRPC,
     options: {
       package: 'watertmgmt',
-      protoPath: join(__dirname, '../src/proto/water-tracking.proto'),
-      url: `0.0.0.0:${process.env.MEAL_MANAGEMENT_GRPC_PORT || 50054}`,
+      protoPath: join(__dirname, './proto/water-tracking.proto'),
+      url: `0.0.0.0:${process.env.WATER_TRACKING_GRPC_PORT || 50054}`,
     },
   };
 
@@ -50,6 +45,6 @@ async function bootstrap() {
   app.connectMicroservice<MicroserviceOptions>(waterTrackerGrpcOptions);
 
   await app.startAllMicroservices();
-  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
+  await app.listen(process.env.PORT ?? 3004, '0.0.0.0');
 }
 bootstrap();

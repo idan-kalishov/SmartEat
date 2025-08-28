@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Client, ClientGrpc } from '@nestjs/microservices';
-import { grpcOptions } from '../grpc.config';
+import { recommendationsGrpcOptions } from '../recommendations.config';
 import {
   NutritionsRatingServiceClient,
   MealAnalysisRequest,
@@ -12,7 +12,7 @@ import {
 
 @Injectable()
 export class RecommendationsClient implements OnModuleInit {
-  @Client(grpcOptions)
+  @Client(recommendationsGrpcOptions)
   private client: ClientGrpc;
 
   private nutritionsRatingService: NutritionsRatingServiceClient;

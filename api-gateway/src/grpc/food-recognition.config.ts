@@ -6,7 +6,7 @@ export const foodRecognitionGrpcOptions = {
   options: {
     package: 'foodrecognition',
     protoPath: join(__dirname, '../proto/food-recognition.proto'),
-    url: 'localhost:50052',
+    url: process.env.FOOD_RECOGNITION_SERVICE_URL || 'localhost:50052',
     loader: {
       keepCase: true,
       longs: String,
