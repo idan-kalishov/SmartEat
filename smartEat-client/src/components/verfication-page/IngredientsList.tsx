@@ -27,7 +27,7 @@ const IngredientsList = ({
   };
 
   return (
-    <div className="mb-6 max-h-[500px] overflow-y-auto">
+    <div className="mb-6">
       <label className="text-sm text-gray-600 mb-2 block">Ingredients</label>
       <p className="text-sm text-gray-400 mb-4">
         You can modify the ingredients as needed.
