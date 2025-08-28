@@ -106,7 +106,7 @@ const IngredientVerificationPage: React.FC = () => {
     <>
       {loading && <LoadingScreen message={loadingMessage} />}
 
-      <div className="min-h-screen w-full bg-gradient-to-b from-green-50 to-white px-4 py-6 overflow-hidden">
+      <div className="min-h-screen w-full bg-gradient-to-b from-green-50 to-white px-4 py-6 flex flex-col max-h-screen">
         <IngredientVerificationHeader />
 
         <MealImageDisplay
@@ -132,12 +132,18 @@ const IngredientVerificationPage: React.FC = () => {
           </div>
         )}
 
-        <IngredientsList
-          ingredients={ingredients}
-          setIngredients={setIngredients}
-        />
+        {/* Scrollable ingredients section */}
+        <div className="flex-1 overflow-y-auto mb-4">
+          <IngredientsList
+            ingredients={ingredients}
+            setIngredients={setIngredients}
+          />
+        </div>
 
-        <SaveButton onClick={handleSave} />
+        {/* Fixed bottom section with buttons - positioned above navbar */}
+        <div className="mt-auto pt-4 pb-20 border-t border-gray-200">
+          <SaveButton onClick={handleSave} />
+        </div>
       </div>
     </>
   );
