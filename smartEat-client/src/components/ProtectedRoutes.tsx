@@ -2,6 +2,7 @@ import {useEffect, useState} from "react";
 import {Navigate, Outlet} from "react-router-dom";
 import api from "@/services/api";
 import {ROUTES} from "@/Routing/routes";
+import LoadingSpinner from "@/components/common/LoadingSpinner.tsx";
 
 const ProtectedRoute = () => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -26,7 +27,7 @@ const ProtectedRoute = () => {
     }, []);
 
     if (isAuthenticated === null) {
-        return <div>Loading...</div>;
+        return <LoadingSpinner/> ;
     }
 
     return isAuthenticated ? <Outlet/> : <Navigate to={ROUTES.SIGNIN}/>;
