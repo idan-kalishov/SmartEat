@@ -3,11 +3,11 @@ name: Deploy to VM
 on:
   push:
     branches:
-      - prod   # only runs when pushing to 'prod' branch
+      - prod # only runs when pushing to 'prod' branch
 
 jobs:
   deploy:
-    runs-on: self-hosted   # uses your VM runner
+    runs-on: self-hosted # uses your VM runner
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -15,5 +15,5 @@ jobs:
       - name: Build and run with Docker Compose
         run: |
           cd build
-          docker compose build
-          docker compose up -d --force-recreate
+          sudo docker compose build
+          sudo docker compose up -d --force-recreate

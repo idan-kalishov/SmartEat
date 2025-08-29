@@ -5,19 +5,14 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express, { Application } from "express";
 import mongoose from "mongoose";
-import passport from "passport";
 import path from "path";
 import authRoutes from "./routes/authRoutes";
-import initializePassport from "./passport";
 
 export function createServer(): Application {
   dotenv.config();
 
   const app: Application = express();
 
-  // Initialize Passport for Google OAuth strategy etc.
-  initializePassport();
-  app.use(passport.initialize());
   app.use(cookieParser());
   app.use(express.json({ limit: "10mb" }));
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));

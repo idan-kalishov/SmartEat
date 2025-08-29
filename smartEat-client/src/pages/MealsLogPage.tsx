@@ -1,6 +1,6 @@
 // src/pages/MealsLogPage.tsx
 
-import { ROUTES } from "@/Routing/routes";
+import AddMealModal from "@/components/add-meal/AddMealModal";
 import { NutritionBadge } from "@/components/common/NutritionBadge";
 import ExercisesCard from "@/components/exercise/ExercisesCard";
 import DailyIntakeProgress from "@/components/insights/DailyIntakeProgress";
@@ -18,9 +18,7 @@ import {
   UtensilsCrossed,
 } from "lucide-react";
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import HorizontalDatePicker from "../components/HorizontalDatePicker";
-import AddMealModal from "@/components/add-meal/AddMealModal";
 import { useExercisesByDate } from "@/hooks/exercise/useExercisesByDate";
 
 // 👇 Import your modal
@@ -28,7 +26,6 @@ import { useExercisesByDate } from "@/hooks/exercise/useExercisesByDate";
 type Tab = "overview" | "statistics";
 
 const MealsLogPage: React.FC = () => {
-  const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
