@@ -15,5 +15,5 @@ jobs:
       - name: Build and run with Docker Compose
         run: |
           cd build
-          docker compose build
-          docker compose up -d --force-recreate
+          sudo docker compose build
+          sudo docker compose up -d --force-recreate
