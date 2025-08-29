@@ -96,16 +96,11 @@ services:
       dockerfile: Dockerfile
       args:
         - VITE_API_GW_URL=https://${HOSTNAME}/api
-<<<<<<< HEAD
-=======
         - VITE_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
->>>>>>> a37112031d5de53ad13afa5b04ce65a3353be9e8
     image: smart-eat-client
     container_name: smart-eat-client
     ports:
       - "8080:80"
     restart: unless-stopped
-
 # MongoDB is already installed on the VM, so we don't need a container
-
 
