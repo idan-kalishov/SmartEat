@@ -1,14 +1,31 @@
 import React, { useState } from "react";
-import { Dumbbell, Plus, Flame } from "lucide-react";
+import { Dumbbell, Plus, Flame, Loader2 } from "lucide-react";
 import { ExerciseSelect, Exercise, IntensityType } from "@/types/exercise";
 import AddExerciseModal from "./AddExerciseModal";
 import { saveExercise } from "@/services/exerciseService";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/appState";
 
-const ExercisesCard: React.FC = () => {
+interface ExercisesCardProps {
+  exercises: Exercise[];
+  fetchExercises: () => void;
+  selectedDate: Date;
+  isLoading: boolean;
+  error: string | null;
+}
+
+const ExercisesCard: React.FC<ExercisesCardProps> = ({
+  exercises,
+  fetchExercises,
+  selectedDate,
+  isLoading,
+  error,
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const appState = useSelector((state: RootState) => state.appState);
+  const user = appState.user;
 
-  const handleAddExercise = (
+  const handleAddExercise = async (
     exerciseData: ExerciseSelect,
     intensity: IntensityType,
     duration: number
@@ -20,15 +37,15 @@ const ExercisesCard: React.FC = () => {
           (exerciseData.caloriesPerHour * intensity.multiplier * duration) /
           60
         ).toFixed(0),
-        createdAt: new Date().toISOString(),
+        createdAt: selectedDate.toISOString(),
         minutes: duration,
         name: exerciseData.label,
-        userId: "685fb77dd5caf69158c99981",
+        userId: user?._id,
       };
 
-      saveExercise(newExercise);
-
-      setExercises((prev) => [...prev, newExercise]);
+      await saveExercise(newExercise);
+      setIsModalOpen(false);
+      fetchExercises();
     }
   };
 
@@ -58,7 +75,13 @@ const ExercisesCard: React.FC = () => {
         </button>
       </div>
 
-      {exercises.length > 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center items-center py-4">
+          <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+        </div>
+      ) : error ? (
+        <span className="text-red-500">{error}</span>
+      ) : exercises.length > 0 ? (
         <div className="space-y-3">
           {/* Total calories summary */}
           <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg">
