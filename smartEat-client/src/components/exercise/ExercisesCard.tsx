@@ -3,10 +3,23 @@ import { Dumbbell, Plus, Flame } from "lucide-react";
 import { ExerciseSelect, Exercise, IntensityType } from "@/types/exercise";
 import AddExerciseModal from "./AddExerciseModal";
 import { saveExercise } from "@/services/exerciseService";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/appState";
 
-const ExercisesCard: React.FC = () => {
+interface ExercisesCardProps {
+  exercises: Exercise[];
+  fetchExercises: () => void;
+  selectedDate: Date;
+}
+
+const ExercisesCard: React.FC<ExercisesCardProps> = ({
+  exercises,
+  fetchExercises,
+  selectedDate,
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const appState = useSelector((state: RootState) => state.appState);
+  const user = appState.user;
 
   const handleAddExercise = (
     exerciseData: ExerciseSelect,
@@ -20,15 +33,15 @@ const ExercisesCard: React.FC = () => {
           (exerciseData.caloriesPerHour * intensity.multiplier * duration) /
           60
         ).toFixed(0),
-        createdAt: new Date().toISOString(),
+        createdAt: selectedDate.toISOString(),
         minutes: duration,
         name: exerciseData.label,
-        userId: "685fb77dd5caf69158c99981",
+        userId: user?._id,
       };
 
       saveExercise(newExercise);
-
-      setExercises((prev) => [...prev, newExercise]);
+      fetchExercises();
+      setIsModalOpen(false);
     }
   };
 

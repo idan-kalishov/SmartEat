@@ -21,6 +21,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import HorizontalDatePicker from "../components/HorizontalDatePicker";
 import AddMealModal from "@/components/add-meal/AddMealModal";
+import { useExercisesByDate } from "@/hooks/exercise/useExercisesByDate";
 
 // 👇 Import your modal
 
@@ -39,6 +40,13 @@ const MealsLogPage: React.FC = () => {
     error,
     fetchMeals,
   } = useMealsByDate(selectedDate);
+
+  const {
+    exercises = [],
+    isLoading: isLoadingExercises,
+    error: errorExercises,
+    fetchExercises,
+  } = useExercisesByDate(selectedDate);
 
   const formatTime = (date: string) => {
     return new Date(date).toLocaleTimeString("en-US", {
@@ -170,7 +178,11 @@ const MealsLogPage: React.FC = () => {
             )}
           </div>
 
-          <ExercisesCard />
+          <ExercisesCard
+            exercises={exercises}
+            fetchExercises={fetchExercises}
+            selectedDate={selectedDate}
+          />
         </>
       ) : (
         <div className="w-full max-w-md bg-white/90 backdrop-blur-sm rounded-xl shadow-lg p-4 mb-4">
