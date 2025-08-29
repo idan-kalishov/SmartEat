@@ -21,6 +21,13 @@ const IngredientVerificationPage: React.FC = () => {
     isManual?: boolean;
   };
 
+  const handleIngredientsChange = (newIngredients: any[]) => {
+    setIngredients(newIngredients);
+    if (uiError && newIngredients.some((ing) => ing.name?.trim())) {
+      setUiError(null);
+    }
+  };
+
   if (!transferObject) {
     alert("No meal data found. Please try again.");
     navigate("/home");
@@ -28,6 +35,8 @@ const IngredientVerificationPage: React.FC = () => {
   }
 
   const isManual = transferObject.isManual;
+
+  const [uiError, setUiError] = useState<string | null>(null);
 
   const [mealImage, setMealImage] = useState(
     isManual ? null : transferObject.image ?? null
@@ -56,19 +65,46 @@ const IngredientVerificationPage: React.FC = () => {
   const [failedIngredients, setFailedIngredients] = useState<string[]>([]);
 
   const handleSave = async () => {
+    // Clear previous UI error
+    setUiError(null);
+
+    // Trim and filter valid ingredients
+    const validIngredients = ingredients.filter(
+      (ing) =>
+        ing.name && typeof ing.name === "string" && ing.name.trim() !== ""
+    );
+    const invalidCount = ingredients.length - validIngredients.length;
+
+    // Check if we have any valid ingredients
+    if (validIngredients.length === 0) {
+      setUiError("Please add at least one ingredient with a valid name.");
+      return;
+    }
+
+    // Warn about empty ingredients (non-blocking)
+    if (invalidCount > 0) {
+      setUiError(
+        `Removed ${invalidCount} empty ingredient${
+          invalidCount > 1 ? "s" : ""
+        }. Please ensure all ingredients have names.`
+      );
+      // Proceed with only valid ones
+    }
+
     setLoading(true);
     setFailedIngredients([]);
+    setMealName(mealName.trim() || "Unnamed Meal");
 
     try {
       const result = await processAndSaveIngredients(
-        ingredients,
+        validIngredients,
         setLoadingMessage
       );
 
       if (result.failedIngredients.length > 0) {
         setFailedIngredients(result.failedIngredients);
         setLoading(false);
-        return; // Block navigation
+        return;
       }
 
       const userProfile = getDefaultUserProfile();
@@ -79,7 +115,7 @@ const IngredientVerificationPage: React.FC = () => {
 
       navigate("/results", {
         state: {
-          name: mealName,
+          name: mealName.trim() || "Unnamed Meal",
           image: mealImage,
           ingredients: result.transformedIngredients,
           analysis: {
@@ -92,32 +128,27 @@ const IngredientVerificationPage: React.FC = () => {
         },
       });
     } catch (error: any) {
-      console.error("Error processing ingredients:", error);
-      alert(
-        error.message ||
-          "Failed to process ingredients. Please check all ingredient names."
+      setUiError(
+        "Failed to process meal. Please check your connection and try again."
       );
+      console.error("Error processing ingredients:", error);
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <>
       {loading && <LoadingScreen message={loadingMessage} />}
 
       <div className="min-h-screen w-full bg-gradient-to-b from-green-50 to-white px-4 py-6 overflow-hidden">
         <IngredientVerificationHeader />
-
         <MealImageDisplay
           mealImage={mealImage}
           mealName={mealName}
           isManual={isManual}
           onImageChange={setMealImage}
         />
-
         <MealNameInput mealName={mealName} setMealName={setMealName} />
-
         {failedIngredients.length > 0 && (
           <div className="mb-4 p-3 bg-yellow-100 border border-yellow-300 text-yellow-800 rounded-md text-sm">
             <strong>
@@ -131,13 +162,20 @@ const IngredientVerificationPage: React.FC = () => {
             {failedIngredients.length === 1 ? "it" : "them"}.
           </div>
         )}
-
         <IngredientsList
           ingredients={ingredients}
-          setIngredients={setIngredients}
+          setIngredients={handleIngredientsChange}
         />
-
-        <SaveButton onClick={handleSave} />
+        {uiError && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-sm text-red-600 font-medium">{uiError}</p>
+          </div>
+        )}
+        <SaveButton
+          onClick={handleSave}
+          disabled={ingredients.length === 0}
+          isLoading={loading}
+        />{" "}
       </div>
     </>
   );

@@ -18,24 +18,17 @@ export const processAndSaveIngredients = async (
 ): Promise<ProcessResult> => {
   setLoadingMessage("Processing ingredients...");
 
-  const ingredientsWithoutNutrition = ingredients.filter(
-    (ingredient) => !ingredient.nutrition
-  );
+  const ingredientsWithoutNutrition = ingredients
+    .filter((ing) => ing.name && ing.name.trim() !== "")
+    .filter((ingredient) => !ingredient.nutrition);
 
   if (ingredientsWithoutNutrition.length > 0) {
-    const invalidIngredients = ingredientsWithoutNutrition.filter(
-      (ingredient) => !ingredient.name?.trim()
+    const ingredientNames = ingredientsWithoutNutrition.map((ing) =>
+      ing.name.trim()
     );
 
-    if (invalidIngredients.length > 0) {
-      const invalidNames = invalidIngredients
-        .map((i) => i.name || "(unnamed)")
-        .join(", ");
-      throw new Error(`Invalid ingredient names: ${invalidNames}`);
-    }
-
-    const ingredientNames = ingredientsWithoutNutrition.map(
-      (ingredient) => ingredient.name
+    setLoadingMessage(
+      `Fetching nutrition for ${ingredientNames.length} ingredient(s)...`
     );
     const fetchedNutritionData = await fetchNutritionalDataForIngredients(
       ingredientNames
@@ -57,9 +50,9 @@ export const processAndSaveIngredients = async (
       failedIngredients,
     };
   } else {
-    const transformedIngredients = transformIngredientsForResults(
-      ingredients.map(({ isNew, ...rest }) => rest as Ingredient)
-    );
+    const cleanIngredients = ingredients.map(({ isNew, ...rest }) => rest);
+    const transformedIngredients =
+      transformIngredientsForResults(cleanIngredients);
     return {
       transformedIngredients,
       failedIngredients: [],

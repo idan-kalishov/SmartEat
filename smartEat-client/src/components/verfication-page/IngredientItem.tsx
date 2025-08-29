@@ -32,9 +32,23 @@ const IngredientItem = ({
       <div className="flex items-center w-24 justify-end mr-2 relative">
         <input
           type="number"
-          value={ingredient.weight}
-          onChange={(e) => updateIngredient(index, "weight", e.target.value)}
+          min="0"
+          value={ingredient.weight} // expects string
+          onChange={(e) => {
+            const value = e.target.value;
+
+            if (value === "") {
+              // Allow empty during typing
+              updateIngredient(index, "weight", "");
+            } else {
+              const numValue = parseFloat(value);
+              // Clamp to 0 or higher, then convert back to string
+              const clampedValue = numValue < 0 ? "0" : numValue.toString();
+              updateIngredient(index, "weight", clampedValue);
+            }
+          }}
           className="w-full text-right bg-transparent focus:outline-none pr-4 text-gray-600"
+          placeholder="0"
         />
         <span className="absolute right-2 text-sm text-gray-500 pointer-events-none">
           g
