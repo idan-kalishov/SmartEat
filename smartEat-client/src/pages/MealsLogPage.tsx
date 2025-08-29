@@ -1,6 +1,6 @@
 // src/pages/MealsLogPage.tsx
 
-import { ROUTES } from "@/Routing/routes";
+import AddMealModal from "@/components/add-meal/AddMealModal";
 import { NutritionBadge } from "@/components/common/NutritionBadge";
 import ExercisesCard from "@/components/exercise/ExercisesCard";
 import DailyIntakeProgress from "@/components/insights/DailyIntakeProgress";
@@ -18,16 +18,13 @@ import {
   UtensilsCrossed,
 } from "lucide-react";
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import HorizontalDatePicker from "../components/HorizontalDatePicker";
-import AddMealModal from "@/components/add-meal/AddMealModal";
 
 // 👇 Import your modal
 
 type Tab = "overview" | "statistics";
 
 const MealsLogPage: React.FC = () => {
-  const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
@@ -63,22 +60,20 @@ const MealsLogPage: React.FC = () => {
       <div className="w-full max-w-md flex gap-1 p-1 bg-gray-100 rounded-lg mb-4">
         <button
           onClick={() => setActiveTab("overview")}
-          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
-            activeTab === "overview"
+          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === "overview"
               ? "bg-white text-gray-800 shadow-sm"
               : "text-gray-600 hover:text-gray-800"
-          }`}
+            }`}
         >
           <Utensils className="w-4 h-4" />
           Overview
         </button>
         <button
           onClick={() => setActiveTab("statistics")}
-          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
-            activeTab === "statistics"
+          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === "statistics"
               ? "bg-white text-gray-800 shadow-sm"
               : "text-gray-600 hover:text-gray-800"
-          }`}
+            }`}
         >
           <BarChart3 className="w-4 h-4" />
           Insights
