@@ -182,6 +182,8 @@ const MealsLogPage: React.FC = () => {
             exercises={exercises}
             fetchExercises={fetchExercises}
             selectedDate={selectedDate}
+            isLoading={isLoadingExercises}
+            error={errorExercises}
           />
         </>
       ) : (

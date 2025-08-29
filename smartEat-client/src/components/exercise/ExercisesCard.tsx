@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Dumbbell, Plus, Flame } from "lucide-react";
+import { Dumbbell, Plus, Flame, Loader2 } from "lucide-react";
 import { ExerciseSelect, Exercise, IntensityType } from "@/types/exercise";
 import AddExerciseModal from "./AddExerciseModal";
 import { saveExercise } from "@/services/exerciseService";
@@ -10,18 +10,22 @@ interface ExercisesCardProps {
   exercises: Exercise[];
   fetchExercises: () => void;
   selectedDate: Date;
+  isLoading: boolean;
+  error: string | null;
 }
 
 const ExercisesCard: React.FC<ExercisesCardProps> = ({
   exercises,
   fetchExercises,
   selectedDate,
+  isLoading,
+  error,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const appState = useSelector((state: RootState) => state.appState);
   const user = appState.user;
 
-  const handleAddExercise = (
+  const handleAddExercise = async (
     exerciseData: ExerciseSelect,
     intensity: IntensityType,
     duration: number
@@ -39,9 +43,9 @@ const ExercisesCard: React.FC<ExercisesCardProps> = ({
         userId: user?._id,
       };
 
-      saveExercise(newExercise);
-      fetchExercises();
+      await saveExercise(newExercise);
       setIsModalOpen(false);
+      fetchExercises();
     }
   };
 
@@ -71,7 +75,13 @@ const ExercisesCard: React.FC<ExercisesCardProps> = ({
         </button>
       </div>
 
-      {exercises.length > 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center items-center py-4">
+          <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+        </div>
+      ) : error ? (
+        <span className="text-red-500">{error}</span>
+      ) : exercises.length > 0 ? (
         <div className="space-y-3">
           {/* Total calories summary */}
           <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg">
