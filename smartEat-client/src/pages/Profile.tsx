@@ -282,9 +282,10 @@ const ProfilePage: React.FC = () => {
                             <div className="space-y-2">
                               {Object.entries(field.options).map(
                                 ([key, value]) => {
+                                  const allergyId = Number(key);
                                   const isChecked =
                                     newUserProfile.dietary_restrictions.allergies.includes(
-                                      Number(key)
+                                      allergyId
                                     );
                                   return (
                                     <label
@@ -295,21 +296,46 @@ const ProfilePage: React.FC = () => {
                                         type="checkbox"
                                         checked={isChecked}
                                         onChange={(e) => {
-                                          const allergyId = Number(key);
                                           const currentAllergies = [
                                             ...newUserProfile
                                               .dietary_restrictions.allergies,
                                           ];
 
                                           if (e.target.checked) {
-                                            if (
-                                              !currentAllergies.includes(
-                                                allergyId
-                                              )
-                                            ) {
-                                              currentAllergies.push(allergyId);
+                                            // If checking "Unspecified" (ID 0), uncheck all others
+                                            if (allergyId === 0) {
+                                              setNewUserProfile({
+                                                ...newUserProfile,
+                                                dietary_restrictions: {
+                                                  ...newUserProfile.dietary_restrictions,
+                                                  allergies: [0],
+                                                },
+                                              });
+                                            } else {
+                                              // If checking any other allergy, uncheck "Unspecified" and add the new one
+                                              const filteredAllergies =
+                                                currentAllergies.filter(
+                                                  (id) => id !== 0
+                                                );
+                                              if (
+                                                !filteredAllergies.includes(
+                                                  allergyId
+                                                )
+                                              ) {
+                                                filteredAllergies.push(
+                                                  allergyId
+                                                );
+                                              }
+                                              setNewUserProfile({
+                                                ...newUserProfile,
+                                                dietary_restrictions: {
+                                                  ...newUserProfile.dietary_restrictions,
+                                                  allergies: filteredAllergies,
+                                                },
+                                              });
                                             }
                                           } else {
+                                            // If unchecking, just remove the allergy
                                             const index =
                                               currentAllergies.indexOf(
                                                 allergyId
@@ -317,15 +343,14 @@ const ProfilePage: React.FC = () => {
                                             if (index > -1) {
                                               currentAllergies.splice(index, 1);
                                             }
+                                            setNewUserProfile({
+                                              ...newUserProfile,
+                                              dietary_restrictions: {
+                                                ...newUserProfile.dietary_restrictions,
+                                                allergies: currentAllergies,
+                                              },
+                                            });
                                           }
-
-                                          setNewUserProfile({
-                                            ...newUserProfile,
-                                            dietary_restrictions: {
-                                              ...newUserProfile.dietary_restrictions,
-                                              allergies: currentAllergies,
-                                            },
-                                          });
                                         }}
                                         className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
                                       />
