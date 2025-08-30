@@ -4,7 +4,6 @@ import { logout, persistor, RootState, setUser } from "@/store/appState";
 import {
   Activity,
   ChevronRight,
-  ImagePlus,
   LogOut,
   PencilLine,
   Salad,
@@ -23,6 +22,7 @@ import {
   getGoalIntensityLabel,
   getWeightGoalLabel,
 } from "@/utils/prefernces";
+import { setUserProfile } from "@/store/userSlice";
 
 interface ProfileSection {
   id: string;
@@ -46,8 +46,7 @@ const ProfilePage: React.FC = () => {
   const [editMode, setEditMode] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const appState = useSelector((state: RootState) => state.appState);
-  const userProfile = appState.userProfile;
-  const user = appState.user;
+  const [newUserProfile, setNewUserProfile] = useState(appState.userProfile);
 
   const sections: ProfileSection[] = [
     {
@@ -55,17 +54,10 @@ const ProfilePage: React.FC = () => {
       label: "Personal Information",
       icon: <User className="w-5 h-5" />,
       fields: [
-        { id: "name", label: "Full Name", value: user.userName, type: "text" },
-        {
-          id: "email",
-          label: "Email",
-          value: user.email,
-          type: "text",
-        },
         {
           id: "age",
           label: "Age",
-          value: userProfile.age,
+          value: newUserProfile.age,
           type: "number",
           min: 13,
           max: 120,
@@ -73,7 +65,7 @@ const ProfilePage: React.FC = () => {
         {
           id: "gender",
           label: "Gender",
-          value: getGenderLabel(userProfile.gender),
+          value: getGenderLabel(newUserProfile.gender),
           type: "select",
           options: ["Male", "Female", "Other"],
         },
@@ -87,7 +79,7 @@ const ProfilePage: React.FC = () => {
         {
           id: "weight",
           label: "Weight",
-          value: userProfile.weight_kg,
+          value: newUserProfile.weight_kg,
           type: "number",
           unit: "kg",
           min: 20,
@@ -96,7 +88,7 @@ const ProfilePage: React.FC = () => {
         {
           id: "height",
           label: "Height",
-          value: userProfile.height_cm,
+          value: newUserProfile.height_cm,
           type: "number",
           unit: "cm",
           min: 100,
@@ -112,21 +104,21 @@ const ProfilePage: React.FC = () => {
         {
           id: "activity_level",
           label: "Activity Level",
-          value: getActivityLevelLabel(userProfile.activity_level),
+          value: getActivityLevelLabel(newUserProfile.activity_level),
           type: "select",
           options: ["Sedentary", "Light", "Moderate", "Active", "Very Active"],
         },
         {
           id: "goal",
           label: "Weight Goal",
-          value: getWeightGoalLabel(userProfile.weight_goal),
+          value: getWeightGoalLabel(newUserProfile.weight_goal),
           type: "select",
           options: ["Lose weight", "Maintain", "Gain weight"],
         },
         {
           id: "intensity",
           label: "Goal Intensity",
-          value: getGoalIntensityLabel(userProfile.goal_intensity),
+          value: getGoalIntensityLabel(newUserProfile.goal_intensity),
           type: "select",
           options: ["Mild", "Moderate", "Aggressive"],
         },
@@ -141,7 +133,7 @@ const ProfilePage: React.FC = () => {
           id: "diet_type",
           label: "Diet Type",
           value: getDietaryPreferenceLabel(
-            userProfile.dietary_restrictions.preference
+            newUserProfile.dietary_restrictions.preference
           ),
           type: "select",
           options: [
@@ -156,7 +148,7 @@ const ProfilePage: React.FC = () => {
         {
           id: "allergies",
           label: "Allergies",
-          value: userProfile.dietary_restrictions.allergies
+          value: newUserProfile.dietary_restrictions.allergies
             .map((allergy) => getAllergyLabel(allergy))
             .toString(),
           type: "select",
@@ -197,10 +189,32 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setEditMode(false);
     setActiveSection(null);
-    // TODO: Save changes to backend
+    debugger;
+    const userProfileData = {
+      userProfile: {
+        age: Number(newUserProfile.age),
+        gender: Number(newUserProfile.gender),
+        weight_kg: Number(newUserProfile.weight_kg),
+        height_cm: Number(newUserProfile.height_cm),
+        activity_level: Number(newUserProfile.activity_level),
+        weight_goal: Number(newUserProfile.weight_goal),
+        goal_intensity: Number(newUserProfile.goal_intensity),
+        dietary_restrictions: {
+          preference: Number(newUserProfile.dietary_restrictions.preference),
+          allergies: newUserProfile.dietary_restrictions.allergies,
+          disliked_ingredients: [],
+        },
+      },
+    };
+    try {
+      await api.put("/auth/update-profile", userProfileData);
+      dispatch(setUserProfile(newUserProfile));
+    } catch (error) {
+      console.error("Error saving profile:", error);
+    }
   };
 
   return (
@@ -248,6 +262,12 @@ const ProfilePage: React.FC = () => {
                             <select
                               className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
                               defaultValue={field.value}
+                              onChange={(e) => {
+                                setNewUserProfile({
+                                  ...newUserProfile,
+                                  [field.id]: e.target.value,
+                                });
+                              }}
                             >
                               {field.options?.map((option) => (
                                 <option key={option} value={option}>
@@ -263,6 +283,12 @@ const ProfilePage: React.FC = () => {
                                 min={field.min}
                                 max={field.max}
                                 className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                                onChange={(e) => {
+                                  setNewUserProfile({
+                                    ...newUserProfile,
+                                    [field.id]: e.target.value,
+                                  });
+                                }}
                               />
                               {field.unit && (
                                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
