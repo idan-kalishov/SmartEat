@@ -15,12 +15,18 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
+  activityLevelLabels,
+  allergyLabels,
+  dietaryPreferenceLabels,
+  genderLabels,
   getActivityLevelLabel,
   getAllergyLabel,
   getDietaryPreferenceLabel,
   getGenderLabel,
   getGoalIntensityLabel,
   getWeightGoalLabel,
+  goalIntensityLabels,
+  weightGoalLabels,
 } from "@/utils/prefernces";
 import { setUserProfile } from "@/store/userSlice";
 
@@ -32,8 +38,9 @@ interface ProfileSection {
     id: string;
     label: string;
     value: string | number;
-    type: "text" | "number" | "select";
-    options?: string[];
+    type: "text" | "number" | "select" | "multiselect";
+    displayFunc?: Function;
+    options?: Record<any, string>;
     unit?: string;
     min?: number;
     max?: number;
@@ -65,9 +72,10 @@ const ProfilePage: React.FC = () => {
         {
           id: "gender",
           label: "Gender",
-          value: getGenderLabel(newUserProfile.gender),
+          value: newUserProfile.gender,
+          displayFunc: getGenderLabel,
           type: "select",
-          options: ["Male", "Female", "Other"],
+          options: genderLabels,
         },
       ],
     },
@@ -77,7 +85,7 @@ const ProfilePage: React.FC = () => {
       icon: <Weight className="w-5 h-5" />,
       fields: [
         {
-          id: "weight",
+          id: "weight_kg",
           label: "Weight",
           value: newUserProfile.weight_kg,
           type: "number",
@@ -86,7 +94,7 @@ const ProfilePage: React.FC = () => {
           max: 300,
         },
         {
-          id: "height",
+          id: "height_cm",
           label: "Height",
           value: newUserProfile.height_cm,
           type: "number",
@@ -104,23 +112,26 @@ const ProfilePage: React.FC = () => {
         {
           id: "activity_level",
           label: "Activity Level",
-          value: getActivityLevelLabel(newUserProfile.activity_level),
+          value: newUserProfile.activity_level,
+          displayFunc: getActivityLevelLabel,
           type: "select",
-          options: ["Sedentary", "Light", "Moderate", "Active", "Very Active"],
+          options: activityLevelLabels,
         },
         {
-          id: "goal",
+          id: "weight_goal",
           label: "Weight Goal",
-          value: getWeightGoalLabel(newUserProfile.weight_goal),
+          value: newUserProfile.weight_goal,
+          displayFunc: getWeightGoalLabel,
           type: "select",
-          options: ["Lose weight", "Maintain", "Gain weight"],
+          options: weightGoalLabels,
         },
         {
-          id: "intensity",
+          id: "goal_intensity",
           label: "Goal Intensity",
-          value: getGoalIntensityLabel(newUserProfile.goal_intensity),
+          value: newUserProfile.goal_intensity,
+          displayFunc: getGoalIntensityLabel,
           type: "select",
-          options: ["Mild", "Moderate", "Aggressive"],
+          options: goalIntensityLabels,
         },
       ],
     },
@@ -130,39 +141,21 @@ const ProfilePage: React.FC = () => {
       icon: <Salad className="w-5 h-5" />,
       fields: [
         {
-          id: "diet_type",
+          id: "preference",
           label: "Diet Type",
-          value: getDietaryPreferenceLabel(
-            newUserProfile.dietary_restrictions.preference
-          ),
+          value: newUserProfile.dietary_restrictions.preference,
+          displayFunc: getDietaryPreferenceLabel,
           type: "select",
-          options: [
-            "None",
-            "Vegetarian",
-            "Vegan",
-            "Keto",
-            "Paleo",
-            "Mediterranean",
-          ],
+          options: dietaryPreferenceLabels,
         },
         {
           id: "allergies",
           label: "Allergies",
           value: newUserProfile.dietary_restrictions.allergies
             .map((allergy) => getAllergyLabel(allergy))
-            .toString(),
-          type: "select",
-          options: [
-            "None",
-            "Peanuts",
-            "Tree Nuts",
-            "Dairy",
-            "Eggs",
-            "Soy",
-            "Wheat",
-            "Fish",
-            "Shellfish",
-          ],
+            .join(", "),
+          type: "multiselect",
+          options: allergyLabels,
         },
       ],
     },
@@ -205,7 +198,6 @@ const ProfilePage: React.FC = () => {
         dietary_restrictions: {
           preference: Number(newUserProfile.dietary_restrictions.preference),
           allergies: newUserProfile.dietary_restrictions.allergies,
-          disliked_ingredients: [],
         },
       },
     };
@@ -263,18 +255,88 @@ const ProfilePage: React.FC = () => {
                               className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
                               defaultValue={field.value}
                               onChange={(e) => {
-                                setNewUserProfile({
-                                  ...newUserProfile,
-                                  [field.id]: e.target.value,
-                                });
+                                debugger;
+                                section.id !== "diet"
+                                  ? setNewUserProfile({
+                                      ...newUserProfile,
+                                      [field.id]: e.target.value,
+                                    })
+                                  : setNewUserProfile({
+                                      ...newUserProfile,
+                                      dietary_restrictions: {
+                                        ...newUserProfile.dietary_restrictions,
+                                        [field.id]: e.target.value,
+                                      },
+                                    });
                               }}
                             >
-                              {field.options?.map((option) => (
-                                <option key={option} value={option}>
-                                  {option}
-                                </option>
-                              ))}
+                              {Object.entries(field.options).map(
+                                ([key, value]) => (
+                                  <option key={key} value={key}>
+                                    {value}
+                                  </option>
+                                )
+                              )}
                             </select>
+                          ) : field.type === "multiselect" ? (
+                            <div className="space-y-2">
+                              {Object.entries(field.options).map(
+                                ([key, value]) => {
+                                  const isChecked =
+                                    newUserProfile.dietary_restrictions.allergies.includes(
+                                      Number(key)
+                                    );
+                                  return (
+                                    <label
+                                      key={key}
+                                      className="flex items-center gap-2"
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={(e) => {
+                                          const allergyId = Number(key);
+                                          const currentAllergies = [
+                                            ...newUserProfile
+                                              .dietary_restrictions.allergies,
+                                          ];
+
+                                          if (e.target.checked) {
+                                            if (
+                                              !currentAllergies.includes(
+                                                allergyId
+                                              )
+                                            ) {
+                                              currentAllergies.push(allergyId);
+                                            }
+                                          } else {
+                                            const index =
+                                              currentAllergies.indexOf(
+                                                allergyId
+                                              );
+                                            if (index > -1) {
+                                              currentAllergies.splice(index, 1);
+                                            }
+                                          }
+
+                                          setNewUserProfile({
+                                            ...newUserProfile,
+                                            dietary_restrictions: {
+                                              ...newUserProfile.dietary_restrictions,
+                                              allergies: currentAllergies,
+                                            },
+                                          });
+                                        }}
+                                        className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
+                                      />
+                                      <span className="text-sm text-gray-700">
+                                        {value}
+                                      </span>
+                                    </label>
+                                  );
+                                }
+                              )}
+                            </div>
                           ) : (
                             <div className="relative">
                               <input
@@ -299,7 +361,11 @@ const ProfilePage: React.FC = () => {
                           )
                         ) : (
                           <p className="text-gray-800">
-                            {field.value}
+                            {field.type === "multiselect"
+                              ? field.value || "None selected"
+                              : field.displayFunc
+                              ? field.displayFunc(field.value)
+                              : field.value}
                             {field.unit && ` ${field.unit}`}
                           </p>
                         )}
