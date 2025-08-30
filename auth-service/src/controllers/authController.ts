@@ -128,15 +128,15 @@ const login = async (req: Request, res: Response) => {
 
     user.refreshToken.push(tokens.refreshToken);
     await user.save();
-    res.cookie("accessToken", tokens.accessToken, { 
+    res.cookie("accessToken", tokens.accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax'
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
     });
-    res.cookie("refreshToken", tokens.refreshToken, { 
+    res.cookie("refreshToken", tokens.refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax'
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
     });
     res.status(200).json({
       user: {
@@ -185,13 +185,13 @@ const verifyRefreshToken = async (refreshToken: string): Promise<tIUser> => {
 
 const logout = async (req: Request, res: Response) => {
   try {
-    res.clearCookie("accessToken", { 
-      httpOnly: true, 
-      secure: process.env.NODE_ENV === 'production' 
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
     });
-    res.clearCookie("refreshToken", { 
-      httpOnly: true, 
-      secure: process.env.NODE_ENV === 'production' 
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
     });
     res.status(200).json({ message: "Logged out successfully." });
   } catch (error) {
@@ -237,15 +237,15 @@ const refresh = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    res.cookie("accessToken", tokens.accessToken, { 
+    res.cookie("accessToken", tokens.accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax'
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
     });
-    res.cookie("refreshToken", tokens.refreshToken, { 
+    res.cookie("refreshToken", tokens.refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax'
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
     });
     res.status(200).send("Tokens refreshed successfully");
   } catch (err) {
@@ -299,7 +299,7 @@ const updateUser = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const allowedFields = ["email", "userName", "profilePicture"];
+    const allowedFields = ["email", "userName", "userProfile"];
     const updates: Partial<IUser> = {};
 
     for (const field of allowedFields) {

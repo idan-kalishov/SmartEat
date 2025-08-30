@@ -7,7 +7,7 @@ import {
   WeightGoal,
 } from "@/types/userTypes";
 
-const genderLabels: Record<Gender, string> = {
+export const genderLabels: Record<Gender, string> = {
   [Gender.GENDER_UNSPECIFIED]: "Unspecified",
   [Gender.GENDER_MALE]: "Male",
   [Gender.GENDER_FEMALE]: "Female",
