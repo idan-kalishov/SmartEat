@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import { Injectable } from '@nestjs/common';
+import { Response as ExpressResponse, Request } from 'express';
 import { firstValueFrom } from 'rxjs';
-import { Request, Response as ExpressResponse } from 'express';
+import { UserProfile } from '../generated/nutrition';
 
 @Injectable()
 export class AuthGatewayService {
@@ -206,5 +207,57 @@ export class AuthGatewayService {
       });
       throw error;
     }
+  }
+
+  async getUserProfile(req: Request): Promise<UserProfile> {
+    const userDetails = await this.getUserDetails(req);
+    const profile = userDetails?.user?.userProfile;
+
+    // Check if profile exists and has required fields
+    const hasValidProfile = profile &&
+      typeof profile.age === 'number' &&
+      typeof profile.weight_kg === 'number' &&
+      typeof profile.height_cm === 'number';
+
+    if (!hasValidProfile) {
+      console.warn('No valid user profile found, using default values');
+      // Return a complete default profile with all required fields
+      return {
+        age: 30,
+        gender: 0, // GENDER_UNSPECIFIED
+        weightKg: 70,
+        heightCm: 175,
+        activityLevel: 3, // ACTIVITY_LEVEL_MODERATE
+        weightGoal: 2, // WEIGHT_GOAL_MAINTAIN
+        goalIntensity: 2, // GOAL_INTENSITY_MODERATE
+        dietaryRestrictions: {
+          preference: 1, // DIETARY_PREFERENCE_NONE
+          allergies: [1], // ALLERGY_NONE
+          dislikedIngredients: [],
+        },
+      } as UserProfile;
+    }
+
+    return {
+      age: profile.age,
+      gender: profile.gender ?? 0, // GENDER_UNSPECIFIED
+      weightKg: profile.weight_kg,
+      heightCm: profile.height_cm,
+      activityLevel: profile.activity_level ?? 3, // ACTIVITY_LEVEL_MODERATE
+      weightGoal: profile.weight_goal ?? 2, // WEIGHT_GOAL_MAINTAIN
+      goalIntensity: profile.goal_intensity ?? 2, // GOAL_INTENSITY_MODERATE
+      dietaryRestrictions: profile.dietary_restrictions
+        ? {
+          preference: profile.dietary_restrictions.preference ?? 1, // DIETARY_PREFERENCE_NONE
+          allergies: profile.dietary_restrictions.allergies ?? [1], // ALLERGY_NONE
+          dislikedIngredients:
+            profile.dietary_restrictions.disliked_ingredients ?? [],
+        }
+        : {
+          preference: 1, // DIETARY_PREFERENCE_NONE
+          allergies: [1], // ALLERGY_NONE
+          dislikedIngredients: [],
+        },
+    } as UserProfile;
   }
 }

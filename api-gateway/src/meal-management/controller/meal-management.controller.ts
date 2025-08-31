@@ -1,5 +1,6 @@
 import {
   GetMealsByDateResponse,
+  GetDailyNutritionResponse,
   Ingredient,
   Meal,
 } from '@generated/meal-management';
@@ -160,6 +161,31 @@ export class MealManagementController {
         throw error;
       }
       throw new InternalServerErrorException('Failed to get meals by date: ' + error.message);
+    }
+  }
+
+  @Get('daily-nutrition/:date')
+  async getDailyNutrition(
+    @Request() req,
+    @Param('date') date: string,
+  ): Promise<GetDailyNutritionResponse> {
+    try {
+      if (!date) {
+        throw new BadRequestException('Date is required');
+      }
+
+      const userDetails = await this.authService.getUserDetails(req);
+      if (!userDetails?.user?._id) {
+        throw new BadRequestException('User not authenticated');
+      }
+
+      return await this.client.getDailyNutrition(userDetails.user._id, date);
+    } catch (error) {
+      console.error('Error in getDailyNutrition controller:', error);
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Failed to get daily nutrition: ' + error.message);
     }
   }
 }

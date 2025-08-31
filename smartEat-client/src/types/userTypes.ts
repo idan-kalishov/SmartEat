@@ -68,21 +68,3 @@ export interface UserProfile {
     goal_intensity: GoalIntensity;
     dietary_restrictions: DietaryRestrictions;
 }
-
-// Function to create a default user profile with proper enum values
-export function getDefaultUserProfile(): UserProfile {
-    return {
-        age: 30,
-        gender: Gender.GENDER_MALE,
-        weight_kg: 70,
-        height_cm: 175,
-        activity_level: ActivityLevel.ACTIVITY_LEVEL_MODERATE,
-        weight_goal: WeightGoal.WEIGHT_GOAL_MAINTAIN,
-        goal_intensity: GoalIntensity.GOAL_INTENSITY_MODERATE,
-        dietary_restrictions: {
-            preference: DietaryPreference.DIETARY_PREFERENCE_NONE,
-            allergies: [Allergy.ALLERGY_NONE],
-            disliked_ingredients: [],
-        },
-    };
-}

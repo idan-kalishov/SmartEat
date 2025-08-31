@@ -72,7 +72,7 @@ const ExercisesCard: React.FC<ExercisesCardProps> = ({
   };
 
   return (
-    <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-4">
+    <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-4 mb-4">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Dumbbell className="w-5 h-5 text-emerald-600" />

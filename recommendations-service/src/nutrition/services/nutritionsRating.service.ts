@@ -1,14 +1,13 @@
-import { Injectable } from '@nestjs/common';
 import {
-  UserProfile,
+  Gender,
+  GoalIntensity,
+  MealRating,
   NutrientRecommendation,
   NutritionData,
-  MealRating,
-  Gender,
-  ActivityLevel,
-  WeightGoal,
-  GoalIntensity,
+  UserProfile,
+  WeightGoal
 } from '@generated/nutrition_pb';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class NutritionsRatingService {
@@ -107,6 +106,11 @@ export class NutritionsRatingService {
       carbRatio = 0.4;
     }
 
+    const fats = Math.round((tdee * fatRatio) / 9);
+    const carbs = Math.round((tdee * carbRatio) / 4);
+    const calories = Math.round(tdee);
+    const fiber = user.gender === Gender.GENDER_MALE ? 38 : 25;
+
     const micronutrients = {
       vitaminA: user.gender === Gender.GENDER_MALE ? 900 : 700,
       vitaminC: user.gender === Gender.GENDER_MALE ? 90 : 75,
@@ -118,12 +122,12 @@ export class NutritionsRatingService {
     };
 
     return {
-      calories: Math.round(tdee),
-      protein: protein,
-      fats: Math.round((tdee * fatRatio) / 9),
-      carbs: Math.round((tdee * carbRatio) / 4),
-      fiber: user.gender === Gender.GENDER_MALE ? 38 : 25,
-      micronutrients: micronutrients,
+      calories,
+      protein,
+      fats,
+      carbs,
+      fiber,
+      micronutrients,
     };
   }
 

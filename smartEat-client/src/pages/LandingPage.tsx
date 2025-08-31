@@ -145,7 +145,7 @@ const LandingPage = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.5 }}
             >
-              Welcome to <span className="text-emerald-500">smartEat</span>
+              Welcome to <span className="text-emerald-500">SmartEat</span>
             </motion.h1>
             <p className="text-sm text-gray-500 mt-1">
               Your personal AI nutrition guide
@@ -231,9 +231,9 @@ const LandingPage = () => {
               <Button
                 variant="outline"
                 onClick={() => navigate("/login")}
-                className="w-full py-5 text-base font-semibold border-green-300 text-green-700 hover:bg-green-50"
+                className="w-full py-5 text-base cursor-pointer font-semibold border-green-300 text-green-700 hover:bg-green-50"
               >
-                Get Started 🚀
+                Continue in Browser
               </Button>
             </motion.div>
 

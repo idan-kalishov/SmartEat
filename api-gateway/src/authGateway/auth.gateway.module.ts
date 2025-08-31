@@ -7,5 +7,6 @@ import { HttpModule } from '@nestjs/axios';
   imports: [HttpModule],
   controllers: [AuthGatewayController],
   providers: [AuthGatewayService],
+  exports: [AuthGatewayService],
 })
 export class AuthGatewayModule {}

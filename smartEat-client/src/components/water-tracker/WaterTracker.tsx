@@ -1,8 +1,9 @@
-import React, { useEffect, useMemo, useState } from "react";
-import api from "@/services/api";
-import { DropletIcon } from "lucide-react";
 import LoadingSpinner from "@/components/common/LoadingSpinner.tsx";
-import { formatDateLocal } from "@/services/mealService";
+import api from "@/services/api";
+import { formatDateLocal } from "@/utils/dateUtils";
+import { DropletIcon } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+
 
 const cupsPerRow = 10;
 const cupVolume = 0.2; // liters
@@ -99,7 +100,7 @@ const WaterTracker: React.FC<WaterTrackerProps> = ({ selectedDate }) => {
   }
 
   return (
-    <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-4 mt-[5%]">
+    <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-4">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <DropletIcon className="w-4 h-4" />
