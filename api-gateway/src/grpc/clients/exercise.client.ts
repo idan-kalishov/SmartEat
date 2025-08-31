@@ -45,18 +45,16 @@ export class ExerciseClient implements OnModuleInit {
   }
 
   async getExercisesByDate(
-    getExercisesByDateRequest: GetExercisesByDateRequest,
+    userId: string,
+    date: string,
   ): Promise<GetExercisesByDateResponse> {
     try {
-      if (!getExercisesByDateRequest.userId) {
-        throw new BadRequestException('User ID is required');
-      }
-      if (!getExercisesByDateRequest.date) {
-        throw new BadRequestException('Date is required');
-      }
-
+      const request: GetExercisesByDateRequest = {
+        userId,
+        date,
+      };
       return await firstValueFrom(
-        this.exerciseService.getExercisesByDate(getExercisesByDateRequest),
+        this.exerciseService.getExercisesByDate(request),
       );
     } catch (error) {
       console.error('Error getting exercises by date:', error);

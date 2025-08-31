@@ -1,5 +1,4 @@
-// src/pages/MealsLogPage.tsx
-
+import React, { useState } from "react";
 import AddMealModal from "@/components/add-meal/AddMealModal";
 import { NutritionBadge } from "@/components/common/NutritionBadge";
 import ExercisesCard from "@/components/exercise/ExercisesCard";
@@ -21,8 +20,7 @@ import {
 } from "lucide-react";
 import React, { useCallback, useState } from "react";
 import HorizontalDatePicker from "../components/HorizontalDatePicker";
-
-// 👇 Import your modal
+import { useExercisesByDate } from "@/hooks/exercise/useExercisesByDate";
 
 type Tab = "overview" | "statistics";
 
@@ -30,7 +28,7 @@ const MealsLogPage: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false); // Modal state
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const {
     meals = [],
@@ -46,6 +44,13 @@ const MealsLogPage: React.FC = () => {
     error: nutritionError,
     fetchNutritionData,
   } = useDailyNutrition(formatDateLocal(selectedDate));
+
+  const {
+    exercises = [],
+    isLoading: isLoadingExercises,
+    error: errorExercises,
+    fetchExercises,
+  } = useExercisesByDate(selectedDate);
 
   const formatTime = (date: string) => {
     return new Date(date).toLocaleTimeString("en-US", {
@@ -68,7 +73,7 @@ const MealsLogPage: React.FC = () => {
         </h1>
         <HorizontalDatePicker
           selectedDate={selectedDate}
-          onDateChange={setSelectedDate}
+          onDateChange={handleDateChange}
         />
       </div>
 
@@ -180,7 +185,13 @@ const MealsLogPage: React.FC = () => {
             )}
           </div>
 
-          <ExercisesCard />
+          <ExercisesCard
+            exercises={exercises}
+            fetchExercises={fetchExercises}
+            selectedDate={selectedDate}
+            isLoading={isLoadingExercises}
+            error={errorExercises}
+          />
         </>
       ) : (
         <div className="w-full max-w-md bg-white/90 backdrop-blur-sm rounded-xl shadow-lg p-4 mb-4">

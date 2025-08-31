@@ -102,7 +102,4 @@ services:
     ports:
       - "8080:80"
     restart: unless-stopped
-
 # MongoDB is already installed on the VM, so we don't need a container
-
-
