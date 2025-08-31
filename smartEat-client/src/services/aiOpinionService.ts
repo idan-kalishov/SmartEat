@@ -75,33 +75,20 @@ export async function getAIOpinion(
     request.dailyExerciseGoal.exerciseGoal - totalExercise
   );
 
-  // Prepare the API request payload
+  // Prepare the API request payload with new simplified structure
   const payload = {
     user: request.userProfile,
-    current_progress: {
-      nutrition: {
-        calories: totalNutrition.calories,
-        protein: totalNutrition.protein,
-        fats: totalNutrition.totalFat,
-        carbs: totalNutrition.totalCarbohydrates,
-        fiber: totalNutrition.fiber,
-      },
-      exercise: totalExercise,
+    dailyGoals: request.dailyRecommendations,
+    currentNutrition: {
+      calories: { value: totalNutrition.calories, unit: "kcal" },
+      protein: { value: totalNutrition.protein, unit: "g" },
+      fats: { value: totalNutrition.totalFat, unit: "g" },
+      carbs: { value: totalNutrition.totalCarbohydrates, unit: "g" },
+      fiber: { value: totalNutrition.fiber, unit: "g" },
     },
-    remaining_needs: {
-      nutrition: {
-        calories: remainingCalories,
-        protein: remainingProtein,
-        fats: remainingFat,
-        carbs: remainingCarbs,
-      },
-      exercise: remainingExercise,
-    },
-    daily_goals: {
-      nutrition: request.dailyRecommendations,
-      exercise: request.dailyExerciseGoal.exerciseGoal,
-    },
-    current_time: request.currentTime,
+    currentExerciseCalories: totalExercise,
+    dailyExerciseGoal: request.dailyExerciseGoal.exerciseGoal,
+    currentTime: request.currentTime,
   };
 
   console.log("Sending AI opinion request:", payload);

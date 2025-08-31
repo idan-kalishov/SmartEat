@@ -152,33 +152,11 @@ message CompleteMealAnalysisResponse {
 
 message DailyOpinionRequest {
   UserProfile user = 1;
-  CurrentProgress current_progress = 2;
-  RemainingNeeds remaining_needs = 3;
-  DailyGoals daily_goals = 4;
-  string current_time = 5;
-}
-
-message CurrentProgress {
-  NutritionProgress nutrition = 1;
-  double exercise = 2;
-}
-
-message NutritionProgress {
-  double calories = 1;
-  double protein = 2;
-  double fats = 3;
-  double carbs = 4;
-  double fiber = 5;
-}
-
-message RemainingNeeds {
-  NutritionProgress nutrition = 1;
-  double exercise = 2;
-}
-
-message DailyGoals {
-  NutrientRecommendation nutrition = 1;
-  double exercise = 2;
+  NutrientRecommendation dailyGoals = 2;
+  NutritionData currentNutrition = 3;
+  double currentExerciseCalories = 4;
+  double dailyExerciseGoal = 5;
+  string currentTime = 6;
 }
 
 message DailyOpinionResponse {

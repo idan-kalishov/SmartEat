@@ -2,7 +2,7 @@ import { CompleteMealAnalysisResponse } from '@generated/nutrition';
 import {
   MealAnalysisRequest,
   NutrientRecommendation,
-  UserProfile
+  UserProfile,
 } from '@generated/nutrition_pb';
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
@@ -14,7 +14,7 @@ export class RecommendationsController {
   constructor(
     private readonly nutritionsRatingService: NutritionsRatingService,
     private readonly geminiRecommendService: GeminiRecommendService,
-  ) { }
+  ) {}
 
   @GrpcMethod('NutritionsRatingService', 'GetDailyRecommendations')
   getDailyRecommendations(userProfile: UserProfile): NutrientRecommendation {
@@ -65,7 +65,7 @@ export class RecommendationsController {
   @GrpcMethod('NutritionsRatingService', 'GetDailyOpinion')
   async getDailyOpinion(request: any): Promise<any> {
     // Validate input
-    if (!request.user || !request.currentProgress || !request.remainingNeeds) {
+    if (!request.user || !request.dailyGoals || !request.currentNutrition) {
       throw new Error('Invalid request: Required data is missing');
     }
 

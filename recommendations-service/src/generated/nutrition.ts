@@ -174,33 +174,11 @@ export interface CompleteMealAnalysisResponse {
 
 export interface DailyOpinionRequest {
   user: UserProfile | undefined;
-  currentProgress: CurrentProgress | undefined;
-  remainingNeeds: RemainingNeeds | undefined;
-  dailyGoals: DailyGoals | undefined;
+  dailyGoals: NutrientRecommendation | undefined;
+  currentNutrition: NutritionData | undefined;
+  currentExerciseCalories: number;
+  dailyExerciseGoal: number;
   currentTime: string;
-}
-
-export interface CurrentProgress {
-  nutrition: NutritionProgress | undefined;
-  exercise: number;
-}
-
-export interface NutritionProgress {
-  calories: number;
-  protein: number;
-  fats: number;
-  carbs: number;
-  fiber: number;
-}
-
-export interface RemainingNeeds {
-  nutrition: NutritionProgress | undefined;
-  exercise: number;
-}
-
-export interface DailyGoals {
-  nutrition: NutrientRecommendation | undefined;
-  exercise: number;
 }
 
 export interface DailyOpinionResponse {
@@ -1143,9 +1121,10 @@ export const CompleteMealAnalysisResponse: MessageFns<CompleteMealAnalysisRespon
 function createBaseDailyOpinionRequest(): DailyOpinionRequest {
   return {
     user: undefined,
-    currentProgress: undefined,
-    remainingNeeds: undefined,
     dailyGoals: undefined,
+    currentNutrition: undefined,
+    currentExerciseCalories: 0,
+    dailyExerciseGoal: 0,
     currentTime: "",
   };
 }
@@ -1155,17 +1134,20 @@ export const DailyOpinionRequest: MessageFns<DailyOpinionRequest> = {
     if (message.user !== undefined) {
       UserProfile.encode(message.user, writer.uint32(10).fork()).join();
     }
-    if (message.currentProgress !== undefined) {
-      CurrentProgress.encode(message.currentProgress, writer.uint32(18).fork()).join();
-    }
-    if (message.remainingNeeds !== undefined) {
-      RemainingNeeds.encode(message.remainingNeeds, writer.uint32(26).fork()).join();
-    }
     if (message.dailyGoals !== undefined) {
-      DailyGoals.encode(message.dailyGoals, writer.uint32(34).fork()).join();
+      NutrientRecommendation.encode(message.dailyGoals, writer.uint32(18).fork()).join();
+    }
+    if (message.currentNutrition !== undefined) {
+      NutritionData.encode(message.currentNutrition, writer.uint32(26).fork()).join();
+    }
+    if (message.currentExerciseCalories !== 0) {
+      writer.uint32(33).double(message.currentExerciseCalories);
+    }
+    if (message.dailyExerciseGoal !== 0) {
+      writer.uint32(41).double(message.dailyExerciseGoal);
     }
     if (message.currentTime !== "") {
-      writer.uint32(42).string(message.currentTime);
+      writer.uint32(50).string(message.currentTime);
     }
     return writer;
   },
@@ -1190,7 +1172,7 @@ export const DailyOpinionRequest: MessageFns<DailyOpinionRequest> = {
             break;
           }
 
-          message.currentProgress = CurrentProgress.decode(reader, reader.uint32());
+          message.dailyGoals = NutrientRecommendation.decode(reader, reader.uint32());
           continue;
         }
         case 3: {
@@ -1198,136 +1180,7 @@ export const DailyOpinionRequest: MessageFns<DailyOpinionRequest> = {
             break;
           }
 
-          message.remainingNeeds = RemainingNeeds.decode(reader, reader.uint32());
-          continue;
-        }
-        case 4: {
-          if (tag !== 34) {
-            break;
-          }
-
-          message.dailyGoals = DailyGoals.decode(reader, reader.uint32());
-          continue;
-        }
-        case 5: {
-          if (tag !== 42) {
-            break;
-          }
-
-          message.currentTime = reader.string();
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
-
-function createBaseCurrentProgress(): CurrentProgress {
-  return { nutrition: undefined, exercise: 0 };
-}
-
-export const CurrentProgress: MessageFns<CurrentProgress> = {
-  encode(message: CurrentProgress, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.nutrition !== undefined) {
-      NutritionProgress.encode(message.nutrition, writer.uint32(10).fork()).join();
-    }
-    if (message.exercise !== 0) {
-      writer.uint32(17).double(message.exercise);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): CurrentProgress {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseCurrentProgress();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.nutrition = NutritionProgress.decode(reader, reader.uint32());
-          continue;
-        }
-        case 2: {
-          if (tag !== 17) {
-            break;
-          }
-
-          message.exercise = reader.double();
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
-
-function createBaseNutritionProgress(): NutritionProgress {
-  return { calories: 0, protein: 0, fats: 0, carbs: 0, fiber: 0 };
-}
-
-export const NutritionProgress: MessageFns<NutritionProgress> = {
-  encode(message: NutritionProgress, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.calories !== 0) {
-      writer.uint32(9).double(message.calories);
-    }
-    if (message.protein !== 0) {
-      writer.uint32(17).double(message.protein);
-    }
-    if (message.fats !== 0) {
-      writer.uint32(25).double(message.fats);
-    }
-    if (message.carbs !== 0) {
-      writer.uint32(33).double(message.carbs);
-    }
-    if (message.fiber !== 0) {
-      writer.uint32(41).double(message.fiber);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): NutritionProgress {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseNutritionProgress();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 9) {
-            break;
-          }
-
-          message.calories = reader.double();
-          continue;
-        }
-        case 2: {
-          if (tag !== 17) {
-            break;
-          }
-
-          message.protein = reader.double();
-          continue;
-        }
-        case 3: {
-          if (tag !== 25) {
-            break;
-          }
-
-          message.fats = reader.double();
+          message.currentNutrition = NutritionData.decode(reader, reader.uint32());
           continue;
         }
         case 4: {
@@ -1335,7 +1188,7 @@ export const NutritionProgress: MessageFns<NutritionProgress> = {
             break;
           }
 
-          message.carbs = reader.double();
+          message.currentExerciseCalories = reader.double();
           continue;
         }
         case 5: {
@@ -1343,103 +1196,15 @@ export const NutritionProgress: MessageFns<NutritionProgress> = {
             break;
           }
 
-          message.fiber = reader.double();
+          message.dailyExerciseGoal = reader.double();
           continue;
         }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
-
-function createBaseRemainingNeeds(): RemainingNeeds {
-  return { nutrition: undefined, exercise: 0 };
-}
-
-export const RemainingNeeds: MessageFns<RemainingNeeds> = {
-  encode(message: RemainingNeeds, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.nutrition !== undefined) {
-      NutritionProgress.encode(message.nutrition, writer.uint32(10).fork()).join();
-    }
-    if (message.exercise !== 0) {
-      writer.uint32(17).double(message.exercise);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): RemainingNeeds {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseRemainingNeeds();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
+        case 6: {
+          if (tag !== 50) {
             break;
           }
 
-          message.nutrition = NutritionProgress.decode(reader, reader.uint32());
-          continue;
-        }
-        case 2: {
-          if (tag !== 17) {
-            break;
-          }
-
-          message.exercise = reader.double();
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-};
-
-function createBaseDailyGoals(): DailyGoals {
-  return { nutrition: undefined, exercise: 0 };
-}
-
-export const DailyGoals: MessageFns<DailyGoals> = {
-  encode(message: DailyGoals, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.nutrition !== undefined) {
-      NutrientRecommendation.encode(message.nutrition, writer.uint32(10).fork()).join();
-    }
-    if (message.exercise !== 0) {
-      writer.uint32(17).double(message.exercise);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): DailyGoals {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseDailyGoals();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.nutrition = NutrientRecommendation.decode(reader, reader.uint32());
-          continue;
-        }
-        case 2: {
-          if (tag !== 17) {
-            break;
-          }
-
-          message.exercise = reader.double();
+          message.currentTime = reader.string();
           continue;
         }
       }

@@ -243,10 +243,37 @@ export class GeminiRecommendService {
 
   private buildDailyOpinionPrompt(request: any): string {
     const user = request.user;
-    const currentProgress = request.currentProgress;
-    const remainingNeeds = request.remainingNeeds;
     const dailyGoals = request.dailyGoals;
+    const currentNutrition = request.currentNutrition;
+    const currentExerciseCalories = request.currentExerciseCalories;
+    const dailyExerciseGoal = request.dailyExerciseGoal;
     const currentTime = request.currentTime;
+
+    // Calculate remaining needs
+    const remainingNutrition = {
+      calories: Math.max(
+        0,
+        dailyGoals.calories - (currentNutrition.calories?.value || 0),
+      ),
+      protein: Math.max(
+        0,
+        dailyGoals.protein - (currentNutrition.protein?.value || 0),
+      ),
+      fats: Math.max(0, dailyGoals.fats - (currentNutrition.fats?.value || 0)),
+      carbs: Math.max(
+        0,
+        dailyGoals.carbs - (currentNutrition.carbs?.value || 0),
+      ),
+      fiber: Math.max(
+        0,
+        dailyGoals.fiber - (currentNutrition.fiber?.value || 0),
+      ),
+    };
+
+    const remainingExercise = Math.max(
+      0,
+      dailyExerciseGoal - currentExerciseCalories,
+    );
 
     // Build dietary restrictions text
     let restrictionsText = '';
@@ -295,18 +322,18 @@ export class GeminiRecommendService {
       }
 
       CURRENT PROGRESS (${currentTime}):
-      - Calories consumed: ${currentProgress.nutrition.calories} / ${dailyGoals.nutrition.calories}
-      - Protein consumed: ${currentProgress.nutrition.protein}g / ${dailyGoals.nutrition.protein}g
-      - Fats consumed: ${currentProgress.nutrition.fats}g / ${dailyGoals.nutrition.fats}g
-      - Carbs consumed: ${currentProgress.nutrition.carbs}g / ${dailyGoals.nutrition.carbs}g
-      - Exercise completed: ${currentProgress.exercise} minutes / ${dailyGoals.exercise} minutes
+      - Calories consumed: ${currentNutrition.calories?.value || 0} / ${dailyGoals.calories}
+      - Protein consumed: ${currentNutrition.protein?.value || 0}g / ${dailyGoals.protein}g
+      - Fats consumed: ${currentNutrition.fats?.value || 0}g / ${dailyGoals.fats}g
+      - Carbs consumed: ${currentNutrition.carbs?.value || 0}g / ${dailyGoals.carbs}g
+      - Exercise completed: ${currentExerciseCalories} calories / ${dailyExerciseGoal} calories
 
       REMAINING NEEDS:
-      - Calories needed: ${remainingNeeds.nutrition.calories}
-      - Protein needed: ${remainingNeeds.nutrition.protein}g
-      - Fats needed: ${remainingNeeds.nutrition.fats}g
-      - Carbs needed: ${remainingNeeds.nutrition.carbs}g
-      - Exercise needed: ${remainingNeeds.exercise} minutes
+      - Calories needed: ${remainingNutrition.calories}
+      - Protein needed: ${remainingNutrition.protein}g
+      - Fats needed: ${remainingNutrition.fats}g
+      - Carbs needed: ${remainingNutrition.carbs}g
+      - Exercise needed: ${remainingExercise} calories
 
       Instructions:
       1. Start with one encouraging sentence about their progress so far TODAY.
