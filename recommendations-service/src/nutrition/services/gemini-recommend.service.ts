@@ -199,18 +199,18 @@ export class GeminiRecommendService {
       const verification =
         await this.verificationService.verifyNutritionAdvice(recommendation);
 
-      // if (verification.isValid) {
-      verifiedRecommendations.push(recommendation);
-      // } else {
-      //   anyInvalid = true;
-      //   console.warn(
-      //     `Invalid recommendation detected: ${verification.reason}`,
-      //     { original: recommendation },
-      //   );
-      //   if (verification.correctedAdvice) {
-      //     verifiedRecommendations.push(verification.correctedAdvice);
-      //   }
-      // }
+      if (verification.isValid) {
+        verifiedRecommendations.push(recommendation);
+      } else {
+        anyInvalid = true;
+        console.warn(
+          `Invalid recommendation detected: ${verification.reason}`,
+          { original: recommendation },
+        );
+        if (verification.correctedAdvice) {
+          verifiedRecommendations.push(verification.correctedAdvice);
+        }
+      }
     }
 
     // If all recommendations were invalid, use completely fallback advice
