@@ -1,6 +1,5 @@
 // src/utils/ingredientProcessingUtils.ts
 
-import { Ingredient } from "../types/common";
 import { mergeNutritionData } from "./ingredientUtils";
 import {
   fetchNutritionalDataForIngredients,

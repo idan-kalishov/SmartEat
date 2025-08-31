@@ -123,7 +123,7 @@ const ProfilePage: React.FC = () => {
         >
           {Object.entries(field.options).map(([k, v]) => (
             <option key={k} value={k}>
-              {v}
+              {v as string}
             </option>
           ))}
         </select>
@@ -158,7 +158,7 @@ const ProfilePage: React.FC = () => {
                   }}
                   className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
                 />
-                <span className="text-sm text-gray-700">{v}</span>
+                <span className="text-sm text-gray-700">{v as string}</span>
               </label>
             );
           })}
