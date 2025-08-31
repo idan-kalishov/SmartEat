@@ -12,7 +12,7 @@ const SaveButton = ({
   return (
     <button
       onClick={!disabled && !isLoading ? onClick : undefined}
-      className={`w-[50%] ml-[25%] py-3 rounded-xl font-medium transition
+      className={`w-[50%] ml-[25%] py-2.5 rounded-xl font-medium transition
         ${
           disabled || isLoading
             ? "bg-gray-300 cursor-not-allowed"
