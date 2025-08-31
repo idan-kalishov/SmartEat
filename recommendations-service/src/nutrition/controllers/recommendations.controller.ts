@@ -1,23 +1,20 @@
-import { Controller } from '@nestjs/common';
-import { GrpcMethod } from '@nestjs/microservices';
+import { CompleteMealAnalysisResponse } from '@generated/nutrition';
 import {
   MealAnalysisRequest,
-  MealRating,
-  AIRecommendRequest,
-  AIRecommendResponse,
   NutrientRecommendation,
-  UserProfile,
+  UserProfile
 } from '@generated/nutrition_pb';
-import { NutritionsRatingService } from '../services/nutritionsRating.service';
+import { Controller } from '@nestjs/common';
+import { GrpcMethod } from '@nestjs/microservices';
 import { GeminiRecommendService } from '../services/gemini-recommend.service';
-import { CompleteMealAnalysisResponse } from '@generated/nutrition';
+import { NutritionsRatingService } from '../services/nutritionsRating.service';
 
 @Controller()
 export class RecommendationsController {
   constructor(
     private readonly nutritionsRatingService: NutritionsRatingService,
     private readonly geminiRecommendService: GeminiRecommendService,
-  ) {}
+  ) { }
 
   @GrpcMethod('NutritionsRatingService', 'GetDailyRecommendations')
   getDailyRecommendations(userProfile: UserProfile): NutrientRecommendation {

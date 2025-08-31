@@ -41,6 +41,25 @@ export interface GetMealsByDateResponse {
   meals: MealResponse[];
 }
 
+export interface GetDailyNutritionRequest {
+  userId: string;
+  /** ISO date string */
+  date: string;
+}
+
+export interface GetDailyNutritionResponse {
+  /** kcal */
+  calories: number;
+  /** g */
+  protein: number;
+  /** g */
+  fats: number;
+  /** g */
+  carbs: number;
+  /** g */
+  fiber: number;
+}
+
 export interface ImageData {
   /** Base64 encoded image data */
   data: string;
@@ -350,6 +369,135 @@ export const GetMealsByDateResponse: MessageFns<GetMealsByDateResponse> = {
           }
 
           message.meals.push(MealResponse.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseGetDailyNutritionRequest(): GetDailyNutritionRequest {
+  return { userId: "", date: "" };
+}
+
+export const GetDailyNutritionRequest: MessageFns<GetDailyNutritionRequest> = {
+  encode(message: GetDailyNutritionRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.userId !== "") {
+      writer.uint32(10).string(message.userId);
+    }
+    if (message.date !== "") {
+      writer.uint32(18).string(message.date);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetDailyNutritionRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetDailyNutritionRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.userId = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.date = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseGetDailyNutritionResponse(): GetDailyNutritionResponse {
+  return { calories: 0, protein: 0, fats: 0, carbs: 0, fiber: 0 };
+}
+
+export const GetDailyNutritionResponse: MessageFns<GetDailyNutritionResponse> = {
+  encode(message: GetDailyNutritionResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.calories !== 0) {
+      writer.uint32(9).double(message.calories);
+    }
+    if (message.protein !== 0) {
+      writer.uint32(17).double(message.protein);
+    }
+    if (message.fats !== 0) {
+      writer.uint32(25).double(message.fats);
+    }
+    if (message.carbs !== 0) {
+      writer.uint32(33).double(message.carbs);
+    }
+    if (message.fiber !== 0) {
+      writer.uint32(41).double(message.fiber);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetDailyNutritionResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetDailyNutritionResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 9) {
+            break;
+          }
+
+          message.calories = reader.double();
+          continue;
+        }
+        case 2: {
+          if (tag !== 17) {
+            break;
+          }
+
+          message.protein = reader.double();
+          continue;
+        }
+        case 3: {
+          if (tag !== 25) {
+            break;
+          }
+
+          message.fats = reader.double();
+          continue;
+        }
+        case 4: {
+          if (tag !== 33) {
+            break;
+          }
+
+          message.carbs = reader.double();
+          continue;
+        }
+        case 5: {
+          if (tag !== 41) {
+            break;
+          }
+
+          message.fiber = reader.double();
           continue;
         }
       }
@@ -806,6 +954,8 @@ export interface MealManagementServiceClient {
   deleteMeal(request: DeleteMealRequest): Observable<DeleteMealResponse>;
 
   getMealsByDate(request: GetMealsByDateRequest): Observable<GetMealsByDateResponse>;
+
+  getDailyNutrition(request: GetDailyNutritionRequest): Observable<GetDailyNutritionResponse>;
 }
 
 export interface MealManagementServiceController {
@@ -818,11 +968,15 @@ export interface MealManagementServiceController {
   getMealsByDate(
     request: GetMealsByDateRequest,
   ): Promise<GetMealsByDateResponse> | Observable<GetMealsByDateResponse> | GetMealsByDateResponse;
+
+  getDailyNutrition(
+    request: GetDailyNutritionRequest,
+  ): Promise<GetDailyNutritionResponse> | Observable<GetDailyNutritionResponse> | GetDailyNutritionResponse;
 }
 
 export function MealManagementServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["saveMeal", "deleteMeal", "getMealsByDate"];
+    const grpcMethods: string[] = ["saveMeal", "deleteMeal", "getMealsByDate", "getDailyNutrition"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("MealManagementService", method)(constructor.prototype[method], method, descriptor);
@@ -866,12 +1020,23 @@ export const MealManagementServiceService = {
     responseSerialize: (value: GetMealsByDateResponse) => Buffer.from(GetMealsByDateResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer) => GetMealsByDateResponse.decode(value),
   },
+  getDailyNutrition: {
+    path: "/mealmgmt.MealManagementService/GetDailyNutrition",
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: (value: GetDailyNutritionRequest) => Buffer.from(GetDailyNutritionRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer) => GetDailyNutritionRequest.decode(value),
+    responseSerialize: (value: GetDailyNutritionResponse) =>
+      Buffer.from(GetDailyNutritionResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer) => GetDailyNutritionResponse.decode(value),
+  },
 } as const;
 
 export interface MealManagementServiceServer extends UntypedServiceImplementation {
   saveMeal: handleUnaryCall<SaveMealRequest, SaveMealResponse>;
   deleteMeal: handleUnaryCall<DeleteMealRequest, DeleteMealResponse>;
   getMealsByDate: handleUnaryCall<GetMealsByDateRequest, GetMealsByDateResponse>;
+  getDailyNutrition: handleUnaryCall<GetDailyNutritionRequest, GetDailyNutritionResponse>;
 }
 
 export interface MessageFns<T> {

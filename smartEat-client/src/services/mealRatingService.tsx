@@ -1,17 +1,16 @@
 // src/services/mealAnalysisService.ts
 import { NutritionData } from "../types/common";
 import { TransformedIngredient } from "../types/scaled-ingredient";
-import { UserProfile } from "../types/userTypes";
 import api from "./api";
 
 export interface MealAnalysisResponse {
   rating: {
-    letter_grade: string;
+    letterGrade?: string;
     score: number;
   };
   recommendations: string[];
-  positive_feedback: string;
-  daily_recommendations?: {
+  positiveFeedback?: string;
+  dailyRecommendations?: {
     calories: number;
     protein: number;
     fats: number;
@@ -30,8 +29,7 @@ export interface MealAnalysisResponse {
 }
 
 export async function analyzeMeal(
-  ingredients: TransformedIngredient[],
-  userProfile: UserProfile
+  ingredients: TransformedIngredient[]
 ): Promise<MealAnalysisResponse> {
   // Sum all nutrition values from ingredients
   const totalNutrition = ingredients.reduce((acc, ingredient) => {
@@ -50,9 +48,8 @@ export async function analyzeMeal(
     return acc;
   }, {} as NutritionData);
 
-  // Prepare the API request payload
+  // Prepare the API request payload (no longer includes user profile)
   const payload = {
-    user: userProfile,
     ingredients: ingredients.map((ing) => ing.name),
     nutrition: {
       calories: totalNutrition.calories || { value: 0, unit: "kcal" },

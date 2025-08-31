@@ -1,13 +1,15 @@
 import {
   DeleteMealRequest,
   DeleteMealResponse,
+  GetDailyNutritionRequest,
+  GetDailyNutritionResponse,
   GetMealsByDateRequest,
   GetMealsByDateResponse,
+  ImageData,
   Meal,
   MealManagementServiceClient,
   SaveMealRequest,
   SaveMealResponse,
-  ImageData,
 } from '@generated/meal-management';
 import { BadRequestException, Injectable, OnModuleInit } from '@nestjs/common';
 import { Client, ClientGrpc } from '@nestjs/microservices';
@@ -56,7 +58,7 @@ export class MealManagementClient implements OnModuleInit {
 
       // Create a meal with image data if provided
       const mealWithImageData: Meal = { ...meal };
-      
+
       if (image) {
         const imageData: ImageData = {
           data: image.buffer.toString('base64'),
@@ -90,9 +92,9 @@ export class MealManagementClient implements OnModuleInit {
         throw new BadRequestException('Meal ID is required');
       }
 
-      const request: DeleteMealRequest = { 
+      const request: DeleteMealRequest = {
         userId,
-        mealId 
+        mealId
       };
       return await firstValueFrom(this.mealService.deleteMeal(request));
     } catch (error) {
@@ -113,9 +115,9 @@ export class MealManagementClient implements OnModuleInit {
         throw new BadRequestException('Date is required');
       }
 
-      const request: GetMealsByDateRequest = { 
+      const request: GetMealsByDateRequest = {
         userId,
-        date 
+        date
       };
       return await firstValueFrom(this.mealService.getMealsByDate(request));
     } catch (error) {
@@ -124,6 +126,29 @@ export class MealManagementClient implements OnModuleInit {
         throw error;
       }
       throw new BadRequestException('Failed to get meals by date: ' + error.message);
+    }
+  }
+
+  async getDailyNutrition(userId: string, date: string): Promise<GetDailyNutritionResponse> {
+    try {
+      if (!userId) {
+        throw new BadRequestException('User ID is required');
+      }
+      if (!date) {
+        throw new BadRequestException('Date is required');
+      }
+
+      const request: GetDailyNutritionRequest = {
+        userId,
+        date
+      };
+      return await firstValueFrom(this.mealService.getDailyNutrition(request));
+    } catch (error) {
+      console.error('Error getting daily nutrition:', error);
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new BadRequestException('Failed to get daily nutrition: ' + error.message);
     }
   }
 }
