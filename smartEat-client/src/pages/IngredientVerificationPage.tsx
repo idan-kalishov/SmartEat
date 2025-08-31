@@ -9,7 +9,6 @@ import IngredientVerificationHeader from "../components/verfication-page/Ingredi
 import MealImageDisplay from "../components/verfication-page/MealImageDisplay";
 import MealNameInput from "../components/verfication-page/MealNameInput";
 import SaveButton from "../components/verfication-page/SaveButton";
-import { getDefaultUserProfile } from "../types/userTypes";
 import { processAndSaveIngredients } from "../utils/ingredientProcessingUtils";
 import LoadingScreen from "./loading/LoadingScreen";
 
@@ -71,10 +70,8 @@ const IngredientVerificationPage: React.FC = () => {
         return; // Block navigation
       }
 
-      const userProfile = getDefaultUserProfile();
       const analysisResult = await analyzeMeal(
-        result.transformedIngredients,
-        userProfile
+        result.transformedIngredients
       );
 
       navigate("/results", {
@@ -83,11 +80,11 @@ const IngredientVerificationPage: React.FC = () => {
           image: mealImage,
           ingredients: result.transformedIngredients,
           analysis: {
-            grade: analysisResult.rating.letter_grade,
+            grade: analysisResult.rating.letterGrade,
             score: analysisResult.rating.score,
             recommendations: analysisResult.recommendations,
-            positiveFeedback: analysisResult.positive_feedback,
-            dailyRecommendations: analysisResult.daily_recommendations,
+            positiveFeedback: analysisResult.positiveFeedback,
+            dailyRecommendations: analysisResult.dailyRecommendations,
           },
         },
       });

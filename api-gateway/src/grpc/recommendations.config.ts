@@ -10,7 +10,7 @@ export const recommendationsGrpcOptions = {
       process.env.RECOMMENDATIONS_SERVICE_URL ||
       'localhost:50051',
     loader: {
-      keepCase: true,
+      keepCase: false,
       longs: String,
       enums: String,
       defaults: true,
