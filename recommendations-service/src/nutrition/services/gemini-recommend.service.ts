@@ -55,9 +55,16 @@ export class GeminiRecommendService {
 
     // If all recommendations were invalid, use completely fallback advice
     if (anyInvalid && verifiedRecommendations.length === 0) {
-      verifiedRecommendations.push(
-        await this.verificationService.getFallbackAdvice(),
-      );
+      try {
+        const fallbackAdvice =
+          await this.verificationService.getFallbackAdvice();
+        verifiedRecommendations.push(fallbackAdvice);
+      } catch (error) {
+        console.warn('Fallback advice unavailable, using default:', error);
+        verifiedRecommendations.push(
+          'Focus on balanced nutrition and regular exercise for the remainder of today.',
+        );
+      }
     }
 
     return {
@@ -215,9 +222,16 @@ export class GeminiRecommendService {
 
     // If all recommendations were invalid, use completely fallback advice
     if (anyInvalid && verifiedRecommendations.length === 0) {
-      verifiedRecommendations.push(
-        await this.verificationService.getFallbackAdvice(),
-      );
+      try {
+        const fallbackAdvice =
+          await this.verificationService.getFallbackAdvice();
+        verifiedRecommendations.push(fallbackAdvice);
+      } catch (error) {
+        console.warn('Fallback advice unavailable, using default:', error);
+        verifiedRecommendations.push(
+          'Focus on balanced nutrition and regular exercise for the remainder of today.',
+        );
+      }
     }
 
     return {
@@ -264,6 +278,8 @@ export class GeminiRecommendService {
     return `
       Act as a professional yet approachable nutritionist and fitness coach providing personalized advice for the remainder of the day.
       
+      CRITICAL: You have ALL the data needed. Do NOT ask for more information. Focus ONLY on the current day (today), never mention tomorrow or future days.
+      
       USER PROFILE:
       ${
         user
@@ -293,11 +309,13 @@ export class GeminiRecommendService {
       - Exercise needed: ${remainingNeeds.exercise} minutes
 
       Instructions:
-      1. Start with one encouraging sentence about their progress so far.
-      2. Provide 2-3 specific, actionable recommendations for the remainder of the day.
-      3. Consider the current time and what's realistic to achieve.
-      4. Focus on both nutrition and exercise balance.
+      1. Start with one encouraging sentence about their progress so far TODAY.
+      2. Provide 2-3 specific, actionable recommendations for the REMAINDER OF TODAY ONLY.
+      3. Consider the current time and what's realistic to achieve in the remaining hours of today.
+      4. Focus on both nutrition and exercise balance for today.
       5. Keep suggestions practical and aligned with their goals and restrictions.
+      6. NEVER ask for more data - you have everything needed.
+      7. NEVER mention tomorrow, next week, or future days - only focus on today.
 
       Response format (JSON):
       {
@@ -306,11 +324,13 @@ export class GeminiRecommendService {
       }
 
       Guidelines:
-      - Be encouraging and supportive
-      - Provide realistic, time-sensitive advice
+      - Be encouraging and supportive about today's progress
+      - Provide realistic, time-sensitive advice for today only
       - Consider their dietary restrictions and preferences
-      - Balance nutrition and exercise recommendations
+      - Balance nutrition and exercise recommendations for today
       - Keep the tone motivating and actionable
+      - Use the data provided - do not request additional information
+      - Focus on immediate, actionable steps for the remainder of today
     `;
   }
 
@@ -332,8 +352,8 @@ export class GeminiRecommendService {
         response.recommendations = json.recommendations.slice(0, 3);
       } else {
         response.recommendations = [
-          'Focus on balanced meals for the remainder of the day',
-          'Consider light exercise to meet your daily activity goals',
+          'Focus on balanced meals for the remainder of today',
+          'Consider light exercise to meet your daily activity goals for today',
         ];
       }
 
@@ -343,11 +363,11 @@ export class GeminiRecommendService {
     } catch (e) {
       console.error('Failed to parse Gemini daily opinion response:', e);
       response.recommendations = [
-        'Maintain a balanced approach to nutrition and exercise',
-        'Listen to your body and adjust as needed',
+        'Maintain a balanced approach to nutrition and exercise for the remainder of today',
+        'Listen to your body and adjust as needed for today',
       ];
       response.positiveFeedback =
-        'Every day is a new opportunity to improve your health!';
+        "You're doing great today! Keep up the momentum for the rest of the day.";
     }
 
     return response;
