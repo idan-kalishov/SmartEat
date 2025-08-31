@@ -1,8 +1,9 @@
-import React, { useEffect, useMemo, useState } from "react";
-import api from "@/services/api";
-import { DropletIcon } from "lucide-react";
 import LoadingSpinner from "@/components/common/LoadingSpinner.tsx";
-import { formatDateLocal } from "@/services/mealService";
+import api from "@/services/api";
+import { formatDateLocal } from "@/utils/dateUtils";
+import { DropletIcon } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+
 
 const cupsPerRow = 10;
 const cupVolume = 0.2; // liters

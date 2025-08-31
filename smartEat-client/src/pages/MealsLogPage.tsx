@@ -1,10 +1,10 @@
-import React, { useState } from "react";
 import AddMealModal from "@/components/add-meal/AddMealModal";
 import { NutritionBadge } from "@/components/common/NutritionBadge";
 import ExercisesCard from "@/components/exercise/ExercisesCard";
 import DailyIntakeProgress from "@/components/insights/DailyIntakeProgress";
 import { MealDetailsModal } from "@/components/meals/MealDetailsModal";
 import WaterTracker from "@/components/water-tracker/WaterTracker";
+import { useExercisesByDate } from "@/hooks/exercise/useExercisesByDate";
 import { useMealsByDate } from "@/hooks/meals/useMealsByDate";
 import { useDailyNutrition } from "@/hooks/nutrition/useDailyNutrition";
 import { Meal } from "@/types/meals/meal";
@@ -20,7 +20,6 @@ import {
 } from "lucide-react";
 import React, { useCallback, useState } from "react";
 import HorizontalDatePicker from "../components/HorizontalDatePicker";
-import { useExercisesByDate } from "@/hooks/exercise/useExercisesByDate";
 
 type Tab = "overview" | "statistics";
 
@@ -73,7 +72,7 @@ const MealsLogPage: React.FC = () => {
         </h1>
         <HorizontalDatePicker
           selectedDate={selectedDate}
-          onDateChange={handleDateChange}
+          onDateChange={setSelectedDate}
         />
       </div>
 
