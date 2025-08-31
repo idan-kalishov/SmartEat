@@ -6,6 +6,7 @@ service MealManagementService {
   rpc SaveMeal(SaveMealRequest) returns (SaveMealResponse);
   rpc DeleteMeal(DeleteMealRequest) returns (DeleteMealResponse);
   rpc GetMealsByDate(GetMealsByDateRequest) returns (GetMealsByDateResponse);
+  rpc GetDailyNutrition(GetDailyNutritionRequest) returns (GetDailyNutritionResponse);
 }
 
 message SaveMealRequest {
@@ -34,6 +35,19 @@ message GetMealsByDateRequest {
 
 message GetMealsByDateResponse {
   repeated MealResponse meals = 1;
+}
+
+message GetDailyNutritionRequest {
+  string userId = 1;
+  string date = 2; // ISO date string
+}
+
+message GetDailyNutritionResponse {
+  double calories = 1;     // kcal
+  double protein = 2;      // g
+  double fats = 3;         // g
+  double carbs = 4;        // g
+  double fiber = 5;        // g
 }
 
 message ImageData {

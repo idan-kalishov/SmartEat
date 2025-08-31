@@ -1,12 +1,12 @@
-import React from "react";
-import { Progress } from "@/components/ui/progress";
-import { Smile, Leaf, Coffee } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Progress } from "@/components/ui/progress";
+import { Coffee, Leaf, Smile } from "lucide-react";
+import React from "react";
 
 interface DailyNutritionOverviewProps {
   adjustedNutrition: {
