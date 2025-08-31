@@ -5,6 +5,8 @@ import {
   Get,
   Request,
   BadRequestException,
+  Param,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { ExerciseClient } from 'src/grpc/clients/exercise.client';
 import {
@@ -37,10 +39,27 @@ export class ExerciseController {
     return this.exerciseClient.saveExercise(saveExerciseRequest);
   }
 
-  @Get('by-date')
-  async getByDate(
-    @Body() getExercisesByDateRequest: GetExercisesByDateRequest,
-  ) {
-    return this.exerciseClient.getExercisesByDate(getExercisesByDateRequest);
+  @Get('by-date/:date')
+  async getByDate(@Request() req, @Param('date') date: string) {
+    try {
+      if (!date) {
+        throw new BadRequestException('Date is required');
+      }
+
+      const userDetails = await this.authService.getUserDetails(req);
+      if (!userDetails?.user?._id) {
+        throw new BadRequestException('User not authenticated');
+      }
+
+      return this.exerciseClient.getExercisesByDate(userDetails.user._id, date);
+    } catch (error) {
+      console.error('Error in getExercisesByDate controller:', error);
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        'Failed to get exercises by date: ' + error.message,
+      );
+    }
   }
 }

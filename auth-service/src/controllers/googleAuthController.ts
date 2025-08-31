@@ -1,36 +1,61 @@
-import {Request, Response} from "express";
+import { Request, Response } from "express";
+import { OAuth2Client } from "google-auth-library";
 import userModel from "../models/User";
-import {generateToken} from "./authController";
+import { generateToken } from "./authController";
 
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-// Handler for Google OAuth callback
+// Handler for Google OAuth token verification
 export const googleLoginHandler = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    const userFromOAuth = req.user as any; 
+    const { idToken } = req.body;
 
-    if (!userFromOAuth || !userFromOAuth._id) {
-      res.status(401).json({ message: "Authentication failed" });
+    if (!idToken) {
+      res.status(400).json({ message: "ID token is required" });
       return;
     }
 
-    const user = await userModel.findById(userFromOAuth._id).select({
-      email: 1,
-      userName: 1,
-      profilePicture: 1,
-      refreshToken: 1,
+    // Verify the Google ID token
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
     });
 
-    if (!user) {
-      res.status(404).json({ message: "User not found" });
+    const payload = ticket.getPayload();
+    if (!payload) {
+      res.status(401).json({ message: "Invalid token" });
       return;
     }
 
-    const tokens = generateToken(user._id);
+    const { sub: googleId, email, name, picture } = payload;
 
-    if(!tokens) {
+    if (!email) {
+      res.status(400).json({ message: "Email is required from Google" });
+      return;
+    }
+
+    // Find or create user by email
+    let user = await userModel.findOne({ email });
+    if (!user) {
+      // If no user with this email, create a new one
+      user = await userModel.create({
+        email,
+        userName: name,
+        profilePicture: picture,
+      });
+    } else {
+      // If user exists, update profile info if not already set
+      if (!user.userName) user.userName = name;
+      if (!user.profilePicture) user.profilePicture = picture;
+      await user.save();
+    }
+
+    // Generate JWT tokens
+    const tokens = generateToken(user._id);
+    if (!tokens) {
       res.status(500).json({ message: "Internal server error" });
       return;
     }
@@ -43,16 +68,27 @@ export const googleLoginHandler = async (
 
     res.cookie("accessToken", tokens.accessToken, {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === 'production', // Only secure in production
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax', // Lax in development
     });
     res.cookie("refreshToken", tokens.refreshToken, {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === 'production', // Only secure in production
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax', // Lax in development
     });
 
-    res.redirect(
-      `https://localhost:5173/verify-auth?userId=${user._id}&userName=${encodeURIComponent(user.userName || "")}&email=${encodeURIComponent(user.email || "")}&profilePicture=${encodeURIComponent(user.profilePicture || "")}`
-    );
+    // Return user data and tokens
+    res.status(200).json({
+      message: "Google authentication successful",
+      user: {
+        id: user._id,
+        email: user.email,
+        userName: user.userName,
+        profilePicture: user.profilePicture,
+      },
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+    });
   } catch (error) {
     console.error("Google Auth Error:", error);
     res.status(500).json({ message: "Internal server error" });
