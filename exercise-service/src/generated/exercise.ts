@@ -32,6 +32,15 @@ export interface GetExercisesByDateRequest {
   date: string;
 }
 
+export interface DeleteExerciseRequest {
+  userId: string;
+  exerciseId: string;
+}
+
+export interface DeleteExerciseResponse {
+  success: boolean;
+}
+
 export interface Exercise {
   id: string;
   userId: string;
@@ -225,6 +234,91 @@ export const GetExercisesByDateRequest: MessageFns<GetExercisesByDateRequest> = 
   },
 };
 
+function createBaseDeleteExerciseRequest(): DeleteExerciseRequest {
+  return { userId: "", exerciseId: "" };
+}
+
+export const DeleteExerciseRequest: MessageFns<DeleteExerciseRequest> = {
+  encode(message: DeleteExerciseRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.userId !== "") {
+      writer.uint32(10).string(message.userId);
+    }
+    if (message.exerciseId !== "") {
+      writer.uint32(18).string(message.exerciseId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DeleteExerciseRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseDeleteExerciseRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.userId = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.exerciseId = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseDeleteExerciseResponse(): DeleteExerciseResponse {
+  return { success: false };
+}
+
+export const DeleteExerciseResponse: MessageFns<DeleteExerciseResponse> = {
+  encode(message: DeleteExerciseResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.success !== false) {
+      writer.uint32(8).bool(message.success);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DeleteExerciseResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseDeleteExerciseResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.success = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
 function createBaseExercise(): Exercise {
   return { id: "", userId: "", name: "", calories: "", minutes: 0, createdAt: "" };
 }
@@ -321,6 +415,8 @@ export interface ExerciseServiceClient {
   saveExercise(request: SaveExerciseRequest): Observable<SaveExerciseResponse>;
 
   getExercisesByDate(request: GetExercisesByDateRequest): Observable<GetExercisesByDateResponse>;
+
+  deleteExercise(request: DeleteExerciseRequest): Observable<DeleteExerciseResponse>;
 }
 
 export interface ExerciseServiceController {
@@ -331,11 +427,15 @@ export interface ExerciseServiceController {
   getExercisesByDate(
     request: GetExercisesByDateRequest,
   ): Promise<GetExercisesByDateResponse> | Observable<GetExercisesByDateResponse> | GetExercisesByDateResponse;
+
+  deleteExercise(
+    request: DeleteExerciseRequest,
+  ): Promise<DeleteExerciseResponse> | Observable<DeleteExerciseResponse> | DeleteExerciseResponse;
 }
 
 export function ExerciseServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["saveExercise", "getExercisesByDate"];
+    const grpcMethods: string[] = ["saveExercise", "getExercisesByDate", "deleteExercise"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("ExerciseService", method)(constructor.prototype[method], method, descriptor);
@@ -372,11 +472,21 @@ export const ExerciseServiceService = {
       Buffer.from(GetExercisesByDateResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer) => GetExercisesByDateResponse.decode(value),
   },
+  deleteExercise: {
+    path: "/exercise.ExerciseService/DeleteExercise",
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: (value: DeleteExerciseRequest) => Buffer.from(DeleteExerciseRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer) => DeleteExerciseRequest.decode(value),
+    responseSerialize: (value: DeleteExerciseResponse) => Buffer.from(DeleteExerciseResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer) => DeleteExerciseResponse.decode(value),
+  },
 } as const;
 
 export interface ExerciseServiceServer extends UntypedServiceImplementation {
   saveExercise: handleUnaryCall<SaveExerciseRequest, SaveExerciseResponse>;
   getExercisesByDate: handleUnaryCall<GetExercisesByDateRequest, GetExercisesByDateResponse>;
+  deleteExercise: handleUnaryCall<DeleteExerciseRequest, DeleteExerciseResponse>;
 }
 
 export interface MessageFns<T> {

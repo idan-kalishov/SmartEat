@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Dumbbell, Plus, Flame, Loader2 } from "lucide-react";
+import { Dumbbell, Plus, Flame, Loader2, Trash2 } from "lucide-react";
 import { ExerciseSelect, Exercise, IntensityType } from "@/types/exercise";
 import AddExerciseModal from "./AddExerciseModal";
-import { saveExercise } from "@/services/exerciseService";
+import { saveExercise, deleteExercise } from "@/services/exerciseService";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/appState";
 
@@ -22,6 +22,9 @@ const ExercisesCard: React.FC<ExercisesCardProps> = ({
   error,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deletingExerciseId, setDeletingExerciseId] = useState<string | null>(
+    null
+  );
   const appState = useSelector((state: RootState) => state.appState);
   const user = appState.user;
 
@@ -46,6 +49,18 @@ const ExercisesCard: React.FC<ExercisesCardProps> = ({
       await saveExercise(newExercise);
       setIsModalOpen(false);
       fetchExercises();
+    }
+  };
+
+  const handleDeleteExercise = async (exerciseId: string) => {
+    setDeletingExerciseId(exerciseId);
+    try {
+      await deleteExercise(exerciseId);
+      await fetchExercises();
+    } catch (error) {
+      console.error("Failed to delete exercise:", error);
+    } finally {
+      setDeletingExerciseId(null);
     }
   };
 
@@ -101,13 +116,32 @@ const ExercisesCard: React.FC<ExercisesCardProps> = ({
                 key={exercise.id}
                 className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100"
               >
-                <span className="font-medium text-gray-800 capitalize">
-                  {exercise.name}
-                </span>
-                <div className="flex items-center gap-1.5 text-emerald-600">
-                  <Flame className="w-4 h-4" />
-                  <span className="font-medium">{exercise.calories}</span>
-                  <span className="text-sm text-gray-500">cal</span>
+                <div className="flex items-center gap-3">
+                  <span className="font-medium text-gray-800 capitalize">
+                    {exercise.name}
+                  </span>
+                  <span className="text-sm text-gray-500">
+                    {exercise.minutes} min
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1.5 text-emerald-600">
+                    <Flame className="w-4 h-4" />
+                    <span className="font-medium">{exercise.calories}</span>
+                    <span className="text-sm text-gray-500">cal</span>
+                  </div>
+                  <button
+                    onClick={() => handleDeleteExercise(exercise.id)}
+                    disabled={deletingExerciseId === exercise.id}
+                    className="p-1.5 text-red-500 hover:bg-red-50 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Delete exercise"
+                  >
+                    {deletingExerciseId === exercise.id ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-4 h-4" />
+                    )}
+                  </button>
                 </div>
               </div>
             ))}

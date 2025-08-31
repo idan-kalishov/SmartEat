@@ -29,7 +29,7 @@ message GetExercisesByDateRequest {
 
 message DeleteExerciseRequest {
   string userId = 1;
-  string mealId = 2;
+  string exerciseId = 2;
 }
 
 message DeleteExerciseResponse {

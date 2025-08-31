@@ -8,6 +8,8 @@ import {
   Exercise as GrpcExercise,
   SaveExerciseRequest,
   SaveExerciseResponse,
+  DeleteExerciseRequest,
+  DeleteExerciseResponse,
 } from 'src/generated/exercise';
 
 @Controller()
@@ -69,17 +71,28 @@ export class ExerciseController {
     }
   }
 
-  // @GrpcMethod('ExerciseService', 'DeleteExercise')
-  // async deleteMeal(data: DeleteMealRequest): Promise<DeleteMealResponse> {
-  //   try {
-  //     const success = await this.exerciseService.deleteExercise(
-  //       data.userId,
-  //       data.mealId,
-  //     );
-  //     return { success };
-  //   } catch (error) {
-  //     console.error('Error deleting meal:', error);
-  //     throw error;
-  //   }
-  // }
+  @GrpcMethod('ExerciseService', 'DeleteExercise')
+  async deleteExercise(
+    data: DeleteExerciseRequest,
+  ): Promise<DeleteExerciseResponse> {
+    try {
+      if (!data.exerciseId) {
+        throw new BadRequestException('Exercise ID is required');
+      }
+
+      if (!data.userId) {
+        throw new BadRequestException('User ID is required');
+      }
+
+      const success = await this.exerciseService.deleteExercise(
+        data.userId,
+        data.exerciseId,
+      );
+
+      return { success };
+    } catch (error) {
+      console.error('Error deleting exercise:', error);
+      throw error;
+    }
+  }
 }
