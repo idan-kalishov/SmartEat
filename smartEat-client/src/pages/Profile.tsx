@@ -76,16 +76,15 @@ const ProfilePage: React.FC = () => {
     setActiveSection(null);
     const payload = {
       userProfile: {
-        ...newUserProfile,
-        age: +newUserProfile.age,
-        gender: +newUserProfile.gender,
-        weight_kg: +newUserProfile.weight_kg,
-        height_cm: +newUserProfile.height_cm,
-        activity_level: +newUserProfile.activity_level,
-        weight_goal: +newUserProfile.weight_goal,
-        goal_intensity: +newUserProfile.goal_intensity,
+        age: Number(newUserProfile.age),
+        gender: Number(newUserProfile.gender),
+        weight_kg: Number(newUserProfile.weight_kg),
+        height_cm: Number(newUserProfile.height_cm),
+        activity_level: Number(newUserProfile.activity_level),
+        weight_goal: Number(newUserProfile.weight_goal),
+        goal_intensity: Number(newUserProfile.goal_intensity),
         dietary_restrictions: {
-          preference: +newUserProfile.dietary_restrictions.preference,
+          preference: Number(newUserProfile.dietary_restrictions.preference),
           allergies: newUserProfile.dietary_restrictions.allergies,
         },
       },

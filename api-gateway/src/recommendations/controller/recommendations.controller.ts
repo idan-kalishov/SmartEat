@@ -3,6 +3,8 @@ import {
   MealAnalysisRequest,
   AIRecommendRequest,
   UserProfile,
+  DailyOpinionRequest,
+  DailyOpinionResponse,
 } from '@generated/nutrition';
 import { RecommendationsClient } from 'src/grpc/clients/recommendations.client';
 
@@ -23,5 +25,12 @@ export class NutritionController {
   @Post('daily-exercise')
   async getDailyExerciseGoal(@Body() request: UserProfile) {
     return this.recommendationsClient.getDailyExerciseGoal(request);
+  }
+
+  @Post('daily-opinion')
+  async getDailyOpinion(
+    @Body() request: DailyOpinionRequest,
+  ): Promise<DailyOpinionResponse> {
+    return await this.recommendationsClient.getDailyOpinion(request);
   }
 }

@@ -28,7 +28,7 @@ export class RecommendationsController {
 
   @GrpcMethod('NutritionsRatingService', 'GetDailyExerciseGoal')
   getDailyExerciseGoal(userProfile: UserProfile): Number {
-    return this.nutritionsRatingService.calculateTDEE(userProfile);
+    return this.nutritionsRatingService.calculateDailyExerciseGoal(userProfile);
   }
 
   @GrpcMethod('NutritionsRatingService', 'AnalyzeMeal')
@@ -63,5 +63,19 @@ export class RecommendationsController {
       positiveFeedback: aiResponse.positiveFeedback,
       dailyRecommendations: recommendations, // Optional: include daily needs
     };
+  }
+
+  @GrpcMethod('NutritionsRatingService', 'GetDailyOpinion')
+  async getDailyOpinion(request: any): Promise<any> {
+    // Validate input
+    if (!request.user || !request.currentProgress || !request.remainingNeeds) {
+      throw new Error('Invalid request: Required data is missing');
+    }
+
+    // Get AI opinion about the rest of the day
+    const aiResponse =
+      await this.geminiRecommendService.getDailyOpinion(request);
+
+    return aiResponse;
   }
 }

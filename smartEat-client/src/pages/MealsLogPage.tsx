@@ -3,6 +3,7 @@ import AddMealModal from "@/components/add-meal/AddMealModal";
 import { NutritionBadge } from "@/components/common/NutritionBadge";
 import ExercisesCard from "@/components/exercise/ExercisesCard";
 import DailyIntakeProgress from "@/components/insights/DailyIntakeProgress";
+import AIOpinionCard from "@/components/insights/AIOpinionCard";
 import { MealDetailsModal } from "@/components/meals/MealDetailsModal";
 import WaterTracker from "@/components/water-tracker/WaterTracker";
 import { useMealsByDate } from "@/hooks/meals/useMealsByDate";
@@ -184,12 +185,20 @@ const MealsLogPage: React.FC = () => {
           />
         </>
       ) : (
-        <div className="w-full max-w-md bg-white/90 backdrop-blur-sm rounded-xl shadow-lg p-4 mb-4">
-          <div className="flex items-center gap-2 mb-4">
-            <BarChart3 className="w-5 h-5 text-emerald-600" />
-            <h2 className="text-lg font-semibold text-gray-800">Insights</h2>
+        <div className="w-full max-w-md space-y-4">
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg p-4">
+            <div className="flex items-center gap-2 mb-4">
+              <BarChart3 className="w-5 h-5 text-emerald-600" />
+              <h2 className="text-lg font-semibold text-gray-800">Insights</h2>
+            </div>
+            <DailyIntakeProgress />
           </div>
-          <DailyIntakeProgress />
+
+          <AIOpinionCard
+            meals={meals}
+            exercises={exercises}
+            selectedDate={selectedDate}
+          />
         </div>
       )}
 
