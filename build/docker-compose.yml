@@ -34,12 +34,10 @@ services:
       - TOKEN_EXPIRES=${TOKEN_EXPIRES:-15m}
       - REFRESH_TOKEN_EXPIRES=${REFRESH_TOKEN_EXPIRES:-7d}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - REDIRECT_URI_LOCAL=${REDIRECT_URI_LOCAL}
     restart: unless-stopped
     # MongoDB connection will be to host machine
 
-    exercise-service:
+  exercise-service:
     build:
       context: ../exercise-service
       dockerfile: Dockerfile
@@ -104,7 +102,4 @@ services:
     ports:
       - "8080:80"
     restart: unless-stopped
-
 # MongoDB is already installed on the VM, so we don't need a container
-
-
