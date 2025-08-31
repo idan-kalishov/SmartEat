@@ -191,6 +191,8 @@ const MealsLogPage: React.FC = () => {
             isLoading={isLoadingExercises}
             error={errorExercises}
           />
+          
+          <WaterTracker selectedDate={selectedDate} />
         </>
       ) : (
         <div className="w-full max-w-md bg-white/90 backdrop-blur-sm rounded-xl shadow-lg p-4 mb-4">
@@ -211,8 +213,6 @@ const MealsLogPage: React.FC = () => {
           )}
         </div>
       )}
-
-      <WaterTracker selectedDate={selectedDate} />
 
       <MealDetailsModal
         meal={selectedMeal}

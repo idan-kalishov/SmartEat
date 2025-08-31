@@ -100,7 +100,7 @@ const WaterTracker: React.FC<WaterTrackerProps> = ({ selectedDate }) => {
   }
 
   return (
-    <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-4 mt-[5%]">
+    <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-4">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <DropletIcon className="w-4 h-4" />
