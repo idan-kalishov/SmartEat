@@ -5,7 +5,8 @@ import {
   NutrientRecommendation,
   NutritionData,
   UserProfile,
-  WeightGoal
+  WeightGoal,
+  ActivityLevel,
 } from '@generated/nutrition_pb';
 import { Injectable } from '@nestjs/common';
 
