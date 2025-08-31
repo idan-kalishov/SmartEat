@@ -27,28 +27,30 @@ const IngredientsList = ({
   };
 
   return (
-    <div className="mb-6 max-h-[500px] overflow-y-auto">
-      <label className="text-sm text-gray-600 mb-2 block">Ingredients</label>
-      <p className="text-sm text-gray-400 mb-4">
-        You can modify the ingredients as needed.
-      </p>
-
-      {ingredients.map((ingredient, index) => (
-        <IngredientItem
-          key={index}
-          ingredient={ingredient}
-          index={index}
-          updateIngredient={updateIngredient}
-          removeIngredient={removeIngredient}
-        />
-      ))}
+    <div className="space-y-4">
+      {ingredients.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">
+          <p className="text-sm">No ingredients added yet</p>
+          <p className="text-xs text-gray-400 mt-1">Click the button below to add your first ingredient</p>
+        </div>
+      ) : (
+        ingredients.map((ingredient, index) => (
+          <IngredientItem
+            key={index}
+            ingredient={ingredient}
+            index={index}
+            updateIngredient={updateIngredient}
+            removeIngredient={removeIngredient}
+          />
+        ))
+      )}
 
       <button
         onClick={addIngredient}
-        className="flex items-center justify-center w-full border border-gray-300 bg-white text-gray-600 py-2 rounded-xl hover:bg-gray-100 transition"
+        className="flex items-center justify-center w-full border-2 border-dashed border-gray-300 bg-gray-50 text-gray-600 py-4 rounded-xl hover:bg-gray-100 hover:border-gray-400 transition-colors duration-200"
       >
-        <Plus className="w-4 h-4 mr-1" />
-        Add more ingredients
+        <Plus className="w-5 h-5 mr-2 text-gray-400" />
+        <span className="font-medium">Add more ingredients</span>
       </button>
     </div>
   );

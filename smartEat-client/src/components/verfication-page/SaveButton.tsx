@@ -1,14 +1,27 @@
 interface SaveButtonProps {
   onClick: () => void;
+  disabled?: boolean;
+  isLoading?: boolean;
 }
 
-const SaveButton = ({ onClick }: SaveButtonProps) => {
+const SaveButton = ({
+  onClick,
+  disabled = false,
+  isLoading = false,
+}: SaveButtonProps) => {
   return (
     <button
-      onClick={onClick}
-      className="w-[50%] bg-green-500 text-white py-3 ml-[25%] rounded-xl font-medium hover:bg-green-600 transition"
+      onClick={!disabled && !isLoading ? onClick : undefined}
+      className={`w-[50%] ml-[25%] py-2.5 rounded-xl font-medium transition
+        ${
+          disabled || isLoading
+            ? "bg-gray-300 cursor-not-allowed"
+            : "bg-green-500 hover:bg-green-600 text-white"
+        }
+      `}
+      disabled={disabled || isLoading}
     >
-      Save and Continue
+      {isLoading ? "Saving..." : "Save and Continue"}
     </button>
   );
 };
