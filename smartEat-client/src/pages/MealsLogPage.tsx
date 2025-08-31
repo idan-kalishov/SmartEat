@@ -131,7 +131,7 @@ const MealsLogPage: React.FC = () => {
                   return (
                     <div
                       key={index}
-                      className="flex items-start gap-1 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all cursor-pointer border border-gray-100"
+                      className="flex items-start gap-2 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all cursor-pointer border border-gray-100"
                       onClick={() => setSelectedMeal(meal)}
                     >
                       {meal.imageUrl ? (

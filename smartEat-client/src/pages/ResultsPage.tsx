@@ -128,8 +128,9 @@ export default function ResultsPage() {
       />
 
       <div className="max-w-md mx-auto relative h-[calc(100vh-12rem)]">
-        <Card className="z-10 relative shadow-lg mt-[-20px] h-full">
-          <CardContent className="pt-6 pb-2 h-full overflow-y-auto">
+        <Card className="z-10 relative shadow-lg mt-[-20px] h-full flex flex-col">
+          {/* Scrollable content area */}
+          <CardContent className="pt-6 pb-2 flex-1 overflow-y-auto">
             <NutritionSummary
               calories={adjustedNutrition.calories}
               servingSize={servingSize}
@@ -179,13 +180,14 @@ export default function ResultsPage() {
               recommendations={mealAnalysis.recommendations}
               positiveFeedback={mealAnalysis.positiveFeedback}
             />
+          </CardContent>
 
-            {/* Display daily recommendations if available */}
-
-            <Button onClick={handleLogAndNavigate} className="w-full mt-4 mb-4">
+          {/* Fixed button section at bottom */}
+          <div className="p-6 pt-0 border-t border-gray-100 bg-white">
+            <Button onClick={handleLogAndNavigate} className="w-full">
               Log Meal
             </Button>
-          </CardContent>
+          </div>
         </Card>
       </div>
     </div>

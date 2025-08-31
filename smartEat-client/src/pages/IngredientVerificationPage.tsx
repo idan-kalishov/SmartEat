@@ -137,7 +137,7 @@ const IngredientVerificationPage: React.FC = () => {
     <>
       {loading && <LoadingScreen message={loadingMessage} />}
 
-      <div className="min-h-screen w-full bg-gradient-to-b from-green-50 to-white px-4 py-6 overflow-hidden">
+      <div className="min-h-screen w-full bg-gradient-to-b from-green-50 to-white px-4 py-6">
         <IngredientVerificationHeader />
         <MealImageDisplay
           mealImage={mealImage}
@@ -159,20 +159,37 @@ const IngredientVerificationPage: React.FC = () => {
             {failedIngredients.length === 1 ? "it" : "them"}.
           </div>
         )}
-        <IngredientsList
-          ingredients={ingredients}
-          setIngredients={handleIngredientsChange}
-        />
+        
+        {/* Fixed title section */}
+        <div className="mb-4">
+          <label className="text-lg font-semibold text-gray-800 mb-2 block">Ingredients</label>
+          <p className="text-sm text-gray-600">
+            You can modify the ingredients as needed.
+          </p>
+        </div>
+        
+        {/* Ingredients section - expands naturally with page scroll */}
+        <div className="mb-4 bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+          <IngredientsList
+            ingredients={ingredients}
+            setIngredients={handleIngredientsChange}
+          />
+        </div>
+        
         {uiError && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg">
             <p className="text-sm text-red-600 font-medium">{uiError}</p>
           </div>
         )}
-        <SaveButton
-          onClick={handleSave}
-          disabled={ingredients.length === 0}
-          isLoading={loading}
-        />{" "}
+        
+        {/* Bottom section with buttons - positioned above navbar */}
+        <div className="pt-4 pb-20 border-t border-gray-200 bg-white">
+          <SaveButton
+            onClick={handleSave}
+            disabled={ingredients.length === 0}
+            isLoading={loading}
+          />
+        </div>
       </div>
     </>
   );
