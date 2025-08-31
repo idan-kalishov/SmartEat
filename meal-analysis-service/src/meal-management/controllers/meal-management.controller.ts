@@ -3,6 +3,8 @@ import { GrpcMethod } from '@nestjs/microservices';
 import {
   DeleteMealRequest,
   DeleteMealResponse,
+  GetDailyNutritionRequest,
+  GetDailyNutritionResponse,
   GetMealsByDateRequest,
   GetMealsByDateResponse,
   Meal as GrpcMeal,
@@ -118,6 +120,21 @@ export class MealManagementController {
       };
     } catch (error) {
       console.error('Error getting meals by date:', error);
+      throw error;
+    }
+  }
+
+  @GrpcMethod('MealManagementService', 'GetDailyNutrition')
+  async getDailyNutrition(data: GetDailyNutritionRequest): Promise<GetDailyNutritionResponse> {
+    try {
+      const nutrition = await this.mealManagementService.getDailyNutrition(
+        data.userId,
+        data.date,
+      );
+
+      return nutrition;
+    } catch (error) {
+      console.error('Error getting daily nutrition:', error);
       throw error;
     }
   }
