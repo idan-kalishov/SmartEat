@@ -1,6 +1,12 @@
 import { ROUTES } from "@/Routing/routes";
 import api, { clearAuthHeader } from "@/services/api";
-import { logout, persistor, RootState, setUser } from "@/store/appState";
+import {
+  logout,
+  persistor,
+  RootState,
+  setUser,
+  AppDispatch,
+} from "@/store/appState";
 import {
   Activity,
   ChevronRight,
@@ -11,7 +17,7 @@ import {
   User,
   Weight,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
@@ -28,15 +34,31 @@ import {
   goalIntensityLabels,
   weightGoalLabels,
 } from "@/utils/prefernces";
-import { setUserProfile } from "@/store/userSlice";
+import { setUserProfile, fetchUserProfile } from "@/store/userSlice";
 
 const ProfilePage: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const [editMode, setEditMode] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null);
-  const appState = useSelector((state: RootState) => state.appState);
-  const [newUserProfile, setNewUserProfile] = useState(appState.userProfile);
+
+  // Use the correct Redux store (userSlice instead of appState)
+  const userProfile = useSelector((state: RootState) => state.user.userProfile);
+  const [newUserProfile, setNewUserProfile] = useState(userProfile);
+
+  // Sync local state with Redux state when it changes
+  useEffect(() => {
+    if (userProfile) {
+      setNewUserProfile(userProfile);
+    }
+  }, [userProfile]);
+
+  // Fetch user profile when component mounts
+  useEffect(() => {
+    if (!userProfile) {
+      dispatch(fetchUserProfile());
+    }
+  }, [dispatch, userProfile]);
 
   const updateProfileField = (
     fieldId: string,
@@ -120,11 +142,13 @@ const ProfilePage: React.FC = () => {
           }
           className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
         >
-          {Object.entries(field.options).map(([k, v]) => (
-            <option key={k} value={k}>
-              {v}
-            </option>
-          ))}
+          {Object.entries(field.options as Record<string, string>).map(
+            ([k, v]) => (
+              <option key={k} value={k}>
+                {v}
+              </option>
+            )
+          )}
         </select>
       );
     }
@@ -132,35 +156,37 @@ const ProfilePage: React.FC = () => {
     if (field.type === "multiselect") {
       return (
         <div className="space-y-2">
-          {Object.entries(field.options).map(([k, v]) => {
-            const id = +k;
-            const checked =
-              newUserProfile.dietary_restrictions.allergies.includes(id);
-            return (
-              <label key={k} className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  onChange={(e) => {
-                    let updated = [
-                      ...newUserProfile.dietary_restrictions.allergies,
-                    ];
-                    if (e.target.checked) {
-                      updated =
-                        id === 0
-                          ? [0]
-                          : [...updated.filter((x) => x !== 0), id];
-                    } else {
-                      updated = updated.filter((x) => x !== id);
-                    }
-                    updateProfileField("allergies", updated, "diet");
-                  }}
-                  className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
-                />
-                <span className="text-sm text-gray-700">{v}</span>
-              </label>
-            );
-          })}
+          {Object.entries(field.options as Record<string, string>).map(
+            ([k, v]) => {
+              const id = +k;
+              const checked =
+                newUserProfile.dietary_restrictions.allergies.includes(id);
+              return (
+                <label key={k} className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={(e) => {
+                      let updated = [
+                        ...newUserProfile.dietary_restrictions.allergies,
+                      ];
+                      if (e.target.checked) {
+                        updated =
+                          id === 0
+                            ? [0]
+                            : [...updated.filter((x) => x !== 0), id];
+                      } else {
+                        updated = updated.filter((x) => x !== id);
+                      }
+                      updateProfileField("allergies", updated, "diet");
+                    }}
+                    className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
+                  />
+                  <span className="text-sm text-gray-700">{v}</span>
+                </label>
+              );
+            }
+          )}
         </div>
       );
     }
