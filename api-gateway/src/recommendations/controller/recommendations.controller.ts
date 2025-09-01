@@ -1,9 +1,18 @@
 import {
   MealAnalysisRequest,
+  AIRecommendRequest,
+  DailyOpinionRequest,
+  DailyOpinionResponse,
   NutritionData,
-  UserProfile
+  UserProfile,
 } from '@generated/nutrition';
-import { BadRequestException, Body, Controller, Post, Request } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Post,
+  Request,
+} from '@nestjs/common';
 import { AuthGatewayService } from 'src/authGateway/auth.gateway.service';
 import { RecommendationsClient } from 'src/grpc/clients/recommendations.client';
 
@@ -17,21 +26,19 @@ export class NutritionController {
   constructor(
     private readonly recommendationsClient: RecommendationsClient,
     private readonly authService: AuthGatewayService,
-  ) { }
-
-
+  ) {}
 
   @Post('meal-rating')
   async getMealRating(@Request() req, @Body() body: MealRatingBody) {
     const profile = await this.authService.getUserProfile(req);
-    
+
     // Create the full request for the gRPC service
     const mealAnalysisRequest: MealAnalysisRequest = {
       user: profile,
       ingredients: body.ingredients,
       nutrition: body.nutrition,
     };
-        
+
     return await this.recommendationsClient.analyzeMeal(mealAnalysisRequest);
   }
 
@@ -45,5 +52,12 @@ export class NutritionController {
   async getDailyExerciseGoal(@Request() req) {
     const profile = await this.authService.getUserProfile(req);
     return this.recommendationsClient.getDailyExerciseGoal(profile);
+  }
+
+  @Post('daily-opinion')
+  async getDailyOpinion(
+    @Body() request: DailyOpinionRequest,
+  ): Promise<DailyOpinionResponse> {
+    return await this.recommendationsClient.getDailyOpinion(request);
   }
 }

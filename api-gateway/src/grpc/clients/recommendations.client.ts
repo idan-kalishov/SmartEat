@@ -8,6 +8,8 @@ import {
   UserProfile,
   NutrientRecommendation,
   GetDailyExerciseGoalResponse,
+  DailyOpinionRequest,
+  DailyOpinionResponse,
 } from '@generated/nutrition';
 
 @Injectable()
@@ -46,5 +48,9 @@ export class RecommendationsClient implements OnModuleInit {
     return this.nutritionsRatingService
       .getDailyExerciseGoal(request)
       .toPromise();
+  }
+
+  getDailyOpinion(request: DailyOpinionRequest): Promise<DailyOpinionResponse> {
+    return this.nutritionsRatingService.getDailyOpinion(request).toPromise();
   }
 }

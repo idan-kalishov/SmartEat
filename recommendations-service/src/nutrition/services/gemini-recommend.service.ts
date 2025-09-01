@@ -55,9 +55,16 @@ export class GeminiRecommendService {
 
     // If all recommendations were invalid, use completely fallback advice
     if (anyInvalid && verifiedRecommendations.length === 0) {
-      verifiedRecommendations.push(
-        await this.verificationService.getFallbackAdvice(),
-      );
+      try {
+        const fallbackAdvice =
+          await this.verificationService.getFallbackAdvice();
+        verifiedRecommendations.push(fallbackAdvice);
+      } catch (error) {
+        console.warn('Fallback advice unavailable, using default:', error);
+        verifiedRecommendations.push(
+          'Focus on balanced nutrition and regular exercise for the remainder of today.',
+        );
+      }
     }
 
     return {
@@ -180,6 +187,214 @@ export class GeminiRecommendService {
       ];
       response.positiveFeedback =
         'Every meal is an opportunity for nourishment!';
+    }
+
+    return response;
+  }
+
+  async getDailyOpinion(request: any): Promise<any> {
+    const prompt = this.buildDailyOpinionPrompt(request);
+    const result = await this.model.generateContent(prompt);
+    const responseText = result.response.text();
+    let response = this.parseDailyOpinionResponse(responseText);
+
+    // Verify each recommendation individually
+    const verifiedRecommendations: string[] = [];
+    let anyInvalid = false;
+
+    for (const recommendation of response.recommendations) {
+      const verification =
+        await this.verificationService.verifyNutritionAdvice(recommendation);
+
+      if (verification.isValid) {
+        verifiedRecommendations.push(recommendation);
+      } else {
+        anyInvalid = true;
+        console.warn(
+          `Invalid recommendation detected: ${verification.reason}`,
+          { original: recommendation },
+        );
+        if (verification.correctedAdvice) {
+          verifiedRecommendations.push(verification.correctedAdvice);
+        }
+      }
+    }
+
+    // If all recommendations were invalid, use completely fallback advice
+    if (anyInvalid && verifiedRecommendations.length === 0) {
+      try {
+        const fallbackAdvice =
+          await this.verificationService.getFallbackAdvice();
+        verifiedRecommendations.push(fallbackAdvice);
+      } catch (error) {
+        console.warn('Fallback advice unavailable, using default:', error);
+        verifiedRecommendations.push(
+          'Focus on balanced nutrition and regular exercise for the remainder of today.',
+        );
+      }
+    }
+
+    return {
+      ...response,
+      recommendations: verifiedRecommendations,
+      verificationStatus: anyInvalid ? 'modified' : 'original',
+    };
+  }
+
+  private buildDailyOpinionPrompt(request: any): string {
+    const user = request.user;
+    const dailyGoals = request.dailyGoals;
+    const currentNutrition = request.currentNutrition;
+    const currentExerciseCalories = request.currentExerciseCalories;
+    const dailyExerciseGoal = request.dailyExerciseGoal;
+    const currentTime = request.currentTime;
+
+    // Calculate remaining needs
+    const remainingNutrition = {
+      calories: Math.max(
+        0,
+        dailyGoals.calories - (currentNutrition.calories?.value || 0),
+      ),
+      protein: Math.max(
+        0,
+        dailyGoals.protein - (currentNutrition.protein?.value || 0),
+      ),
+      fats: Math.max(0, dailyGoals.fats - (currentNutrition.fats?.value || 0)),
+      carbs: Math.max(
+        0,
+        dailyGoals.carbs - (currentNutrition.carbs?.value || 0),
+      ),
+      fiber: Math.max(
+        0,
+        dailyGoals.fiber - (currentNutrition.fiber?.value || 0),
+      ),
+    };
+
+    const remainingExercise = Math.max(
+      0,
+      dailyExerciseGoal - currentExerciseCalories,
+    );
+
+    // Build dietary restrictions text
+    let restrictionsText = '';
+    if (user?.dietaryRestrictions) {
+      const restrictions = user.dietaryRestrictions;
+
+      // Dietary preferences
+      if (
+        restrictions.preference !== DietaryPreference.DIETARY_PREFERENCE_NONE
+      ) {
+        restrictionsText += `Dietary Preference: ${DietaryPreference[restrictions.preference]}\n`;
+      }
+
+      // Allergies
+      const allergies = restrictions.allergies
+        .filter((a) => a !== Allergy.ALLERGY_NONE)
+        .map((a) => Allergy[a]);
+      if (allergies.length > 0) {
+        restrictionsText += `Allergies: ${allergies.join(', ')}\n`;
+      }
+
+      // Disliked ingredients
+      const disliked = restrictions.dislikedIngredients;
+      if (disliked?.length > 0) {
+        restrictionsText += `Avoid: ${disliked.join(', ')}\n`;
+      }
+    }
+
+    return `
+      Act as a professional yet approachable nutritionist and fitness coach providing personalized advice for the remainder of the day.
+      
+      CRITICAL: You have ALL the data needed. Do NOT ask for more information. Focus ONLY on the current day (today), never mention tomorrow or future days.
+      
+      USER PROFILE:
+      ${
+        user
+          ? `
+      - Age: ${user.age}
+      - Gender: ${user.gender === Gender.GENDER_MALE ? 'Male' : 'Female'}
+      - Weight: ${user.weightKg} kg
+      - Height: ${user.heightCm} cm
+      - Activity Level: ${ActivityLevel[user.activityLevel]}
+      - Goal: ${WeightGoal[user.weightGoal]}
+      ${restrictionsText ? `\nDIETARY RESTRICTIONS:\n${restrictionsText}` : ''}`
+          : 'No user profile provided'
+      }
+
+      CURRENT PROGRESS (${currentTime}):
+      - Calories consumed: ${currentNutrition.calories?.value || 0} / ${dailyGoals.calories}
+      - Protein consumed: ${currentNutrition.protein?.value || 0}g / ${dailyGoals.protein}g
+      - Fats consumed: ${currentNutrition.fats?.value || 0}g / ${dailyGoals.fats}g
+      - Carbs consumed: ${currentNutrition.carbs?.value || 0}g / ${dailyGoals.carbs}g
+      - Exercise completed: ${currentExerciseCalories} calories / ${dailyExerciseGoal} calories
+
+      REMAINING NEEDS:
+      - Calories needed: ${remainingNutrition.calories}
+      - Protein needed: ${remainingNutrition.protein}g
+      - Fats needed: ${remainingNutrition.fats}g
+      - Carbs needed: ${remainingNutrition.carbs}g
+      - Exercise needed: ${remainingExercise} calories
+
+      Instructions:
+      1. Start with one encouraging sentence about their progress so far TODAY.
+      2. Provide 2-3 specific, actionable recommendations for the REMAINDER OF TODAY ONLY.
+      3. Consider the current time and what's realistic to achieve in the remaining hours of today.
+      4. Focus on both nutrition and exercise balance for today.
+      5. Keep suggestions practical and aligned with their goals and restrictions.
+      6. NEVER ask for more data - you have everything needed.
+      7. NEVER mention tomorrow, next week, or future days - only focus on today.
+
+      Response format (JSON):
+      {
+        "positive_feedback": "string",
+        "recommendations": ["string"]
+      }
+
+      Guidelines:
+      - Be encouraging and supportive about today's progress
+      - Provide realistic, time-sensitive advice for today only
+      - Consider their dietary restrictions and preferences
+      - Balance nutrition and exercise recommendations for today
+      - Keep the tone motivating and actionable
+      - Use the data provided - do not request additional information
+      - Focus on immediate, actionable steps for the remainder of today
+    `;
+  }
+
+  private parseDailyOpinionResponse(text: string): {
+    recommendations: string[];
+    positiveFeedback: string;
+  } {
+    const response: { recommendations: string[]; positiveFeedback: string } = {
+      recommendations: [],
+      positiveFeedback: '',
+    };
+
+    try {
+      const cleanedText = text.replace(/```json|```/g, '');
+      const json = JSON.parse(cleanedText);
+
+      // Set recommendations (limit to 3)
+      if (Array.isArray(json.recommendations)) {
+        response.recommendations = json.recommendations.slice(0, 3);
+      } else {
+        response.recommendations = [
+          'Focus on balanced meals for the remainder of today',
+          'Consider light exercise to meet your daily activity goals for today',
+        ];
+      }
+
+      // Set positive feedback
+      response.positiveFeedback =
+        json.positive_feedback || "You're making great progress today!";
+    } catch (e) {
+      console.error('Failed to parse Gemini daily opinion response:', e);
+      response.recommendations = [
+        'Maintain a balanced approach to nutrition and exercise for the remainder of today',
+        'Listen to your body and adjust as needed for today',
+      ];
+      response.positiveFeedback =
+        "You're doing great today! Keep up the momentum for the rest of the day.";
     }
 
     return response;

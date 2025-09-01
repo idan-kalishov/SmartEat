@@ -2,6 +2,7 @@ import AddMealModal from "@/components/add-meal/AddMealModal";
 import { NutritionBadge } from "@/components/common/NutritionBadge";
 import ExercisesCard from "@/components/exercise/ExercisesCard";
 import DailyIntakeProgress from "@/components/insights/DailyIntakeProgress";
+import AIOpinionCard from "@/components/insights/AIOpinionCard";
 import { MealDetailsModal } from "@/components/meals/MealDetailsModal";
 import WaterTracker from "@/components/water-tracker/WaterTracker";
 import { useExercisesByDate } from "@/hooks/exercise/useExercisesByDate";
@@ -59,6 +60,15 @@ const MealsLogPage: React.FC = () => {
     });
   };
 
+  const isToday = (selectedDate: Date) => {
+    const today = new Date();
+    return (
+      selectedDate.getFullYear() === today.getFullYear() &&
+      selectedDate.getMonth() === today.getMonth() &&
+      selectedDate.getDate() === today.getDate()
+    );
+  };
+
   const handleRefresh = useCallback(() => {
     fetchMeals();
     fetchNutritionData();
@@ -79,20 +89,22 @@ const MealsLogPage: React.FC = () => {
       <div className="w-full max-w-md flex gap-1 p-1 bg-gray-100 rounded-lg mb-4">
         <button
           onClick={() => setActiveTab("overview")}
-          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === "overview"
-            ? "bg-white text-gray-800 shadow-sm"
-            : "text-gray-600 hover:text-gray-800"
-            }`}
+          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+            activeTab === "overview"
+              ? "bg-white text-gray-800 shadow-sm"
+              : "text-gray-600 hover:text-gray-800"
+          }`}
         >
           <Utensils className="w-4 h-4" />
           Overview
         </button>
         <button
           onClick={() => setActiveTab("statistics")}
-          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === "statistics"
-            ? "bg-white text-gray-800 shadow-sm"
-            : "text-gray-600 hover:text-gray-800"
-            }`}
+          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+            activeTab === "statistics"
+              ? "bg-white text-gray-800 shadow-sm"
+              : "text-gray-600 hover:text-gray-800"
+          }`}
         >
           <BarChart3 className="w-4 h-4" />
           Insights
@@ -191,24 +203,34 @@ const MealsLogPage: React.FC = () => {
             isLoading={isLoadingExercises}
             error={errorExercises}
           />
-          
+
           <WaterTracker selectedDate={selectedDate} />
         </>
       ) : (
-        <div className="w-full max-w-md bg-white/90 backdrop-blur-sm rounded-xl shadow-lg p-4 mb-4">
-          <div className="flex items-center gap-2 mb-4">
-            <BarChart3 className="w-5 h-5 text-emerald-600" />
-            <h2 className="text-lg font-semibold text-gray-800">Insights</h2>
-          </div>
-          {mealsLoading && nutritionLoading ? (
-            <div className="flex justify-center items-center py-4">
-              <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+        <div className="w-full max-w-md space-y-4">
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg p-4">
+            <div className="flex items-center gap-2 mb-4">
+              <BarChart3 className="w-5 h-5 text-emerald-600" />
+              <h2 className="text-lg font-semibold text-gray-800">Insights</h2>
             </div>
-          ) : (
-            <DailyIntakeProgress
-              currentNutrition={currentNutrition}
-              recommendations={recommendations}
-              error={nutritionError}
+            {mealsLoading && nutritionLoading ? (
+              <div className="flex justify-center items-center py-4">
+                <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+              </div>
+            ) : (
+              <DailyIntakeProgress
+                currentNutrition={currentNutrition}
+                recommendations={recommendations}
+                error={nutritionError}
+              />
+            )}
+          </div>
+
+          {isToday(selectedDate) && (
+            <AIOpinionCard
+              meals={meals}
+              exercises={exercises}
+              selectedDate={selectedDate}
             />
           )}
         </div>

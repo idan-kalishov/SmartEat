@@ -5,7 +5,8 @@ import {
   NutrientRecommendation,
   NutritionData,
   UserProfile,
-  WeightGoal
+  WeightGoal,
+  ActivityLevel,
 } from '@generated/nutrition_pb';
 import { Injectable } from '@nestjs/common';
 
@@ -37,6 +38,57 @@ export class NutritionsRatingService {
     }
 
     return tdee;
+  }
+
+  calculateDailyExerciseGoal(user: UserProfile): number {
+    // Base exercise recommendations based on activity level
+    let baseExerciseMinutes = 0;
+
+    switch (user.activityLevel) {
+      case ActivityLevel.ACTIVITY_LEVEL_SEDENTARY:
+        baseExerciseMinutes = 45; // 45 minutes for sedentary people
+        break;
+      case ActivityLevel.ACTIVITY_LEVEL_LIGHT:
+        baseExerciseMinutes = 30; // 30 minutes for light activity
+        break;
+      case ActivityLevel.ACTIVITY_LEVEL_MODERATE:
+        baseExerciseMinutes = 20; // 20 minutes for moderate activity
+        break;
+      case ActivityLevel.ACTIVITY_LEVEL_ACTIVE:
+        baseExerciseMinutes = 15; // 15 minutes for active people
+        break;
+      case ActivityLevel.ACTIVITY_LEVEL_VERY_ACTIVE:
+        baseExerciseMinutes = 10; // 10 minutes for very active people
+        break;
+      default:
+        baseExerciseMinutes = 30;
+    }
+
+    // Adjust based on weight goals
+    if (user.weightGoal === WeightGoal.WEIGHT_GOAL_LOSE) {
+      if (user.goalIntensity === GoalIntensity.GOAL_INTENSITY_MILD) {
+        baseExerciseMinutes += 15;
+      } else if (user.goalIntensity === GoalIntensity.GOAL_INTENSITY_MODERATE) {
+        baseExerciseMinutes += 30;
+      } else if (
+        user.goalIntensity === GoalIntensity.GOAL_INTENSITY_AGGRESSIVE
+      ) {
+        baseExerciseMinutes += 45;
+      }
+    } else if (user.weightGoal === WeightGoal.WEIGHT_GOAL_MAINTAIN) {
+      // Keep base exercise for maintenance
+    } else if (user.weightGoal === WeightGoal.WEIGHT_GOAL_GAIN) {
+      // Reduce exercise for weight gain, but maintain some for health
+      baseExerciseMinutes = Math.max(15, baseExerciseMinutes - 10);
+    }
+
+    // Convert minutes to calories burned
+    // Average person burns about 5-8 calories per minute during moderate exercise
+    // We'll use 6 calories per minute as a reasonable average
+    const caloriesPerMinute = 6;
+    const dailyExerciseCalories = baseExerciseMinutes * caloriesPerMinute;
+
+    return Math.round(dailyExerciseCalories);
   }
 
   calculateDailyRecommendations(user: UserProfile): NutrientRecommendation {

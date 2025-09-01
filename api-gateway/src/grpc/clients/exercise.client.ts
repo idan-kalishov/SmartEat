@@ -7,6 +7,8 @@ import {
   GetExercisesByDateResponse,
   SaveExerciseRequest,
   SaveExerciseResponse,
+  DeleteExerciseRequest,
+  DeleteExerciseResponse,
 } from '@generated/exercise';
 import { ExerciseGrpcOptions } from './exercise.config';
 
@@ -63,6 +65,32 @@ export class ExerciseClient implements OnModuleInit {
       }
       throw new BadRequestException(
         'Failed to get exercises by date: ' + error.message,
+      );
+    }
+  }
+
+  async deleteExercise(
+    deleteExerciseRequest: DeleteExerciseRequest,
+  ): Promise<DeleteExerciseResponse> {
+    try {
+      if (!deleteExerciseRequest.userId) {
+        throw new BadRequestException('User ID is required');
+      }
+
+      if (!deleteExerciseRequest.mealId) {
+        throw new BadRequestException('Exercise ID is required');
+      }
+
+      return await firstValueFrom(
+        this.exerciseService.deleteExercise(deleteExerciseRequest),
+      );
+    } catch (error) {
+      console.error('Error in client deleteExercise:', error);
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new BadRequestException(
+        'Failed to delete exercise: ' + error.message,
       );
     }
   }
