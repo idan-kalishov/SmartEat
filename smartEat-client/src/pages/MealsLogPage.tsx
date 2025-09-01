@@ -8,6 +8,9 @@ import WaterTracker from "@/components/water-tracker/WaterTracker";
 import { useExercisesByDate } from "@/hooks/exercise/useExercisesByDate";
 import { useMealsByDate } from "@/hooks/meals/useMealsByDate";
 import { useDailyNutrition } from "@/hooks/nutrition/useDailyNutrition";
+import { getDailyExerciseGoal } from "@/services/dailyRecommendationsService";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/appState";
 import { Meal } from "@/types/meals/meal";
 import { formatDateLocal } from "@/utils/dateUtils";
 import { calculateTotalNutrition } from "@/utils/nutrientCalculations";
@@ -19,7 +22,7 @@ import {
   Utensils,
   UtensilsCrossed,
 } from "lucide-react";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import HorizontalDatePicker from "../components/HorizontalDatePicker";
 
 type Tab = "overview" | "statistics";
@@ -29,6 +32,9 @@ const MealsLogPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [exerciseGoal, setExerciseGoal] = useState<{ calories: number } | null>(
+    null
+  );
 
   const {
     meals = [],
@@ -52,6 +58,8 @@ const MealsLogPage: React.FC = () => {
     fetchExercises,
   } = useExercisesByDate(selectedDate);
 
+  const userProfile = useSelector((state: RootState) => state.user.userProfile);
+
   const formatTime = (date: string) => {
     return new Date(date).toLocaleTimeString("en-US", {
       hour: "numeric",
@@ -73,6 +81,23 @@ const MealsLogPage: React.FC = () => {
     fetchMeals();
     fetchNutritionData();
   }, [fetchMeals, fetchNutritionData]);
+
+  // Fetch exercise goal when user profile changes
+  useEffect(() => {
+    const fetchExerciseGoal = async () => {
+      if (!userProfile) return;
+
+      try {
+        const goal = await getDailyExerciseGoal(userProfile);
+        setExerciseGoal(goal);
+      } catch (error) {
+        console.error("Failed to fetch exercise goal:", error);
+        setExerciseGoal(null);
+      }
+    };
+
+    fetchExerciseGoal();
+  }, [userProfile]);
 
   return (
     <div className="flex flex-col items-center bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 py-4 px-2 sm:py-6 h-full overflow-y-auto">
@@ -222,6 +247,8 @@ const MealsLogPage: React.FC = () => {
                 currentNutrition={currentNutrition}
                 recommendations={recommendations}
                 error={nutritionError}
+                exercises={exercises}
+                exerciseGoal={exerciseGoal}
               />
             )}
           </div>
