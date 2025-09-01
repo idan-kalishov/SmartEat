@@ -1,4 +1,7 @@
-import { CompleteMealAnalysisResponse } from '@generated/nutrition';
+import {
+  CompleteMealAnalysisResponse,
+  GetDailyExerciseGoalResponse,
+} from '@generated/nutrition';
 import {
   MealAnalysisRequest,
   NutrientRecommendation,
@@ -24,8 +27,11 @@ export class RecommendationsController {
   }
 
   @GrpcMethod('NutritionsRatingService', 'GetDailyExerciseGoal')
-  getDailyExerciseGoal(userProfile: UserProfile): Number {
-    return this.nutritionsRatingService.calculateDailyExerciseGoal(userProfile);
+  getDailyExerciseGoal(userProfile: UserProfile): GetDailyExerciseGoalResponse {
+    return {
+      calories:
+        this.nutritionsRatingService.calculateDailyExerciseGoal(userProfile),
+    };
   }
 
   @GrpcMethod('NutritionsRatingService', 'AnalyzeMeal')
