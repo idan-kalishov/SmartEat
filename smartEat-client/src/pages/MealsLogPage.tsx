@@ -204,18 +204,18 @@ const MealsLogPage: React.FC = () => {
               <BarChart3 className="w-5 h-5 text-emerald-600" />
               <h2 className="text-lg font-semibold text-gray-800">Insights</h2>
             </div>
+            {mealsLoading && nutritionLoading ? (
+              <div className="flex justify-center items-center py-4">
+                <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+              </div>
+            ) : (
+              <DailyIntakeProgress
+                currentNutrition={currentNutrition}
+                recommendations={recommendations}
+                error={nutritionError}
+              />
+            )}
           </div>
-          {mealsLoading && nutritionLoading ? (
-            <div className="flex justify-center items-center py-4">
-              <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
-            </div>
-          ) : (
-            <DailyIntakeProgress
-              currentNutrition={currentNutrition}
-              recommendations={recommendations}
-              error={nutritionError}
-            />
-          )}
 
           <AIOpinionCard
             meals={meals}

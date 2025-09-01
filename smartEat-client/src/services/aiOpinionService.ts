@@ -53,28 +53,6 @@ export async function getAIOpinion(
     return acc + (exercise.minutes || 0);
   }, 0);
 
-  // Calculate remaining needs
-  const remainingCalories = Math.max(
-    0,
-    request.dailyRecommendations.calories - totalNutrition.calories
-  );
-  const remainingProtein = Math.max(
-    0,
-    request.dailyRecommendations.protein - totalNutrition.protein
-  );
-  const remainingFat = Math.max(
-    0,
-    request.dailyRecommendations.fats - totalNutrition.totalFat
-  );
-  const remainingCarbs = Math.max(
-    0,
-    request.dailyRecommendations.carbs - totalNutrition.totalCarbohydrates
-  );
-  const remainingExercise = Math.max(
-    0,
-    request.dailyExerciseGoal.exerciseGoal - totalExercise
-  );
-
   // Prepare the API request payload with new simplified structure
   const payload = {
     user: request.userProfile,
@@ -87,7 +65,7 @@ export async function getAIOpinion(
       fiber: { value: totalNutrition.fiber, unit: "g" },
     },
     currentExerciseCalories: totalExercise,
-    dailyExerciseGoal: request.dailyExerciseGoal.exerciseGoal,
+    dailyExerciseGoal: request.dailyExerciseGoal.calories,
     currentTime: request.currentTime,
   };
 

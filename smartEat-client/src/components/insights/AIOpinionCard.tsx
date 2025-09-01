@@ -70,7 +70,7 @@ const AIOpinionCard: React.FC<AIOpinionCardProps> = ({
   };
 
   useEffect(() => {
-    if (userProfile && meals.length > 0) {
+    if (userProfile) {
       fetchAIOpinion();
     }
   }, [userProfile, meals, exercises, selectedDate]);

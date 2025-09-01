@@ -19,7 +19,7 @@ export interface DailyRecommendations {
 }
 
 export interface DailyExerciseGoal {
-  exerciseGoal: number; // Calories to burn from exercise per day
+  calories: number; // Calories to burn from exercise per day
 }
 
 export async function getDailyRecommendations(
