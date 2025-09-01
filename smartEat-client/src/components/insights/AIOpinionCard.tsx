@@ -142,7 +142,7 @@ const AIOpinionCard: React.FC<AIOpinionCardProps> = ({
       </div>
 
       {/* Positive Feedback */}
-      {aiOpinion.positiveFeedback && (
+      {/* {aiOpinion.positiveFeedback && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
           <div className="flex items-start gap-2">
             <TrendingUp className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
@@ -151,7 +151,7 @@ const AIOpinionCard: React.FC<AIOpinionCardProps> = ({
             </p>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Recommendations */}
       {aiOpinion.recommendations && aiOpinion.recommendations.length > 0 && (

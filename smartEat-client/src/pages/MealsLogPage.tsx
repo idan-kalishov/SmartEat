@@ -60,6 +60,15 @@ const MealsLogPage: React.FC = () => {
     });
   };
 
+  const isToday = (selectedDate: Date) => {
+    const today = new Date();
+    return (
+      selectedDate.getFullYear() === today.getFullYear() &&
+      selectedDate.getMonth() === today.getMonth() &&
+      selectedDate.getDate() === today.getDate()
+    );
+  };
+
   const handleRefresh = useCallback(() => {
     fetchMeals();
     fetchNutritionData();
@@ -217,11 +226,13 @@ const MealsLogPage: React.FC = () => {
             )}
           </div>
 
-          <AIOpinionCard
-            meals={meals}
-            exercises={exercises}
-            selectedDate={selectedDate}
-          />
+          {isToday(selectedDate) && (
+            <AIOpinionCard
+              meals={meals}
+              exercises={exercises}
+              selectedDate={selectedDate}
+            />
+          )}
         </div>
       )}
 
