@@ -40,7 +40,9 @@ const ExercisesCard: React.FC<ExercisesCardProps> = ({
           (exerciseData.caloriesPerHour * intensity.multiplier * duration) /
           60
         ).toFixed(0),
-        createdAt: selectedDate.toISOString(),
+        createdAt: new Date(
+          selectedDate.getTime() + 3 * 60 * 60 * 1000
+        ).toISOString(),
         minutes: duration,
         name: exerciseData.label,
         userId: user?._id,
