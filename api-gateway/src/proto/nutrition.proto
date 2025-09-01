@@ -6,6 +6,7 @@ service NutritionsRatingService {
   rpc AnalyzeMeal (MealAnalysisRequest) returns (CompleteMealAnalysisResponse);
   rpc GetDailyRecommendations (UserProfile) returns (NutrientRecommendation);
   rpc GetDailyExerciseGoal (UserProfile) returns (GetDailyExerciseGoalResponse);
+  rpc GetDailyOpinion (DailyOpinionRequest) returns (DailyOpinionResponse);
 }
 
 message Nutrient {
@@ -147,4 +148,19 @@ message CompleteMealAnalysisResponse {
   repeated string recommendations = 2;
   string positive_feedback = 3;
   NutrientRecommendation daily_recommendations = 4; // Optional
+}
+
+message DailyOpinionRequest {
+  UserProfile user = 1;
+  NutrientRecommendation dailyGoals = 2;
+  NutritionData currentNutrition = 3;
+  double currentExerciseCalories = 4;
+  double dailyExerciseGoal = 5;
+  string currentTime = 6;
+}
+
+message DailyOpinionResponse {
+  string opinion = 1;
+  repeated string recommendations = 2;
+  string positive_feedback = 3;
 }

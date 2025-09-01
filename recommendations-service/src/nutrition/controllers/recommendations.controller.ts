@@ -1,8 +1,11 @@
-import { CompleteMealAnalysisResponse } from '@generated/nutrition';
+import {
+  CompleteMealAnalysisResponse,
+  GetDailyExerciseGoalResponse,
+} from '@generated/nutrition';
 import {
   MealAnalysisRequest,
   NutrientRecommendation,
-  UserProfile
+  UserProfile,
 } from '@generated/nutrition_pb';
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
@@ -14,7 +17,7 @@ export class RecommendationsController {
   constructor(
     private readonly nutritionsRatingService: NutritionsRatingService,
     private readonly geminiRecommendService: GeminiRecommendService,
-  ) { }
+  ) {}
 
   @GrpcMethod('NutritionsRatingService', 'GetDailyRecommendations')
   getDailyRecommendations(userProfile: UserProfile): NutrientRecommendation {
@@ -24,8 +27,11 @@ export class RecommendationsController {
   }
 
   @GrpcMethod('NutritionsRatingService', 'GetDailyExerciseGoal')
-  getDailyExerciseGoal(userProfile: UserProfile): Number {
-    return this.nutritionsRatingService.calculateTDEE(userProfile);
+  getDailyExerciseGoal(userProfile: UserProfile): GetDailyExerciseGoalResponse {
+    return {
+      calories:
+        this.nutritionsRatingService.calculateDailyExerciseGoal(userProfile),
+    };
   }
 
   @GrpcMethod('NutritionsRatingService', 'AnalyzeMeal')
@@ -60,5 +66,19 @@ export class RecommendationsController {
       positiveFeedback: aiResponse.positiveFeedback,
       dailyRecommendations: recommendations, // Optional: include daily needs
     };
+  }
+
+  @GrpcMethod('NutritionsRatingService', 'GetDailyOpinion')
+  async getDailyOpinion(request: any): Promise<any> {
+    // Validate input
+    if (!request.user || !request.dailyGoals || !request.currentNutrition) {
+      throw new Error('Invalid request: Required data is missing');
+    }
+
+    // Get AI opinion about the rest of the day
+    const aiResponse =
+      await this.geminiRecommendService.getDailyOpinion(request);
+
+    return aiResponse;
   }
 }

@@ -11,6 +11,15 @@ export const saveExercise = async (
   return response.data;
 };
 
+export const deleteExercise = async (
+  exerciseId: string
+): Promise<{ success: boolean }> => {
+  const response = await api.delete<{ success: boolean }>(
+    `/exercise/${exerciseId}`
+  );
+  return response.data;
+};
+
 function formatDateLocal(date: Date): string {
   // Returns YYYY-MM-DD in local time
   const year = date.getFullYear();
