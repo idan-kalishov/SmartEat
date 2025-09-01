@@ -6,20 +6,24 @@ import { Meal } from "@/types/meals/meal";
 import { Exercise } from "@/types/exercise";
 import { getAIOpinion, AIOpinionResponse } from "@/services/aiOpinionService";
 import {
-  getDailyRecommendations,
-  getDailyExerciseGoal,
+  DailyRecommendations,
+  DailyExerciseGoal,
 } from "@/services/dailyRecommendationsService";
 
 interface AIOpinionCardProps {
   meals: Meal[];
   exercises: Exercise[];
   selectedDate: Date;
+  dailyRecommendations: DailyRecommendations;
+  dailyExerciseGoal: DailyExerciseGoal;
 }
 
 const AIOpinionCard: React.FC<AIOpinionCardProps> = ({
   meals,
   exercises,
   selectedDate,
+  dailyRecommendations,
+  dailyExerciseGoal,
 }) => {
   const [aiOpinion, setAiOpinion] = useState<AIOpinionResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -36,12 +40,6 @@ const AIOpinionCard: React.FC<AIOpinionCardProps> = ({
     setError(null);
 
     try {
-      // Get daily recommendations and exercise goals
-      const [dailyRecommendations, dailyExerciseGoal] = await Promise.all([
-        getDailyRecommendations(userProfile),
-        getDailyExerciseGoal(userProfile),
-      ]);
-
       // Get current time
       const now = new Date();
       const currentTime = now.toLocaleTimeString("en-US", {
@@ -50,7 +48,7 @@ const AIOpinionCard: React.FC<AIOpinionCardProps> = ({
         hour12: true,
       });
 
-      // Get AI opinion
+      // Get AI opinion using the props
       const opinion = await getAIOpinion({
         userProfile,
         meals,
