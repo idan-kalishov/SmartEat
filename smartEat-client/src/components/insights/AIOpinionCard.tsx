@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Brain, Lightbulb, TrendingUp, Loader2 } from "lucide-react";
+import { Brain, Lightbulb, Loader2 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/appState";
 import { Meal } from "@/types/meals/meal";
