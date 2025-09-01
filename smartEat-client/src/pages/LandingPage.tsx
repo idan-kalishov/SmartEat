@@ -116,19 +116,6 @@ const LandingPage = () => {
     }
   };
 
-  const checkPwaEligibility = () => {
-    // Check if the PWA meets installation criteria
-    // This is a simplified check - you might need more comprehensive validation
-    if (!window.matchMedia("(display-mode: standalone)").matches) {
-      console.log("App is not in standalone mode");
-    }
-
-    if (!deferredPrompt) {
-      console.log("No deferred prompt available");
-      setShowAndroidInstructions(true);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-lime-100 via-emerald-100 to-green-200 flex items-center justify-center px-4 py-10">
       <motion.div
