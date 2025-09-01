@@ -258,6 +258,8 @@ const MealsLogPage: React.FC = () => {
               meals={meals}
               exercises={exercises}
               selectedDate={selectedDate}
+              dailyRecommendations={recommendations}
+              dailyExerciseGoal={exerciseGoal}
             />
           )}
         </div>
