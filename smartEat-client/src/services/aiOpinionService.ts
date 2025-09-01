@@ -50,7 +50,7 @@ export async function getAIOpinion(
 
   // Calculate current day's exercise
   const totalExercise = request.exercises.reduce((acc, exercise) => {
-    return acc + (exercise.minutes || 0);
+    return acc + (Number(exercise.calories) || 0);
   }, 0);
 
   // Prepare the API request payload with new simplified structure
