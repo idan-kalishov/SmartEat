@@ -47,6 +47,63 @@ const IngredientItem = ({
               updateIngredient(index, "weight", clampedValue);
             }
           }}
+          onKeyDown={(e) => {
+            // Allow: backspace, delete, tab, escape, enter, decimal point, and navigation keys
+            const allowedKeys = [
+              "Backspace",
+              "Delete",
+              "Tab",
+              "Escape",
+              "Enter",
+              ".",
+              ",",
+              "Home",
+              "End",
+              "ArrowLeft",
+              "ArrowRight",
+              "ArrowUp",
+              "ArrowDown",
+            ];
+
+            // Allow Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+            if (
+              e.ctrlKey &&
+              ["a", "c", "v", "x"].includes(e.key.toLowerCase())
+            ) {
+              return;
+            }
+
+            // Allow navigation and control keys
+            if (allowedKeys.includes(e.key)) {
+              return;
+            }
+
+            // Allow numbers (0-9) from both main keyboard and numpad
+            if (/^[0-9]$/.test(e.key)) {
+              return;
+            }
+
+            // Prevent all other keys
+            e.preventDefault();
+          }}
+          onInput={(e) => {
+            // Additional validation for mobile browsers
+            const target = e.target as HTMLInputElement;
+            const value = target.value;
+            // Remove any non-numeric characters except decimal point
+            const numericValue = value.replace(/[^0-9.]/g, "");
+            // Ensure only one decimal point
+            const parts = numericValue.split(".");
+            const cleanValue =
+              parts.length > 2
+                ? parts[0] + "." + parts.slice(1).join("")
+                : numericValue;
+
+            if (cleanValue !== value) {
+              target.value = cleanValue;
+              updateIngredient(index, "weight", cleanValue);
+            }
+          }}
           className="w-full text-right bg-transparent focus:outline-none pr-4 text-gray-600"
           placeholder="0"
         />
