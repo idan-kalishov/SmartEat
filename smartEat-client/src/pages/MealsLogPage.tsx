@@ -148,7 +148,12 @@ const MealsLogPage: React.FC = () => {
               </div>
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="flex items-center gap-1 px-2.5 py-1 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-all text-sm font-medium"
+                disabled={!isToday(selectedDate)}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all text-sm font-medium ${
+                  isToday(selectedDate)
+                    ? "bg-emerald-500 text-white hover:bg-emerald-600"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
               >
                 <Plus className="w-3.5 h-3.5" />
                 Add Meal
