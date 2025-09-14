@@ -62,7 +62,7 @@ const BottomNavbar: React.FC = () => {
             const colorClasses = isActive
               ? "text-green-600"
               : "text-gray-500 hover:text-gray-800";
-            
+
             if (item.onClick) {
               // Button nav item
               return (
@@ -76,9 +76,9 @@ const BottomNavbar: React.FC = () => {
                     {item.label}
                   </span>
                 </button>
-              );  
+              );
             }
-            
+
             return (
               <Link
                 key={item.to}
