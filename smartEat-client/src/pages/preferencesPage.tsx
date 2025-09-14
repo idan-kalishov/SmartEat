@@ -14,6 +14,7 @@ import { Allergy, UserProfile } from "@/types/userTypes";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface UpdateUserProfileRequest {
   userProfile: UserProfile;
@@ -199,7 +200,7 @@ const UserPreferences: React.FC = () => {
         })
         .catch((err) => {
           console.error("Error updating profile:", err);
-          alert("Failed to save your preferences. Please try again.");
+          toast.error("Failed to save your preferences. Please try again.");
         });
     }
   };
