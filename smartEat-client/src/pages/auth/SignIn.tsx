@@ -173,14 +173,13 @@ export default function SignIn() {
             </div>
 
             {/* Social Login */}
-            <div className="flex justify-center w-full">
-              <div className="w-full">
-                <GoogleLogin
-                  onSuccess={onGoogleLoginSuccess}
-                  onError={onGoogleLoginError}
-                  useOneTap
-                />
-              </div>
+            <div className="flex justify-center">
+              <GoogleLogin
+                onSuccess={onGoogleLoginSuccess}
+                onError={onGoogleLoginError}
+                useOneTap
+                width="320"
+              />
             </div>
 
             {/* Sign Up Link */}
