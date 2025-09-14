@@ -9,6 +9,7 @@ import { useExercisesByDate } from "@/hooks/exercise/useExercisesByDate";
 import { useMealsByDate } from "@/hooks/meals/useMealsByDate";
 import { useDailyNutrition } from "@/hooks/nutrition/useDailyNutrition";
 import { getDailyExerciseGoal } from "@/services/dailyRecommendationsService";
+import AddButton from "@/components/common/AddButton";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/appState";
 import { Meal } from "@/types/meals/meal";
@@ -22,7 +23,7 @@ import {
   Utensils,
   UtensilsCrossed,
 } from "lucide-react";
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect, useMemo } from "react";
 import HorizontalDatePicker from "../components/HorizontalDatePicker";
 
 type Tab = "overview" | "statistics";
@@ -68,14 +69,14 @@ const MealsLogPage: React.FC = () => {
     });
   };
 
-  const isToday = (selectedDate: Date) => {
+  const isToday = useMemo(() => {
     const today = new Date();
     return (
       selectedDate.getFullYear() === today.getFullYear() &&
       selectedDate.getMonth() === today.getMonth() &&
       selectedDate.getDate() === today.getDate()
     );
-  };
+  }, [selectedDate]);
 
   const handleRefresh = useCallback(() => {
     fetchMeals();
@@ -146,18 +147,14 @@ const MealsLogPage: React.FC = () => {
                   Today's Meals
                 </h2>
               </div>
-              <button
+              <AddButton
+                selectedDate={selectedDate}
                 onClick={() => setIsModalOpen(true)}
-                disabled={!isToday(selectedDate)}
-                className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all text-sm font-medium ${
-                  isToday(selectedDate)
-                    ? "bg-emerald-500 text-white hover:bg-emerald-600"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
+                title="Add Meal"
               >
                 <Plus className="w-3.5 h-3.5" />
                 Add Meal
-              </button>
+              </AddButton>
             </div>
 
             {mealsLoading ? (
@@ -258,7 +255,7 @@ const MealsLogPage: React.FC = () => {
             )}
           </div>
 
-          {isToday(selectedDate) && (
+          {isToday && (
             <AIOpinionCard
               meals={meals}
               exercises={exercises}
