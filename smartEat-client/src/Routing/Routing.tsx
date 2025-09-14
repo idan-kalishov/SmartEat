@@ -1,18 +1,18 @@
-import { Navigate, Route, Routes } from "react-router-dom";
-import ResultsPage from "@/pages/ResultsPage.tsx";
-import IngredientVerificationPage from "@/pages/IngredientVerificationPage.tsx";
-import { ROUTES } from "./routes";
-import ProtectedRoute from "@/components/ProtectedRoutes.tsx";
-import SignUp from "@/pages/auth/SignUp.tsx";
-import SignIn from "@/pages/auth/SignIn.tsx";
-import LoginRedirector from "@/components/loginRedirector.tsx";
-import MealsLogPage from "@/pages/MealsLogPage";
-import ProfilePage from "@/pages/Profile";
-import FastingTimer from "@/pages/fasting-page/FastingTimer.tsx";
-import UserPreferences from "@/pages/preferencesPage";
 import CameraWithFrameAndLoading from "@/components/image-captch/CameraWithFrameAndLoading.tsx";
 import Layout from "@/components/Layout.tsx";
+import LoginRedirector from "@/components/loginRedirector.tsx";
+import ProtectedRoute from "@/components/ProtectedRoutes.tsx";
+import SignIn from "@/pages/auth/SignIn.tsx";
+import SignUp from "@/pages/auth/SignUp.tsx";
+import FastingTimer from "@/pages/fasting-page/FastingTimer.tsx";
+import IngredientVerificationPage from "@/pages/IngredientVerificationPage.tsx";
 import LandingPage from "@/pages/LandingPage";
+import MealsLogPage from "@/pages/MealsLogPage";
+import UserPreferences from "@/pages/preferencesPage";
+import ProfilePage from "@/pages/Profile";
+import ResultsPage from "@/pages/ResultsPage.tsx";
+import { Navigate, Route, Routes } from "react-router-dom";
+import { ROUTES } from "./routes";
 
 const Routing = () => {
   return (
@@ -21,7 +21,7 @@ const Routing = () => {
 
       <Route path={ROUTES.SIGNIN} element={<SignIn />} />
       <Route path={ROUTES.SIGNUP} element={<SignUp />} />
-      <Route path="/verify-auth" element={<LoginRedirector />} />
+      <Route path={ROUTES.VERIFY_AUTH} element={<LoginRedirector />} />
 
       <Route element={<ProtectedRoute />}>
         <Route element={<Layout />}>

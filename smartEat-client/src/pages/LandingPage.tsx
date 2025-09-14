@@ -1,8 +1,9 @@
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { ROUTES } from "@/Routing/routes";
+import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 
 declare global {
   interface Navigator {
@@ -156,7 +157,7 @@ const LandingPage = () => {
                 transition={{ delay: 0.4 }}
               >
                 <Button
-                  onClick={() => navigate("/login")}
+                  onClick={() => navigate(ROUTES.SIGNIN)}
                   className="w-full py-5 text-base font-semibold bg-green-600 hover:bg-green-700 transition-colors shadow"
                 >
                   🚀 Open App
@@ -217,7 +218,7 @@ const LandingPage = () => {
             >
               <Button
                 variant="outline"
-                onClick={() => navigate("/login")}
+                onClick={() => navigate(ROUTES.SIGNIN)}
                 className="w-full py-5 text-base cursor-pointer font-semibold border-green-300 text-green-700 hover:bg-green-50"
               >
                 Continue in Browser

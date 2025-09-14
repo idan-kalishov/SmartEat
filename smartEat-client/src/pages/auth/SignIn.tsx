@@ -1,10 +1,10 @@
+import { ROUTES } from "@/Routing/routes";
+import api from "@/services/api";
+import { CredentialResponse, GoogleLogin } from '@react-oauth/google';
+import axios from "axios";
+import { Utensils } from "lucide-react";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ROUTES } from "@/Routing/routes";
-import { Utensils } from "lucide-react";
-import axios from "axios";
-import api from "@/services/api";
-import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 
 export default function SignIn() {
   const [emailError, setEmailError] = useState("");
@@ -21,12 +21,12 @@ export default function SignIn() {
       const authResponse = await api.post('/auth/google', {
         idToken: credential
       });
-      
+
       // Handle successful authentication
       if (authResponse.data.accessToken) {
         // Tokens are automatically stored as HTTP-only cookies by the backend
         // Navigate to verify-auth to complete the authentication flow
-        navigate('/verify-auth');
+        navigate(ROUTES.VERIFY_AUTH);
       }
     } catch (err) {
       console.error('Google login error:', err);
@@ -71,7 +71,7 @@ export default function SignIn() {
 
     try {
       await api.post("/auth/login", { email, password });
-      navigate("/verify-auth");
+      navigate(ROUTES.VERIFY_AUTH);
     } catch (err) {
       if (axios.isAxiosError(err)) {
         setError(err.response?.data?.message || "An error occurred during login");
@@ -124,9 +124,8 @@ export default function SignIn() {
                   type="email"
                   autoComplete="email"
                   required
-                  className={`w-full px-3 py-2 border ${
-                    emailError ? 'border-red-300' : 'border-gray-300'
-                  } rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500`}
+                  className={`w-full px-3 py-2 border ${emailError ? 'border-red-300' : 'border-gray-300'
+                    } rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500`}
                   placeholder="your@email.com"
                 />
                 {emailError && (
@@ -144,9 +143,8 @@ export default function SignIn() {
                   type="password"
                   autoComplete="current-password"
                   required
-                  className={`w-full px-3 py-2 border ${
-                    passwordError ? 'border-red-300' : 'border-gray-300'
-                  } rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500`}
+                  className={`w-full px-3 py-2 border ${passwordError ? 'border-red-300' : 'border-gray-300'
+                    } rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500`}
                   placeholder="••••••"
                 />
                 {passwordError && (
@@ -184,7 +182,7 @@ export default function SignIn() {
             {/* Sign Up Link */}
             <p className="text-center text-gray-500">
               Don't have an account?{" "}
-              <Link 
+              <Link
                 to={ROUTES.SIGNUP}
                 className="text-emerald-600 hover:text-emerald-700 font-medium"
               >

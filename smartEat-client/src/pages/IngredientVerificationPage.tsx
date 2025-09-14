@@ -1,5 +1,6 @@
 // src/pages/IngredientVerificationPage.tsx
 
+import { ROUTES } from "@/Routing/routes";
 import { analyzeMeal } from "@/services/mealRatingService";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -31,7 +32,7 @@ const IngredientVerificationPage: React.FC = () => {
   useEffect(() => {
     if (!transferObject) {
       toast.error("No meal data found. Please try again.");
-      navigate("/home", { replace: true });
+      navigate(ROUTES.HOME, { replace: true });
     }
   }, [transferObject, navigate]);
 
@@ -115,7 +116,7 @@ const IngredientVerificationPage: React.FC = () => {
         result.transformedIngredients
       );
 
-      navigate("/results", {
+      navigate(ROUTES.RESULT, {
         state: {
           name: mealName.trim() || "Unnamed Meal",
           image: mealImage,

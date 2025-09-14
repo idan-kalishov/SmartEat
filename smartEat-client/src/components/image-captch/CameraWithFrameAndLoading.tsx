@@ -1,3 +1,4 @@
+import { ROUTES } from "@/Routing/routes";
 import { MealRecognitionResult } from "@/types/protoServicesTypes";
 import { base64ToFile, fileToBase64 } from "@/utils/base64ToFile.ts";
 import { cropImageToSquare } from "@/utils/cropImageToSquare.ts";
@@ -58,7 +59,7 @@ const CameraWithFrameAndLoading = () => {
         image: croppedImage,
       };
 
-      navigate("/verify", { state: transferObject });
+      navigate(ROUTES.VERIFY, { state: transferObject });
     } catch (error) {
       console.error("Error during capture:", error);
       toast.error("An error occurred while analyzing your meal.");
@@ -85,7 +86,7 @@ const CameraWithFrameAndLoading = () => {
         image: fileAsBase64,
       };
 
-      navigate("/verify", { state: transferObject });
+      navigate(ROUTES.VERIFY, { state: transferObject });
     } catch (error) {
       console.error("Error during file upload:", error);
       toast.error("An error occurred while analyzing your meal.");
