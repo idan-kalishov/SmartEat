@@ -1,17 +1,19 @@
+import { ROUTES } from "@/Routing/routes";
 import { MealRecognitionResult } from "@/types/protoServicesTypes";
-import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Webcam from "react-webcam";
-import useScrollLock from "../../hooks/useScrollLock";
-import LoadingScreen from "../../pages/loading/LoadingScreen";
 import { base64ToFile, fileToBase64 } from "@/utils/base64ToFile.ts";
 import { cropImageToSquare } from "@/utils/cropImageToSquare.ts";
 import { analyzeFoodImage } from "@/utils/mealAnalysisApi.ts";
+import { X } from "lucide-react";
+import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Webcam from "react-webcam";
+import { toast } from "sonner";
+import useScrollLock from "../../hooks/useScrollLock";
+import LoadingScreen from "../../pages/loading/LoadingScreen";
 import CameraFeed from "./CameraFeed";
 import CaptureButton from "./CaptureButton";
 import MediaUploadIcon from "./MediaUploadIcon";
 import OverlayWithFrame from "./OverlayWithFrame";
-import { X } from "lucide-react";
 
 export interface FoodVerifyTransferObject {
   foodRecognitionResponse: MealRecognitionResult[];
@@ -29,7 +31,7 @@ const CameraWithFrameAndLoading = () => {
   // Function to capture the image
   const capture = async () => {
     if (!webcamRef.current) {
-      alert("Camera not ready. Please try again.");
+      toast.error("Camera not ready. Please try again.");
       return;
     }
     setIsIdentifying(true); // Start loading
@@ -57,10 +59,10 @@ const CameraWithFrameAndLoading = () => {
         image: croppedImage,
       };
 
-      navigate("/verify", { state: transferObject });
+      navigate(ROUTES.VERIFY, { state: transferObject });
     } catch (error) {
       console.error("Error during capture:", error);
-      alert(error instanceof Error ? error.message : "An error occurred.");
+      toast.error("An error occurred while analyzing your meal.");
     } finally {
       setIsIdentifying(false); // Stop loading
     }
@@ -69,7 +71,7 @@ const CameraWithFrameAndLoading = () => {
   // Function to handle file upload
   const handleFileUpload = async (file: File) => {
     if (!file) {
-      alert("No file selected.");
+      toast.error("No file selected.");
       return;
     }
     setIsIdentifying(true); // Start loading
@@ -84,10 +86,10 @@ const CameraWithFrameAndLoading = () => {
         image: fileAsBase64,
       };
 
-      navigate("/verify", { state: transferObject });
+      navigate(ROUTES.VERIFY, { state: transferObject });
     } catch (error) {
       console.error("Error during file upload:", error);
-      alert(error instanceof Error ? error.message : "An error occurred.");
+      toast.error("An error occurred while analyzing your meal.");
     } finally {
       setIsIdentifying(false); // Stop loading
     }

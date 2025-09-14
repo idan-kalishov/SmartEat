@@ -31,7 +31,7 @@ services:
       - PORT=3000
       - DB_CONNECT=${MONGO_URI}
       - TOKEN_SECRET=${TOKEN_SECRET}
-      - TOKEN_EXPIRES=${TOKEN_EXPIRES:-15m}
+      - TOKEN_EXPIRES=${TOKEN_EXPIRES:-1d}
       - REFRESH_TOKEN_EXPIRES=${REFRESH_TOKEN_EXPIRES:-7d}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
     restart: unless-stopped

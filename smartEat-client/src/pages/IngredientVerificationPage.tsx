@@ -1,8 +1,10 @@
 // src/pages/IngredientVerificationPage.tsx
 
+import { ROUTES } from "@/Routing/routes";
 import { analyzeMeal } from "@/services/mealRatingService";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { FoodVerifyTransferObject } from "../components/image-captch/CameraWithFrameAndLoading";
 import IngredientsList from "../components/verfication-page/IngredientsList";
 import IngredientVerificationHeader from "../components/verfication-page/IngredientVerificationHeader";
@@ -27,10 +29,15 @@ const IngredientVerificationPage: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    if (!transferObject) {
+      toast.error("No meal data found. Please try again.");
+      navigate(ROUTES.HOME, { replace: true });
+    }
+  }, [transferObject, navigate]);
+
   if (!transferObject) {
-    alert("No meal data found. Please try again.");
-    navigate("/home");
-    return null;
+    return <LoadingScreen message="Redirecting..." />;
   }
 
   const isManual = transferObject.isManual;
@@ -49,15 +56,15 @@ const IngredientVerificationPage: React.FC = () => {
     isManual
       ? []
       : transferObject.foodRecognitionResponse.map((item) => ({
-          name: item.foodName,
-          weight: item.weight,
-          isNew: false,
-          nutrition: item.nutrition
-            ? {
-                per100g: item.nutrition.per100g,
-              }
-            : undefined,
-        }))
+        name: item.foodName,
+        weight: item.weight,
+        isNew: false,
+        nutrition: item.nutrition
+          ? {
+            per100g: item.nutrition.per100g,
+          }
+          : undefined,
+      }))
   );
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("Saving...");
@@ -83,8 +90,7 @@ const IngredientVerificationPage: React.FC = () => {
     // Warn about empty ingredients (non-blocking)
     if (invalidCount > 0) {
       setUiError(
-        `Removed ${invalidCount} empty ingredient${
-          invalidCount > 1 ? "s" : ""
+        `Removed ${invalidCount} empty ingredient${invalidCount > 1 ? "s" : ""
         }. Please ensure all ingredients have names.`
       );
       // Proceed with only valid ones
@@ -110,7 +116,7 @@ const IngredientVerificationPage: React.FC = () => {
         result.transformedIngredients
       );
 
-      navigate("/results", {
+      navigate(ROUTES.RESULT, {
         state: {
           name: mealName.trim() || "Unnamed Meal",
           image: mealImage,
@@ -159,7 +165,7 @@ const IngredientVerificationPage: React.FC = () => {
             {failedIngredients.length === 1 ? "it" : "them"}.
           </div>
         )}
-        
+
         {/* Fixed title section */}
         <div className="mb-4">
           <label className="text-lg font-semibold text-gray-800 mb-2 block">Ingredients</label>
@@ -167,7 +173,7 @@ const IngredientVerificationPage: React.FC = () => {
             You can modify the ingredients as needed.
           </p>
         </div>
-        
+
         {/* Ingredients section - expands naturally with page scroll */}
         <div className="mb-4 bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
           <IngredientsList
@@ -175,13 +181,13 @@ const IngredientVerificationPage: React.FC = () => {
             setIngredients={handleIngredientsChange}
           />
         </div>
-        
+
         {uiError && (
           <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg">
             <p className="text-sm text-red-600 font-medium">{uiError}</p>
           </div>
         )}
-        
+
         {/* Bottom section with buttons - positioned above navbar */}
         <div className="pt-4 pb-20 border-t border-gray-200 bg-white">
           <SaveButton
