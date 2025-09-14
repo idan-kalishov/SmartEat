@@ -7,6 +7,7 @@ import {
   PAGES,
 } from "@/components/preferences-page/preferencesConstants";
 import ProgressHeader from "@/components/preferences-page/ProgressHeader";
+import { ROUTES } from "@/Routing/routes";
 import api from "@/services/api";
 import { RootState } from "@/store/appState";
 import { PreferencePage } from "@/types/preferencesTypes";
@@ -14,6 +15,7 @@ import { Allergy, UserProfile } from "@/types/userTypes";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface UpdateUserProfileRequest {
   userProfile: UserProfile;
@@ -40,65 +42,65 @@ const NumericInput: React.FC<{
   max,
   funFact,
 }) => {
-  const [input, setInput] = useState(value.toString());
-  useEffect(() => {
-    setInput(value.toString());
-  }, [value]);
+    const [input, setInput] = useState(value.toString());
+    useEffect(() => {
+      setInput(value.toString());
+    }, [value]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setInput(val);
-    if (val === "") {
-      onChange("");
-      return;
-    }
-    const num = parseFloat(val);
-    if (!isNaN(num)) {
-      onChange(num);
-    }
-  };
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const val = e.target.value;
+      setInput(val);
+      if (val === "") {
+        onChange("");
+        return;
+      }
+      const num = parseFloat(val);
+      if (!isNaN(num)) {
+        onChange(num);
+      }
+    };
 
-  const handleBlur = () => {
-    const num = parseFloat(input);
-    if (
-      input === "" ||
-      isNaN(num) ||
-      (min && num < min) ||
-      (max && num > max)
-    ) {
-      setInput(value.toString()); // Reset on invalid
-    } else {
-      setInput(num.toString());
-    }
-  };
+    const handleBlur = () => {
+      const num = parseFloat(input);
+      if (
+        input === "" ||
+        isNaN(num) ||
+        (min && num < min) ||
+        (max && num > max)
+      ) {
+        setInput(value.toString()); // Reset on invalid
+      } else {
+        setInput(num.toString());
+      }
+    };
 
-  return (
-    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-      <div className="text-center mb-4">
-        <div className="text-6xl mb-3">{emoji}</div>
-        <h2 className="text-xl font-semibold text-gray-800">{label}</h2>
-      </div>
-      <div className="relative mb-4">
-        <input
-          type="text"
-          value={input}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          placeholder={placeholder}
-          className="w-full px-4 py-4 text-2xl text-center border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors font-semibold"
-        />
-        <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-bold text-lg">
-          {unit}
-        </span>
-      </div>
-      {funFact && (
-        <div className="text-center text-sm text-gray-600 bg-gray-50 rounded-lg p-3">
-          💡 {funFact}
+    return (
+      <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+        <div className="text-center mb-4">
+          <div className="text-6xl mb-3">{emoji}</div>
+          <h2 className="text-xl font-semibold text-gray-800">{label}</h2>
         </div>
-      )}
-    </div>
-  );
-};
+        <div className="relative mb-4">
+          <input
+            type="text"
+            value={input}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            placeholder={placeholder}
+            className="w-full px-4 py-4 text-2xl text-center border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors font-semibold"
+          />
+          <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-bold text-lg">
+            {unit}
+          </span>
+        </div>
+        {funFact && (
+          <div className="text-center text-sm text-gray-600 bg-gray-50 rounded-lg p-3">
+            💡 {funFact}
+          </div>
+        )}
+      </div>
+    );
+  };
 
 const UserPreferences: React.FC = () => {
   const navigate = useNavigate();
@@ -195,11 +197,11 @@ const UserPreferences: React.FC = () => {
       updateUserProfile(userProfileData)
         .then(() => {
           console.log("Profile updated successfully");
-          navigate("/verify-auth");
+          navigate(ROUTES.VERIFY_AUTH);
         })
         .catch((err) => {
           console.error("Error updating profile:", err);
-          alert("Failed to save your preferences. Please try again.");
+          toast.error("Failed to save your preferences. Please try again.");
         });
     }
   };

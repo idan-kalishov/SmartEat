@@ -5,6 +5,7 @@ import AddExerciseModal from "./AddExerciseModal";
 import { saveExercise, deleteExercise } from "@/services/exerciseService";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/appState";
+import AddButton from "@/components/common/AddButton";
 
 interface ExercisesCardProps {
   exercises: Exercise[];
@@ -82,14 +83,14 @@ const ExercisesCard: React.FC<ExercisesCardProps> = ({
             Today's Exercises
           </h2>
         </div>
-        <button
+        <AddButton
+          selectedDate={selectedDate}
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-1 px-2.5 py-1 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-all text-sm font-medium"
           title="Add Exercise"
         >
           <Plus className="w-3.5 h-3.5" />
           Add Exercise
-        </button>
+        </AddButton>
       </div>
 
       {isLoading ? (

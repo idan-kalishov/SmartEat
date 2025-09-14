@@ -1,3 +1,4 @@
+import { ROUTES } from "@/Routing/routes";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -13,12 +14,12 @@ const AddMealModal: React.FC<AddMealModalProps> = ({ isOpen, onClose }) => {
 
   const handleAuto = () => {
     onClose();
-    navigate("/upload"); // goes to CameraWithFrameAndLoading
+    navigate(ROUTES.UPLOAD); // goes to CameraWithFrameAndLoading
   };
 
   const handleManual = () => {
     onClose();
-    navigate("/verify", { state: { isManual: true } }); // opens IngredientVerificationPage empty
+    navigate(ROUTES.VERIFY, { state: { isManual: true } }); // opens IngredientVerificationPage empty
   };
 
   return (

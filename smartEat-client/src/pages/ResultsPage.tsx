@@ -7,6 +7,7 @@ import VitaminAndMinerals from "@/components/result-page/VitaminAndMinerals";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import useScrollLock from "@/hooks/useScrollLock";
+import { ROUTES } from "@/Routing/routes";
 import { logMealToBackend } from "@/services/mealSavingService";
 import {
   adjustNutritionForServing,
@@ -103,7 +104,7 @@ export default function ResultsPage() {
     }));
 
     await logMealToBackend(name, ingredients, image);
-    navigate("/home");
+    navigate(ROUTES.HOME);
   };
 
   const adjustServingSize = (change: number) => {
