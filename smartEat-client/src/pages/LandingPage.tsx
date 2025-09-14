@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { ROUTES } from "@/Routing/routes";
+import { motion } from "framer-motion";
+import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 declare global {
   interface Navigator {
@@ -34,10 +35,6 @@ const isIos = () => {
 const isAndroid = () =>
   /android/.test(window.navigator.userAgent.toLowerCase());
 
-const isInStandaloneMode = () =>
-  window.navigator.standalone ||
-  window.matchMedia("(display-mode: standalone)").matches;
-
 const isChrome = () => /chrome/.test(window.navigator.userAgent.toLowerCase());
 
 const LandingPage = () => {
@@ -46,43 +43,85 @@ const LandingPage = () => {
   const [showInstallButton, setShowInstallButton] = useState(false);
   const [showIosMessage, setShowIosMessage] = useState(false);
   const [showAndroidInstructions, setShowAndroidInstructions] = useState(false);
-  const [isAppInstalled, setIsAppInstalled] = useState(isInStandaloneMode());
+  const [isAppInstalled, setIsAppInstalled] = useState(false);
   const navigate = useNavigate();
 
+  // Enhanced standalone detection
+  const checkStandaloneMode = useCallback(() => {
+    // iOS Safari check
+    if (window.navigator.standalone) {
+      return true;
+    }
+
+    // Check multiple display modes that indicate PWA context
+    const displayModes = ["fullscreen", "standalone", "minimal-ui"];
+    return displayModes.some(
+      (displayMode) =>
+        window.matchMedia(`(display-mode: ${displayMode})`).matches
+    );
+  }, []);
+
   useEffect(() => {
+    // Initial check
+    setIsAppInstalled(checkStandaloneMode());
+
+    // Set up media query listeners for real-time detection
+    const mediaQueries = ["fullscreen", "standalone", "minimal-ui"].map(
+      (mode) => {
+        const mq = window.matchMedia(`(display-mode: ${mode})`);
+        const handler = (e: MediaQueryListEvent) => {
+          if (e.matches) {
+            setIsAppInstalled(true);
+          } else {
+            // Only set to false if none of the modes match
+            const isStandalone = checkStandaloneMode();
+            setIsAppInstalled(isStandalone);
+          }
+        };
+
+        mq.addEventListener("change", handler);
+        return { mq, handler };
+      }
+    );
+
     const handleBeforeInstallPrompt = (e: Event) => {
       console.log("beforeinstallprompt event fired");
       e.preventDefault();
       const promptEvent = e as BeforeInstallPromptEvent;
       setDeferredPrompt(promptEvent);
-      setShowInstallButton(true);
+
+      // Only show install button if not in standalone mode
+      if (!checkStandaloneMode()) {
+        setShowInstallButton(true);
+      }
     };
 
     const handleAppInstalled = () => {
       console.log("App was installed");
       setIsAppInstalled(true);
       setShowInstallButton(false);
+      setShowIosMessage(false);
+      setShowAndroidInstructions(false);
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
     window.addEventListener("appinstalled", handleAppInstalled);
 
-    // Check if on iOS
-    if (isIos()) {
-      setShowIosMessage(true);
-      setShowInstallButton(false); // Hide install button on iOS
-    } else if (isAndroid() && !isChrome()) {
-      // Show instructions for Android browsers other than Chrome
-      setShowAndroidInstructions(true);
-      setShowInstallButton(false);
-    } else if (isAndroid() && isChrome() && !isInStandaloneMode()) {
-      // For Android Chrome, we might need to check if the app meets installation criteria
-      // This is a basic check - you might need more sophisticated logic
-      setTimeout(() => {
-        if (!deferredPrompt) {
-          setShowAndroidInstructions(true);
-        }
-      }, 3000);
+    // Platform-specific UI logic - only show if not in standalone mode
+    if (!checkStandaloneMode()) {
+      if (isIos()) {
+        setShowIosMessage(true);
+        setShowInstallButton(false);
+      } else if (isAndroid() && !isChrome()) {
+        setShowAndroidInstructions(true);
+        setShowInstallButton(false);
+      } else if (isAndroid() && isChrome()) {
+        setTimeout(() => {
+          if (!deferredPrompt && !checkStandaloneMode()) {
+            setShowAndroidInstructions(true);
+          }
+        }, 3000);
+      }
     }
 
     return () => {
@@ -91,8 +130,11 @@ const LandingPage = () => {
         handleBeforeInstallPrompt
       );
       window.removeEventListener("appinstalled", handleAppInstalled);
+      mediaQueries.forEach(({ mq, handler }) => {
+        mq.removeEventListener("change", handler);
+      });
     };
-  }, [deferredPrompt]);
+  }, [checkStandaloneMode, deferredPrompt]);
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) {
@@ -156,7 +198,7 @@ const LandingPage = () => {
                 transition={{ delay: 0.4 }}
               >
                 <Button
-                  onClick={() => navigate("/login")}
+                  onClick={() => navigate(ROUTES.SIGNIN)}
                   className="w-full py-5 text-base font-semibold bg-green-600 hover:bg-green-700 transition-colors shadow"
                 >
                   🚀 Open App
@@ -207,22 +249,22 @@ const LandingPage = () => {
                     </ol>
                   </motion.div>
                 )}
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.8 }}
+                >
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate(ROUTES.SIGNIN)}
+                    className="w-full py-5 text-base cursor-pointer font-semibold border-green-300 text-green-700 hover:bg-green-50"
+                  >
+                    Continue in Browser
+                  </Button>
+                </motion.div>
               </>
             )}
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
-            >
-              <Button
-                variant="outline"
-                onClick={() => navigate("/login")}
-                className="w-full py-5 text-base cursor-pointer font-semibold border-green-300 text-green-700 hover:bg-green-50"
-              >
-                Continue in Browser
-              </Button>
-            </motion.div>
 
             <motion.p
               className="text-xs text-gray-500 mt-4 text-center"

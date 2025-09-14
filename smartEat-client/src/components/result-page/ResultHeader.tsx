@@ -1,5 +1,6 @@
 // components/ResultsHeader.tsx
-import { ArrowLeft, Trash2, Bookmark } from "lucide-react";
+import { ROUTES } from "@/Routing/routes";
+import { ArrowLeft, Bookmark, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export const ResultsHeader = ({
@@ -35,7 +36,7 @@ export const ResultsHeader = ({
           <Bookmark size={22} />
         </button>
         <button
-          onClick={() => navigate("/home")}
+          onClick={() => navigate(ROUTES.HOME)}
           className="p-2 text-gray-600 hover:text-red-500"
         >
           <Trash2 size={22} />

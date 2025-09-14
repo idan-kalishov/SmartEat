@@ -1,11 +1,12 @@
-import { useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import queryString from "query-string";
-import { useDispatch } from "react-redux";
-import { setUser } from "../store/appState";
-import { fetchUserProfile } from "@/store/userSlice";
+import { ROUTES } from "@/Routing/routes";
 import api from "@/services/api";
 import type { AppDispatch } from "@/store/appState";
+import { fetchUserProfile } from "@/store/userSlice";
+import queryString from "query-string";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
+import { setUser } from "../store/appState";
 
 const LoginRedirector = () => {
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ const LoginRedirector = () => {
         });
 
         if (!verifyResponse || verifyResponse.status !== 200) {
-          navigate("/login", { replace: true });
+          navigate(ROUTES.SIGNIN, { replace: true });
           return;
         }
 
@@ -61,13 +62,13 @@ const LoginRedirector = () => {
 
         // Step 5: Redirect based on whether user has set preferences
         if (!user.userProfile?.age) {
-          navigate("/preferences", { replace: true });
+          navigate(ROUTES.PREFERENCES, { replace: true });
         } else {
-          navigate("/home", { replace: true });
+          navigate(ROUTES.HOME, { replace: true });
         }
       } catch (error) {
         console.error("Auth verification failed:", error);
-        navigate("/login", { replace: true });
+        navigate(ROUTES.SIGNIN, { replace: true });
       }
     };
 
