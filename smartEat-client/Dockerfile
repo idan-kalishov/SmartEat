@@ -9,6 +9,8 @@ COPY . .
 # Build the React app; Vite reads VITE_* at build time
 ARG VITE_API_GW_URL
 ENV VITE_API_GW_URL=${VITE_API_GW_URL}
+ARG VITE_GOOGLE_CLIENT_ID
+ENV VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
 RUN npm run build
 
 # Runtime using nginx to serve static files
